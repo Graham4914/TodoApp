@@ -1,21 +1,34 @@
 import './style.css';
 
+//initial state
+let projectsArray = [];
+let currentProject;
 
-
-const Task = (title, description, dueDate, priority) => {
-    return { title, description, dueDate, priority };
-};
+// Models
+const Task = (title, description, dueDate, priority) => ({ title, description, dueDate, priority });
 
 const Project = (name) => {
     const tasks = [];
-    return {
-        name,
-        tasks,
-        addTask(task) { tasks.push(task); },
-        removeTask(index) { tasks.splice(index, 1); }
-    };
+    return { name, tasks, addTask: (task) => tasks.push(task) };
 };
 
+
+
+//local storage functions
+
+const saveToLocalStorage = () => localStorage.setItem('projects', JSON.stringify(projectsArray));
+const loadFromLocalStorage = () => {
+    const savedProjects = JSON.parse(localStorage.getItem('projects') || '[]');
+    projectsArray = savedProjects.map(projData => {
+        const proj = Project(projData.name);
+        projData.tasks.forEach(task => proj.addTask(Task(task.title, task.description, task.dueDate, task.priority)));
+        return proj;
+    });
+};
+
+
+
+//Create Sidebar DOM
 const createSidebar = () => {
     const sidebar = document.createElement('div');
     sidebar.classList.add('sidebar');
@@ -32,26 +45,26 @@ const createSidebar = () => {
     addButton.id = 'add-task-button';
     addButton.classList.add('add-task-button');
 
-
-    //add listeners
-
     sidebar.appendChild(inboxButton);
     sidebar.appendChild(projectListContainer);
     sidebar.appendChild(addButton);
 
     return sidebar;
-
 };
 
+//Create Main Content DOM
 const createMainContent = () => {
     const mainContent = document.createElement('div');
     mainContent.classList.add('main-content');
 
-    return mainContent;
+    const tasksContainer = document.createElement('div');
+    tasksContainer.classList.add('tasks-container');
+    mainContent.appendChild(tasksContainer);
 
+    return mainContent;
 };
 
-//Create task function
+//Create task element DOM
 
 const createTaskElement = (task) => {
     const taskElement = document.createElement('div');
@@ -79,7 +92,19 @@ const createTaskElement = (task) => {
     return taskElement;
 };
 
-//Project list
+//Render tasks intio the tasks container
+const renderTasks = (tasks) => {
+    const tasksContainer = document.querySelector('.tasks-container');
+    if (!tasksContainer) {
+        console.error('Tasks container not found in the DOM')
+        return;
+    }
+    tasksContainer.innerHTML = ''; //clear container
+    tasks.forEach(task => tasksContainer.appendChild(createTaskElement(task))); //populate tasks   
+};
+
+
+// Create Project list element DOM
 const createProjectListElement = (projectList) => {
     const projectListContainer = document.createElement('div');
     projectListContainer.classList.add('project-list-container');
@@ -103,7 +128,7 @@ const createProjectListElement = (projectList) => {
 
 };
 
-//CREATE TASK FORM
+//Create Task Form DOM
 
 const createTaskForm = () => {
     const form = document.createElement('form');
@@ -147,33 +172,57 @@ const createTaskForm = () => {
     submitButton.textContent = 'Add Task';
     form.appendChild(submitButton);
 
+    const formContainer = document.createElement('div');
+    formContainer.appendChild(form);
+
     return form;
 
 };
 
+//Show the task form
 const showTaskForm = () => {
+
     const mainContent = document.querySelector('.main-content');
     const form = createTaskForm();
 
-    //clear content
     mainContent.innerHTML = '';
     mainContent.appendChild(form);
 
+    form.addEventListener('submit', handleFormSubmit);
 };
 
-const initForm = () => {
-    const taskForm = document.getElementById('task-form');
-    if (taskForm) {
-        taskForm.addEventListener('submit', (event) => {
-            event.preventDefault();
-        });
+//handle form submission
+
+const handleFormSubmit = (event) => {
+    event.preventDefault();
+    const form = event.target;
+    const title = form.elements['title'].value;
+    const description = form.elements['description'].value;
+    const dueDate = form.elements['due-date'].value;
+    const priority = form.elements['priority'].value;
+
+    addTaskToProject(title, description, dueDate, priority);
+
+    form.remove();//remove from from DOM after submission
+
+    //show the tasks container again
+    const tasksContainer = document.querySelector('.tasks-container');
+    if (tasksContainer) {
+        tasksContainer.style.display = '';
     }
 };
 
+//Add new task to current Project and re-render tasks
+const addTaskToProject = (title, description, dueDate, priority) => {
+    const newTask = Task(title, description, dueDate, priority);
+    currentProject.tasks.push(newTask);
+    renderTasks(currentProject.tasks);
+    saveToLocalStorage();
+};
 
 
 
-//build application on page
+//Load the eitire application
 const loadApplication = () => {
     const root = document.getElementById('root');
     root.classList.add('root');
@@ -183,16 +232,29 @@ const loadApplication = () => {
 
     root.appendChild(sidebar);
     root.appendChild(mainContent);
-    initForm();
 
     document.getElementById('add-task-button').addEventListener('click', showTaskForm);
 
-    const exapleTask = { title: 'Finish to-do list project' };
-    mainContent.appendChild(createTaskElement(exapleTask));
-
-    // const exampleProject = [{ name: 'Home' }, { name: 'Work' }];
-    // sidebar.appendChild(createProjectListElement(exampleProject));
+    loadFromLocalStorage();
+    if (projectsArray.length > 0) {
+        currentProject = projectsArray[0];
+        renderTasks(currentProject.tasks);
+    } else {
+        currentProject = Project('Default');
+        projectsArray.push(currentProject);
+        saveToLocalStorage();
+    };
 
 };
 
-document.addEventListener('DOMContentLoaded', loadApplication);
+//Event listener for DOMContentLoaded
+document.addEventListener('DOMContentLoaded', () => {
+    loadApplication();
+    const addTaskButton = document.getElementById('add-task-button');
+    if (addTaskButton) {
+        addTaskButton.addEventListener('click', showTaskForm);
+    } else {
+        console.error('Add Task button not found!');
+    }
+
+});
