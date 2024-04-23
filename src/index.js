@@ -16,9 +16,13 @@ const Project = (name) => {
 
 //local storage functions
 
-const saveToLocalStorage = () => localStorage.setItem('projects', JSON.stringify(projectsArray));
+const saveToLocalStorage = () => {
+    console.log('Saving to local storage', projectsArray);
+    localStorage.setItem('projects', JSON.stringify(projectsArray));
+};
 const loadFromLocalStorage = () => {
     const savedProjects = JSON.parse(localStorage.getItem('projects') || '[]');
+    console.log('Loaded from Local storage', savedProjects);
     projectsArray = savedProjects.map(projData => {
         const proj = Project(projData.name);
         projData.tasks.forEach(task => proj.addTask(Task(task.title, task.description, task.dueDate, task.priority)));
@@ -92,7 +96,7 @@ const createTaskElement = (task) => {
     return taskElement;
 };
 
-//Render tasks intio the tasks container
+//Render tasks into the tasks container
 const renderTasks = (tasks) => {
     const tasksContainer = document.querySelector('.tasks-container');
     if (!tasksContainer) {
@@ -100,7 +104,10 @@ const renderTasks = (tasks) => {
         return;
     }
     tasksContainer.innerHTML = ''; //clear container
-    tasks.forEach(task => tasksContainer.appendChild(createTaskElement(task))); //populate tasks   
+    tasks.forEach(task => {
+        console.log('rendering task:', task);
+        tasksContainer.appendChild(createTaskElement(task));
+    }); //populate tasks   
 };
 
 
@@ -165,6 +172,7 @@ const createTaskForm = () => {
     });
     form.appendChild(prioritySelect);
 
+
     //submit button
 
     const submitButton = document.createElement('button');
@@ -173,23 +181,41 @@ const createTaskForm = () => {
     form.appendChild(submitButton);
 
     const formContainer = document.createElement('div');
+    formContainer.classList.add('form-container');
+    formContainer.style.display = 'none';
     formContainer.appendChild(form);
 
-    return form;
+    form.addEventListener('submit', handleFormSubmit);
 
+    return formContainer;
+
+};
+
+//Toggle the task form visibility
+const toggleTaskFormVisibility = (show) => {
+    const formContainer = document.querySelector('.form-container');
+    formContainer.style.display = show ? 'block' : 'none';
 };
 
 //Show the task form
 const showTaskForm = () => {
+    toggleTaskFormVisibility(true);
+    // // const mainContent = document.querySelector('.main-content');
+    // // const tasksContainer = document.querySelector('.tasks-container');
+    // // const form = createTaskForm();
 
-    const mainContent = document.querySelector('.main-content');
-    const form = createTaskForm();
+    // //hide tasks container and show form
+    // tasksContainer.style.display = 'none';
 
-    mainContent.innerHTML = '';
-    mainContent.appendChild(form);
+    // mainContent.innerHTML = '';
+    // mainContent.appendChild(form);
 
-    form.addEventListener('submit', handleFormSubmit);
+    // form.addEventListener('submit', handleFormSubmit);
+    // renderTasks(currentProject.tasks);
 };
+
+
+
 
 //handle form submission
 
@@ -201,22 +227,31 @@ const handleFormSubmit = (event) => {
     const dueDate = form.elements['due-date'].value;
     const priority = form.elements['priority'].value;
 
+    console.log('Form submitted with:', { title, description, dueDate, priority });
+
     addTaskToProject(title, description, dueDate, priority);
 
-    form.remove();//remove from from DOM after submission
+    toggleTaskFormVisibility(false);
+    console.log('Current project after adding task:', currentProject);
+    renderTasks(currentProject.tasks);
 
-    //show the tasks container again
-    const tasksContainer = document.querySelector('.tasks-container');
-    if (tasksContainer) {
-        tasksContainer.style.display = '';
-    }
+    // form.remove();//remove from from DOM after submission
+
+    // //show the tasks container again
+    // const tasksContainer = document.querySelector('.tasks-container');
+    // if (tasksContainer) {
+    //     tasksContainer.style.display = '';
+    //     renderTasks(currentProject.tasks);
+    // }
+
 };
 
 //Add new task to current Project and re-render tasks
 const addTaskToProject = (title, description, dueDate, priority) => {
     const newTask = Task(title, description, dueDate, priority);
     currentProject.tasks.push(newTask);
-    renderTasks(currentProject.tasks);
+    console.log('added New task to project', newTask, 'Current tasks:', currentProject.tasks);
+    // renderTasks(currentProject.tasks);
     saveToLocalStorage();
 };
 
@@ -229,6 +264,11 @@ const loadApplication = () => {
 
     const sidebar = createSidebar();
     const mainContent = createMainContent();
+    const formContainer = createTaskForm();
+    mainContent.appendChild(formContainer);
+
+    const tasksContainer = mainContent.querySelector('.tasks-container');
+    tasksContainer.style.display = '';
 
     root.appendChild(sidebar);
     root.appendChild(mainContent);

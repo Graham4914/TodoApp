@@ -58,3 +58,11 @@ html,body {
     border-radius: 4px;
     cursor: pointer;
 }
+.task {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 10px;
+    line-height: 1rem;
+    overflow: hidden;
+}
