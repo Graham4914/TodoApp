@@ -29,7 +29,14 @@ const Task = (title, description, dueDate, priority) => {
 
 const Project = (name) => {
     const tasks = [];
-    return { name, tasks, addTask: (task) => tasks.push(task) };
+    // return { name, tasks, addTask: (task) => tasks.push(task) };
+    return {
+        name,
+        tasks,
+        addTask(task) {
+            tasks.push(task);
+        }
+    };
 };
 
 
@@ -57,40 +64,71 @@ const loadFromLocalStorage = () => {
     });
 };
 
+//helper funtion for task btn and filter container element
+function createButtonWithCounter(buttonText, count, cssClass, id) {
+    const container = document.createElement('div');
+    const button = document.createElement('button');
+    const counter = document.createElement('span');
 
+    button.textContent = buttonText;
+    counter.textContent = count;
+
+    button.classList.add(cssClass);
+    button.id = id;
+
+    container.appendChild(button);
+    container.appendChild(counter);
+
+    return container;
+}
 
 //Create Sidebar DOM
 const createSidebar = () => {
     const sidebar = document.createElement('div');
     sidebar.classList.add('sidebar');
 
-    const inboxButton = document.createElement('button');
-    inboxButton.textContent = 'Inbox';
-    inboxButton.classList.add('nav-button');
-    inboxButton.id = 'inbox';
+    const taskListTitle = document.createElement('h2')
+    taskListTitle.textContent = 'Tasks';
+    taskListTitle.classList.add('task-list-title')
+
+    const allTasksContainer = createButtonWithCounter('All Tasks', calculateTaskCount('all'), 'nav-button', 'all-tasks-button');
+    const todayTasksContainer = createButtonWithCounter('Today', calculateTaskCount('today'), 'nav-button', 'today-tasks-button');
+    const upcomingTaskContainer = createButtonWithCounter('Upcoming', calculateTaskCount('upcoming'), 'nav-button', 'upcoming-tasks-button');
+    const overdueTasksContainer = createButtonWithCounter('Overdue', calculateTaskCount('overdue'), 'nav-button', 'overdue-tasks-button');
+    const completedTasksContainer = createButtonWithCounter('Completed', calculateTaskCount('completed'), 'nav-button', 'completed-tasks-button');
+
 
     const projectListContainer = createProjectListElement([{ name: 'Home' }, { name: 'Work' }]);
-    const addProjectBtn = document.createElement('button');
-    addProjectBtn.textContent = 'Add Project';
-    addProjectBtn.onclick = () => showAddProjectForm();
+
 
     const projectListElement = createProjectListElement(projectsArray);
-
-
 
     const addButton = document.createElement('button');
     addButton.textContent = '+ Add Task';
     addButton.id = 'add-task-button';
     addButton.classList.add('add-task-button');
 
-    sidebar.appendChild(inboxButton);
-    sidebar.appendChild(projectListContainer);
+
+    sidebar.appendChild(taskListTitle);
     sidebar.appendChild(addButton);
-    sidebar.appendChild(addProjectBtn);
+    sidebar.appendChild(allTasksContainer);
+    sidebar.appendChild(todayTasksContainer);
+    sidebar.appendChild(upcomingTaskContainer);
+    sidebar.appendChild(overdueTasksContainer);
+    sidebar.appendChild(completedTasksContainer);
+
+
+    sidebar.appendChild(projectListContainer);
+
+
 
 
     return sidebar;
 };
+
+function calculateTaskCount(filterCriteria) {
+    return 42; //example
+}
 
 //Create Main Content DOM
 const createMainContent = () => {
@@ -208,8 +246,6 @@ function createTaskDetailModal() {
     modal.appendChild(modalContent);
     document.body.appendChild(modal);
 
-    //c
-
     return modal;
 };
 
@@ -260,44 +296,133 @@ function closeTaskDetail() {
 
 
 
-
 //Render tasks into the tasks container
-const renderTasks = (tasks) => {
-    const tasksContainer = document.querySelector('.tasks-container');
-    if (!tasksContainer) {
-        console.error('Tasks container not found in the DOM')
+const renderTasks = (tasks, tasksListContainer) => {
+
+    if (!tasksListContainer) {
+        console.error('Tasks Listcontainer not found in the DOM')
         return;
     }
-    tasksContainer.innerHTML = ''; //clear container
+    tasksListContainer.innerHTML = ''; //clear container
+
     tasks.forEach(task => {
         console.log('rendering task:', task);
-        tasksContainer.appendChild(createTaskElement(task));
-    }); //populate tasks   
+        tasksListContainer.appendChild(createTaskElement(task));
+    });
 };
+
+function addNewProject() {
+    const projectName = prompt('Enter new project name:');
+    if (projectName) {
+        const newProject = Project(projectName);
+        projectsArray.push(newProject);
+        updateProjectListUI();
+        saveToLocalStorage();
+    }
+}
 
 
 // Create Project list element DOM
-const createProjectListElement = (projectList) => {
+const createProjectListElement = () => {
     const projectListContainer = document.createElement('div');
     projectListContainer.classList.add('project-list-container');
+
+    const headerContainer = document.createElement('div');
+    headerContainer.classList.add('project-header-container');
+
+
     const projectListTitle = document.createElement('h2');
     projectListTitle.textContent = 'Projects';
-    projectListContainer.appendChild(projectListTitle);
+    projectListTitle.classList.add('projects-heading');
+
+    const controlsContainer = document.createElement('div');
+    controlsContainer.classList.add('project-controls');
+
+    const addProjectButton = document.createElement('button');
+    addProjectButton.textContent = '+';
+    addProjectButton.classList.add('add-project-button');
+    addProjectButton.addEventListener('click', addNewProject);
+
+    const toggleButton = document.createElement('button');
+    toggleButton.textContent = 'Hide';
+    toggleButton.classList.add('toggle-projects-button');
+    toggleButton.addEventListener('click', function () {
+        const projectList = document.getElementById('project-list');
+        if (projectList.style.display === 'none' || projectList.style.display === '') {
+            projectList.style.display = 'block';
+            toggleButton.textContent = 'hide'
+        } else {
+            projectList.style.display = 'none';
+            toggleButton.textContent = 'show';
+        }
+
+    });
+
+    controlsContainer.appendChild(addProjectButton);
+    controlsContainer.appendChild(toggleButton);
+
+    headerContainer.appendChild(projectListTitle);
+    headerContainer.appendChild(controlsContainer);
+
+    projectListContainer.appendChild(headerContainer);
 
     const projectListElement = document.createElement('div');
     projectListElement.classList.add('project-list');
+    projectListElement.id = 'project-list';
+    projectListElement.style.display = 'flex';
+    projectListContainer.appendChild(projectListElement);
 
-    projectList.forEach(project => {
+    return projectListContainer;
+};
+
+const updateProjectListUI = () => {
+    const projectListElement = document.getElementById('project-list');
+    projectListElement.innerHTML = '';
+
+    projectsArray.forEach(project => {
         const projectElement = document.createElement('div');
         projectElement.textContent = project.name;
         projectElement.classList.add('project');
+        projectElement.addEventListener('click', () => {
+            currentProject = project;
+            updateMainContentForProject(project);
+
+        });
         projectListElement.appendChild(projectElement);
-
     });
-    projectListContainer.appendChild(projectListElement);
-    return projectListContainer;
-
 };
+
+//update main content with Project
+function updateMainContentForProject(project) {
+    console.log("updateMainContentForProject called with project:", project);
+
+    const mainContent = document.querySelector('.main-content');
+    mainContent.innerHTML = '';
+
+    const projectTitle = document.createElement('h2');
+    projectTitle.textContent = project.name;
+    mainContent.appendChild(projectTitle);
+    // Check if projectTitle is set correctly
+    console.log("projectTitle set to:", projectTitle.textContent);
+
+    const addTaskButton = document.createElement('button');
+    addTaskButton.textContent = "Add Task to Project";
+    addTaskButton.addEventListener('click', showTaskForm);
+    mainContent.appendChild(addTaskButton);
+    // Check if button is added to the DOM
+    console.log("addTaskButton added to DOM:", addTaskButton);
+
+    const tasksListContainer = document.createElement('div');
+    tasksListContainer.classList.add('tasks-list');
+    mainContent.appendChild(tasksListContainer);
+
+
+    renderTasks(project.tasks, tasksListContainer)
+
+    currentProject = project;
+
+}
+
 
 //Create Task Form DOM
 
@@ -412,24 +537,23 @@ const loadApplication = () => {
     const formContainer = createTaskForm();
     mainContent.appendChild(formContainer);
 
-    const tasksContainer = mainContent.querySelector('.tasks-container');
-    tasksContainer.style.display = '';
-
     root.appendChild(sidebar);
     root.appendChild(mainContent);
 
     document.getElementById('add-task-button').addEventListener('click', showTaskForm);
 
     loadFromLocalStorage();
+
     if (projectsArray.length > 0) {
         currentProject = projectsArray[0];
-        renderTasks(currentProject.tasks);
     } else {
         currentProject = Project('Default');
         projectsArray.push(currentProject);
         saveToLocalStorage();
-    };
+    }
 
+    updateProjectListUI();
+    renderTasks(currentProject.tasks);
 };
 
 //Event listener for DOMContentLoaded
