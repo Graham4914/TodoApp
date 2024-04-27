@@ -42,7 +42,7 @@ const Project = (name) => {
 
 //delete tasks function
 function deleteTask(taskToDelete) {
-    currentProject.tasks = currentProject.tasks.filter(task => task !== taskToDelete);
+    currentProject.tasks = currentProject.tasks.filter(task => task.id !== taskToDelete.id);
     saveToLocalStorage();
     renderTasks(currentProject.tasks);
 }
@@ -97,9 +97,7 @@ const createSidebar = () => {
     const overdueTasksContainer = createButtonWithCounter('Overdue', calculateTaskCount('overdue'), 'nav-button', 'overdue-tasks-button');
     const completedTasksContainer = createButtonWithCounter('Completed', calculateTaskCount('completed'), 'nav-button', 'completed-tasks-button');
 
-
     const projectListContainer = createProjectListElement([{ name: 'Home' }, { name: 'Work' }]);
-
 
     const projectListElement = createProjectListElement(projectsArray);
 
@@ -116,12 +114,7 @@ const createSidebar = () => {
     sidebar.appendChild(upcomingTaskContainer);
     sidebar.appendChild(overdueTasksContainer);
     sidebar.appendChild(completedTasksContainer);
-
-
     sidebar.appendChild(projectListContainer);
-
-
-
 
     return sidebar;
 };
@@ -137,6 +130,13 @@ const createMainContent = () => {
 
     const tasksContainer = document.createElement('div');
     tasksContainer.classList.add('tasks-container');
+
+
+    const tasksListContainer = document.createElement('div');
+    tasksListContainer.classList.add('tasks-list-container');
+
+    tasksContainer.appendChild(tasksListContainer);
+
     mainContent.appendChild(tasksContainer);
 
     return mainContent;
@@ -178,14 +178,17 @@ const createTaskElement = (task) => {
     const deleteBtn = document.createElement('button');
     deleteBtn.textContent = 'Delete';
     deleteBtn.classList.add('delete-task-button');
-    deleteBtn.onclick = (event) => {
+
+    deleteBtn.addEventListener('click', (event) => {
         event.stopPropagation();
         deleteTask(task);
-    };
+
+    });
     taskElement.appendChild(deleteBtn);
 
     return taskElement;
 };
+
 
 //Create task detail modal
 function createTaskDetailModal() {
@@ -292,23 +295,20 @@ function closeTaskDetail() {
     const taskDetailModal = document.getElementById('taskDetailModal');
     taskDetailModal.style.display = 'none';
     currentEditingTaskId = null;
+    renderTasks(currentProject.tasks);
 }
 
 
 
 //Render tasks into the tasks container
-const renderTasks = (tasks, tasksListContainer) => {
+const renderTasks = (tasks) => {
+    const tasksContainer = document.querySelector('.tasks-container');
 
-    if (!tasksListContainer) {
-        console.error('Tasks Listcontainer not found in the DOM')
-        return;
-    }
-    tasksListContainer.innerHTML = ''; //clear container
+    tasksContainer.innerHTML = ''; //clear container
 
-    tasks.forEach(task => {
-        console.log('rendering task:', task);
-        tasksListContainer.appendChild(createTaskElement(task));
-    });
+    const tasksList = createTaskList(tasks);
+    tasksContainer.appendChild(tasksList);
+
 };
 
 function addNewProject() {
@@ -363,7 +363,6 @@ const createProjectListElement = () => {
 
     headerContainer.appendChild(projectListTitle);
     headerContainer.appendChild(controlsContainer);
-
     projectListContainer.appendChild(headerContainer);
 
     const projectListElement = document.createElement('div');
@@ -392,35 +391,69 @@ const updateProjectListUI = () => {
     });
 };
 
-//update main content with Project
-function updateMainContentForProject(project) {
-    console.log("updateMainContentForProject called with project:", project);
-
-    const mainContent = document.querySelector('.main-content');
-    mainContent.innerHTML = '';
+function createProjectContent(project) {
+    const projectContent = document.createElement('div');
+    projectContent.classList.add('project-content');
 
     const projectTitle = document.createElement('h2');
     projectTitle.textContent = project.name;
-    mainContent.appendChild(projectTitle);
+    projectContent.appendChild(projectTitle);
     // Check if projectTitle is set correctly
     console.log("projectTitle set to:", projectTitle.textContent);
 
     const addTaskButton = document.createElement('button');
     addTaskButton.textContent = "Add Task to Project";
     addTaskButton.addEventListener('click', showTaskForm);
-    mainContent.appendChild(addTaskButton);
-    // Check if button is added to the DOM
-    console.log("addTaskButton added to DOM:", addTaskButton);
+    projectContent.appendChild(addTaskButton);
 
-    const tasksListContainer = document.createElement('div');
-    tasksListContainer.classList.add('tasks-list');
-    mainContent.appendChild(tasksListContainer);
+    return projectContent;
+}
+//update main content with Project
+function updateMainContentForProject(project) {
+    console.log("Attempting to update content for project:", project.name);
 
+    const tasksContainer = document.querySelector('.tasks-container');
+    console.log('Tasks Container found:', tasksContainer);  // Check if the tasksContainer itself is found
 
-    renderTasks(project.tasks, tasksListContainer)
+    let tasksListContainer = document.querySelector('.tasks-list-container');
+    console.log('Initial check - Tasks List Container found:', tasksListContainer); // Initial check for the container
+
+    if (!tasksListContainer) {
+        console.error('Tasks list container not found in DOM, creating a new one');
+        tasksListContainer = document.createElement('div');
+        tasksListContainer.classList.add('tasks-list-container');
+        if (tasksContainer) {
+            tasksContainer.appendChild(tasksListContainer);
+        } else {
+            console.error('Tasks container not available to append tasks list container');
+            return;
+        }
+    }
+
+    tasksListContainer.innerHTML = '';
+    console.log('Cleared tasksListContainer');
+
+    const projectContent = createProjectContent(project);
+    tasksListContainer.appendChild(projectContent);
+    console.log('Added project content');
+
+    const tasksList = createTaskList(project.tasks);
+    tasksListContainer.appendChild(tasksList);
+    console.log('Added tasks list');
 
     currentProject = project;
+}
 
+function createTaskList(tasks) {
+    const tasksList = document.createElement('div');
+    tasksList.classList.add('tasks-list');
+
+    tasks.forEach(task => {
+        const taskElement = createTaskElement(task);
+        tasksList.appendChild(taskElement);
+    });
+
+    return tasksList;
 }
 
 
@@ -476,6 +509,8 @@ const createTaskForm = () => {
     submitButton.type = 'submit';
     submitButton.textContent = 'Add Task';
     form.appendChild(submitButton);
+
+
     const formContainer = document.createElement('div');
     formContainer.classList.add('form-container');
     formContainer.style.display = 'none';
@@ -487,15 +522,34 @@ const createTaskForm = () => {
 //Toggle the task form visibility
 const toggleTaskFormVisibility = (show) => {
     const formContainer = document.querySelector('.form-container');
+    if (!formContainer) {
+        console.error('formconstainer not founf in DOM');
+        return;
+    }
     formContainer.style.display = show ? 'block' : 'none';
 };
 
 //Show the task form
 const showTaskForm = () => {
-    const form = document.getElementById('task-form');
-    form.reset();
-    toggleTaskFormVisibility(true);
+    const formContainer = document.querySelector('.form-container');
+
+    // toggleTaskFormVisibility(true);
+
+    if (formContainer) {
+        formContainer.style.display = 'block';
+        const form = document.getElementById('task-form')
+        if (form) {
+            form.reset();
+        } else {
+            console.error('Task from is missing from DOM');
+        }
+
+    } else {
+        console.error('Form container is missing from DOM');
+    }
+
 };
+
 
 //handle form submission
 
@@ -510,8 +564,8 @@ const handleFormSubmit = (event) => {
     console.log('Form submitted with:', { title, description, dueDate, priority });
 
     addTaskToProject(title, description, dueDate, priority);
-
     toggleTaskFormVisibility(false);
+
     console.log('Current project after adding task:', currentProject);
     renderTasks(currentProject.tasks);
 };
