@@ -17,15 +17,16 @@ function closeNewTaskModal() {
 }
 // Models
 // const Task = (title, description, dueDate, priority) => ({ title, description, dueDate, priority });
-const Task = (title, description, dueDate, priority) => {
+const Task = (title, description, dueDate, priority, projectName) => {
     return {
         id: Date.now() + Math.random().toString(36).substring(2, 9),
         title,
         description,
         dueDate,
-        priority
+        priority,
+        projectName
     };
-};
+}
 
 const Project = (name) => {
     const tasks = [];
@@ -45,6 +46,7 @@ function deleteTask(taskToDelete) {
     currentProject.tasks = currentProject.tasks.filter(task => task.id !== taskToDelete.id);
     saveToLocalStorage();
     renderTasks(currentProject.tasks);
+    updateMainContentForProject(currentProject);
 }
 
 
@@ -211,9 +213,11 @@ function createTaskDetailModal() {
 
 
     //Title element
-    const title = document.createElement('h2');
-    title.classList.add('modal-title');
-    title.id = 'modalTitle';
+    const titleInput = document.createElement('input');
+    titleInput.type = 'text'
+    titleInput.classList.add('modal-title');
+    titleInput.id = 'modalTitle';
+    // titleInput.placeholder = 'Enter task title';
 
 
     //Description  element
@@ -240,7 +244,7 @@ function createTaskDetailModal() {
         priority.appendChild(option);
     });
 
-    modalContent.appendChild(title);
+    modalContent.appendChild(titleInput);
     modalContent.appendChild(closeButton);
     modalContent.appendChild(description);
     modalContent.appendChild(dueDate);
@@ -256,7 +260,7 @@ function openTaskDetail(task) {
     currentEditingTaskId = task.id;
     console.log(`Editing task ID: ${currentEditingTaskId}`);
     const taskDetailModal = document.getElementById('taskDetailModal');
-    document.getElementById('modalTitle').textContent = task.title;
+    document.getElementById('modalTitle').value = task.title;
     document.getElementById('modalDescription').value = task.description;
     document.getElementById('modalDueDate').value = task.dueDate;
     document.getElementById('modalPriority').value = task.priority.toLowerCase();
@@ -274,7 +278,7 @@ function saveCurrentTask() {
         const task = currentProject.tasks[taskIndex];
         console.log("OldTask Data:", JSON.stringify(task));
         //get datafrom modal fieldsand update the task
-        task.title = document.getElementById('modalTitle').textContent;
+        task.title = document.getElementById('modalTitle').value;
         task.description = document.getElementById('modalDescription').value;
         task.dueDate = document.getElementById('modalDueDate').value;
         task.priority = document.getElementById('modalPriority').value;
@@ -283,6 +287,7 @@ function saveCurrentTask() {
 
         renderTasks(currentProject.tasks);
         saveToLocalStorage();
+        updateMainContentForProject(currentProject);
     } else {
         console.log("Task not foiund with ID:", currentEditingTaskId);
     }
@@ -295,7 +300,7 @@ function closeTaskDetail() {
     const taskDetailModal = document.getElementById('taskDetailModal');
     taskDetailModal.style.display = 'none';
     currentEditingTaskId = null;
-    renderTasks(currentProject.tasks);
+    updateMainContentForProject(currentProject);
 }
 
 
@@ -395,54 +400,115 @@ function createProjectContent(project) {
     const projectContent = document.createElement('div');
     projectContent.classList.add('project-content');
 
-    const projectTitle = document.createElement('h2');
-    projectTitle.textContent = project.name;
-    projectContent.appendChild(projectTitle);
+    const projectTitleInput = document.createElement('input');
+    projectTitleInput.type = 'text';
+    projectTitleInput.value = project.name;
+    projectTitleInput.classList.add('project-title-input');
+
+    projectTitleInput.addEventListener('blur', () => {
+        saveProjectName(project, projectTitleInput.value);
+    });
+
+    projectTitleInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            projectTitleInput.blur();
+        }
+    });
+
+    projectContent.appendChild(projectTitleInput);
     // Check if projectTitle is set correctly
-    console.log("projectTitle set to:", projectTitle.textContent);
+    console.log("projectTitle set to:", projectTitleInput);
 
     const addTaskButton = document.createElement('button');
     addTaskButton.textContent = "Add Task to Project";
     addTaskButton.addEventListener('click', showTaskForm);
     projectContent.appendChild(addTaskButton);
 
+    // add project close button
+    const closeButton = document.createElement('button');
+    closeButton.textContent = 'X';
+    closeButton.classList.add('close-button');
+    closeButton.addEventListener('click', () => closeProjectView());
+    projectContent.appendChild(closeButton);
+
+    //add delete button
+    const deleteButton = document.createElement('button');
+    deleteButton.textContent = 'Delete';
+    deleteButton.classList.add('delete-button');
+    deleteButton.addEventListener('click', () => deleteProject(project));
+    projectContent.appendChild(deleteButton)
+
     return projectContent;
 }
+
+
+
+// delete project funtion
+function deleteProject(projectToDelete) {
+    projectsArray = projectsArray.filter(project => project !== projectToDelete);
+    saveToLocalStorage();
+
+    updateProjectListUI();
+
+    if (projectsArray.length > 0) {
+        updateMainContentForProject(projectsArray[0]);
+    } else {
+        console.log('no projects selected')
+        // showEmptyStateOrPrompt();
+    }
+}
+
+// close project view
+function closeProjectView() {
+    const tasksContainer = document.querySelector('.tasks-container');
+    if (tasksContainer) {
+        tasksContainer.innerHTML = '';
+    }
+}
+
+
+
 //update main content with Project
 function updateMainContentForProject(project) {
-    console.log("Attempting to update content for project:", project.name);
 
-    const tasksContainer = document.querySelector('.tasks-container');
-    console.log('Tasks Container found:', tasksContainer);  // Check if the tasksContainer itself is found
-
-    let tasksListContainer = document.querySelector('.tasks-list-container');
-    console.log('Initial check - Tasks List Container found:', tasksListContainer); // Initial check for the container
-
-    if (!tasksListContainer) {
-        console.error('Tasks list container not found in DOM, creating a new one');
-        tasksListContainer = document.createElement('div');
-        tasksListContainer.classList.add('tasks-list-container');
-        if (tasksContainer) {
-            tasksContainer.appendChild(tasksListContainer);
-        } else {
-            console.error('Tasks container not available to append tasks list container');
-            return;
-        }
+    if (!project) {
+        console.error("no project provided to updatemaincontentforproject", project.name);
+        return;
     }
 
-    tasksListContainer.innerHTML = '';
-    console.log('Cleared tasksListContainer');
+    if (!project.name) {
+        console.error("Project data is invalid", project);
+        return;
+    }
 
-    const projectContent = createProjectContent(project);
-    tasksListContainer.appendChild(projectContent);
-    console.log('Added project content');
+    console.log("Attempting to update content for project:", project.name);
+    const relevantTasks = currentProject.tasks.filter(task => task.projectName === project.name);
 
+    const tasksContainer = document.querySelector('.tasks-container');
+
+    tasksContainer.innerHTML = '';
+
+
+    tasksContainer.appendChild(createProjectContent(project));
     const tasksList = createTaskList(project.tasks);
-    tasksListContainer.appendChild(tasksList);
-    console.log('Added tasks list');
-
+    tasksContainer.appendChild(tasksList);
     currentProject = project;
+
+
 }
+
+function saveProjectName(project, newName) {
+    if (!project) {
+        console.error("no project available to save name")
+        return;
+    }
+
+    project.name = newName;
+    saveToLocalStorage();
+    updateProjectListUI();
+    updateMainContentForProject(project);
+}
+
 
 function createTaskList(tasks) {
     const tasksList = document.createElement('div');
@@ -456,6 +522,18 @@ function createTaskList(tasks) {
     return tasksList;
 }
 
+function generateProjectDropdown() {
+    const select = document.createElement('select');
+    select.id = 'projectSelect';
+    console.log('Generating dropdown with projects:', projectsArray); // Debugging line
+    projectsArray.forEach(project => {
+        const option = document.createElement('option');
+        option.value = project.name;
+        option.textContent = project.name;
+        select.appendChild(option);
+    });
+    return select;
+}
 
 //Create Task Form DOM
 
@@ -494,8 +572,11 @@ const createTaskForm = () => {
     });
     form.appendChild(prioritySelect);
 
+    const projectDropdown = generateProjectDropdown();
+    form.appendChild(projectDropdown);
 
-    //close button
+
+    // add Task from close button
     const closeButton = document.createElement('span');
     closeButton.classList.add('close-modal');
     closeButton.id = 'closeButton';
@@ -533,22 +614,30 @@ const toggleTaskFormVisibility = (show) => {
 const showTaskForm = () => {
     const formContainer = document.querySelector('.form-container');
 
-    // toggleTaskFormVisibility(true);
-
     if (formContainer) {
         formContainer.style.display = 'block';
         const form = document.getElementById('task-form')
+        const existingDropdown = document.getElementById('projectSelect');
+
+        if (existingDropdown) {
+            existingDropdown.remove();
+        }
+        const dropdown = generateProjectDropdown();
+        form.insertBefore(dropdown, form.querySelector('button[type="submit"]'));
+
         if (form) {
             form.reset();
         } else {
-            console.error('Task from is missing from DOM');
+            console.error('Task form or project select is missing from DOM');
         }
 
     } else {
         console.error('Form container is missing from DOM');
     }
 
+
 };
+
 
 
 //handle form submission
@@ -556,27 +645,37 @@ const showTaskForm = () => {
 const handleFormSubmit = (event) => {
     event.preventDefault();
     const form = event.target;
+
     const title = form.elements['title'].value;
     const description = form.elements['description'].value;
     const dueDate = form.elements['due-date'].value;
     const priority = form.elements['priority'].value;
+    const projectName = form.elements['projectSelect'].value;
 
-    console.log('Form submitted with:', { title, description, dueDate, priority });
+    console.log('Form submitted with:', { title, description, dueDate, priority, projectName });
 
-    addTaskToProject(title, description, dueDate, priority);
+    addTaskToProject(title, description, dueDate, priority, projectName);
+
     toggleTaskFormVisibility(false);
 
     console.log('Current project after adding task:', currentProject);
-    renderTasks(currentProject.tasks);
+
 };
 
 //Add new task to current Project and re-render tasks
-const addTaskToProject = (title, description, dueDate, priority) => {
-    const newTask = Task(title, description, dueDate, priority);
-    currentProject.tasks.push(newTask);
-    console.log('added New task to project', newTask, 'Current tasks:', currentProject.tasks);
+const addTaskToProject = (title, description, dueDate, priority, projectName) => {
+    const newTask = Task(title, description, dueDate, priority, projectName);
+
+    const project = projectsArray.find(p => p.name === projectName);
+    if (project) {
+        project.tasks.push(newTask);
+        console.log('added New task to project', newTask, 'Current tasks:', project.tasks);
+    }
+
+
     // renderTasks(currentProject.tasks);
     saveToLocalStorage();
+    updateMainContentForProject(project || currentProject);
 };
 
 
