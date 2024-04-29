@@ -19,7 +19,7 @@ function closeNewTaskModal() {
 }
 // Models
 // const Task = (title, description, dueDate, priority) => ({ title, description, dueDate, priority });
-const Task = (title, description, dueDate, priority, projectName = null) => {
+const Task = (title, description, dueDate, priority, projectName = null, status = 'incomplete') => {
     return {
         id: Date.now() + Math.random().toString(36).substring(2, 9),
         title,
@@ -27,13 +27,13 @@ const Task = (title, description, dueDate, priority, projectName = null) => {
         dueDate,
         priority,
         projectName,
-        status: 'incomplete'
+        status
     };
 }
 
 const Project = (name) => {
     const tasks = [];
-    // return { name, tasks, addTask: (task) => tasks.push(task) };
+
     return {
         name,
         tasks,
@@ -70,7 +70,7 @@ const loadFromLocalStorage = () => {
     savedProjects.forEach(projData => {
         const proj = Project(projData.name);
         projData.tasks.forEach(task => {
-            const loadedTask = Task(task.title, task.description, task.dueDate, task.priority, task.projectName);
+            const loadedTask = Task(task.title, task.description, task.dueDate, task.priority, task.projectName, task.status);
             proj.addTask(loadedTask);
             allTasksArray.push(loadedTask);
         });
@@ -172,24 +172,16 @@ const createTaskElement = (task) => {
     const checkbox = document.createElement('input');
     checkbox.type = 'checkbox';
     checkbox.classList.add('task-checkbox');
-    checkbox.checked = task.completed;
-    taskElement.appendChild(checkbox);
+    checkbox.checked = task.status === 'complete';
+
 
     checkbox.addEventListener('change', function (event) {
         event.stopImmediatePropagation();
-        task.completed = this.checked; // Update the task's completed property
-        if (this.checked) {
-            console.log('Task marked as complete');
-            //  Update UI or perform additional tasks
-        } else {
-            console.log('Task marked as incomplete');
-            //  Handle task unchecking
-        }
-
+        task.status = this.checked ? 'complete' : 'incomplete'; // Update the task's completed property
         saveToLocalStorage();
-
     });
 
+    taskElement.appendChild(checkbox);
 
     const title = document.createElement('h2');
     title.textContent = task.title;
