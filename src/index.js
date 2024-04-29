@@ -3,8 +3,10 @@ import './style.css';
 
 let currentEditingTaskId = null;
 //initial state
+let allTasksArray = [];
 let projectsArray = [];
 let currentProject;
+
 
 
 function closeNewTaskModal() {
@@ -17,14 +19,15 @@ function closeNewTaskModal() {
 }
 // Models
 // const Task = (title, description, dueDate, priority) => ({ title, description, dueDate, priority });
-const Task = (title, description, dueDate, priority, projectName) => {
+const Task = (title, description, dueDate, priority, projectName = null) => {
     return {
         id: Date.now() + Math.random().toString(36).substring(2, 9),
         title,
         description,
         dueDate,
         priority,
-        projectName
+        projectName,
+        status: 'incomplete'
     };
 }
 
@@ -44,6 +47,8 @@ const Project = (name) => {
 //delete tasks function
 function deleteTask(taskToDelete) {
     currentProject.tasks = currentProject.tasks.filter(task => task.id !== taskToDelete.id);
+
+    allTasksArray = allTasksArray.filter(task => task.id !== taskToDelete.id);
     saveToLocalStorage();
     renderTasks(currentProject.tasks);
     updateMainContentForProject(currentProject);
@@ -59,11 +64,20 @@ const saveToLocalStorage = () => {
 const loadFromLocalStorage = () => {
     const savedProjects = JSON.parse(localStorage.getItem('projects') || '[]');
     console.log('Loaded from Local storage', savedProjects);
-    projectsArray = savedProjects.map(projData => {
+
+    projectsArray = [];
+    allTasksArray = [];
+    savedProjects.forEach(projData => {
         const proj = Project(projData.name);
-        projData.tasks.forEach(task => proj.addTask(Task(task.title, task.description, task.dueDate, task.priority, task.projectName)));
-        return proj;
+        projData.tasks.forEach(task => {
+            const loadedTask = Task(task.title, task.description, task.dueDate, task.priority, task.projectName);
+            proj.addTask(loadedTask);
+            allTasksArray.push(loadedTask);
+        });
+        projectsArray.push(proj);
     });
+
+    console.log('Projects and All Tasks loaded:', projectsArray, allTasksArray);
 };
 
 //helper funtion for task btn and filter container element
@@ -81,7 +95,7 @@ function createButtonWithCounter(buttonText, count, cssClass, id) {
     container.appendChild(button);
     container.appendChild(counter);
 
-    return container;
+    return { container, button };
 }
 
 //Create Sidebar DOM
@@ -93,15 +107,19 @@ const createSidebar = () => {
     taskListTitle.textContent = 'Tasks';
     taskListTitle.classList.add('task-list-title')
 
-    const allTasksContainer = createButtonWithCounter('All Tasks', calculateTaskCount('all'), 'nav-button', 'all-tasks-button');
-    const todayTasksContainer = createButtonWithCounter('Today', calculateTaskCount('today'), 'nav-button', 'today-tasks-button');
-    const upcomingTaskContainer = createButtonWithCounter('Upcoming', calculateTaskCount('upcoming'), 'nav-button', 'upcoming-tasks-button');
-    const overdueTasksContainer = createButtonWithCounter('Overdue', calculateTaskCount('overdue'), 'nav-button', 'overdue-tasks-button');
-    const completedTasksContainer = createButtonWithCounter('Completed', calculateTaskCount('completed'), 'nav-button', 'completed-tasks-button');
+    const { container: allTasksContainer, button: allTasksButton } = createButtonWithCounter('All Tasks', calculateTaskCount('all'), 'nav-button', 'all-tasks-button');
+    allTasksButton.addEventListener('click', renderAllTasksView);
+
+
+    const { container: todayTasksContainer } = createButtonWithCounter('Today', calculateTaskCount('today'), 'nav-button', 'today-tasks-button');
+    const { container: upcomingTaskContainer } = createButtonWithCounter('Upcoming', calculateTaskCount('upcoming'), 'nav-button', 'upcoming-tasks-button');
+    const { container: overdueTasksContainer } = createButtonWithCounter('Overdue', calculateTaskCount('overdue'), 'nav-button', 'overdue-tasks-button');
+    const { container: completedTasksContainer } = createButtonWithCounter('Completed', calculateTaskCount('completed'), 'nav-button', 'completed-tasks-button');
+
 
     const projectListContainer = createProjectListElement([{ name: 'Home' }, { name: 'Work' }]);
 
-    const projectListElement = createProjectListElement(projectsArray);
+    // const projectListElement = createProjectListElement(projectsArray);
 
     const addButton = document.createElement('button');
     addButton.textContent = '+ Add Task';
@@ -151,6 +169,28 @@ const createTaskElement = (task) => {
     const taskElement = document.createElement('div');
     taskElement.classList.add('task');
 
+    const checkbox = document.createElement('input');
+    checkbox.type = 'checkbox';
+    checkbox.classList.add('task-checkbox');
+    checkbox.checked = task.completed;
+    taskElement.appendChild(checkbox);
+
+    checkbox.addEventListener('change', function (event) {
+        event.stopImmediatePropagation();
+        task.completed = this.checked; // Update the task's completed property
+        if (this.checked) {
+            console.log('Task marked as complete');
+            //  Update UI or perform additional tasks
+        } else {
+            console.log('Task marked as incomplete');
+            //  Handle task unchecking
+        }
+
+        saveToLocalStorage();
+
+    });
+
+
     const title = document.createElement('h2');
     title.textContent = task.title;
 
@@ -163,8 +203,11 @@ const createTaskElement = (task) => {
     const priority = document.createElement('span');
     priority.textContent = `Priority: ${task.priority}`;
 
-    taskElement.addEventListener('click', () => {
-        openTaskDetail(task);
+    taskElement.addEventListener('click', function (event) {
+        if (event.target.type !== 'checkbox') {
+            openTaskDetail(task);
+        }
+
     });
 
     taskElement.appendChild(title);
@@ -686,19 +729,25 @@ const handleFormSubmit = (event) => {
 //Add new task to current Project and re-render tasks
 const addTaskToProject = (title, description, dueDate, priority, projectName) => {
     const newTask = Task(title, description, dueDate, priority, projectName);
+    allTasksArray.push(newTask);
 
-    const project = projectsArray.find(p => p.name === projectName);
-    if (project) {
-        project.tasks.push(newTask);
-        console.log('added New task to project', newTask, 'Current tasks:', project.tasks);
+    let assignedProject = projectsArray.find(p => p.name === projectName);
+
+    if (!assignedProject) {
+        assignedProject = projectsArray.find(p => p.name === "Default");
+        if (!assignedProject) {
+            console.error("default project not found");
+            return;
+        }
     }
+    assignedProject.tasks.push(newTask);
+    console.log('Added new task to project', newTask, 'Current tasks:', assignedProject.tasks);
 
 
-    // renderTasks(currentProject.tasks);
     saveToLocalStorage();
-    updateMainContentForProject(project || currentProject);
-};
-
+    renderAllTasksView();
+    updateMainContentForProject(assignedProject);
+}
 
 
 //Load the eitire application
@@ -727,8 +776,18 @@ const loadApplication = () => {
     }
 
     updateProjectListUI();
-    renderTasks(currentProject.tasks);
+    renderAllTasksView();
 };
+
+function renderAllTasksView() {
+    const tasksContainer = document.querySelector('.tasks-container');
+    console.log('Rendering all tasks:', allTasksArray);  // Debug log
+    tasksContainer.innerHTML = '<h2>All Tasks</h2>';
+    allTasksArray.forEach(task => {
+        const taskElement = createTaskElement(task);
+        tasksContainer.appendChild(taskElement);
+    });
+}
 
 //Event listener for DOMContentLoaded
 document.addEventListener('DOMContentLoaded', () => {
