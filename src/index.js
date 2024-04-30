@@ -79,24 +79,56 @@ const loadFromLocalStorage = () => {
 
     console.log('Projects and All Tasks loaded:', projectsArray, allTasksArray);
 };
-
+//HELPER FUNTIONS
 //helper funtion for task btn and filter container element
 function createButtonWithCounter(buttonText, count, cssClass, id) {
     const container = document.createElement('div');
+    container.classList.add('button-container');
+
     const button = document.createElement('button');
-    const counter = document.createElement('span');
-
     button.textContent = buttonText;
-    counter.textContent = count;
-
     button.classList.add(cssClass);
     button.id = id;
 
+
+    const counter = document.createElement('span');
+    counter.textContent = count;
+    counter.classList.add('task-counter');
+
+
+
     container.appendChild(button);
-    container.appendChild(counter);
+    container.appendChild(counter)
+
+    // container.appendChild(counter);
+    console.log(`Created button: ${button.outerHTML}`); // Log the button HTML
 
     return { container, button };
 }
+
+//filter helper functions
+function isTaskDueToday(task) {
+    const today = new Date();
+    const dueDate = new Date(task.dueDate);
+    return dueDate.toDateString() === today.toDateString();
+}
+
+function isTaskUpcoming(task) {
+    const today = new Date();
+    const dueDate = new Date(task.dueDate);
+    return dueDate > today;
+}
+
+function isTaskOverdue(task) {
+    const today = new Date();
+    const dueDate = new Date(task.dueDate);
+    return dueDate < today && !task.completed;
+}
+
+function isTaskCompleted(task) {
+    return task.status === 'complete'
+}
+
 
 //Create Sidebar DOM
 const createSidebar = () => {
@@ -111,10 +143,17 @@ const createSidebar = () => {
     allTasksButton.addEventListener('click', renderAllTasksView);
 
 
-    const { container: todayTasksContainer } = createButtonWithCounter('Today', calculateTaskCount('today'), 'nav-button', 'today-tasks-button');
-    const { container: upcomingTaskContainer } = createButtonWithCounter('Upcoming', calculateTaskCount('upcoming'), 'nav-button', 'upcoming-tasks-button');
-    const { container: overdueTasksContainer } = createButtonWithCounter('Overdue', calculateTaskCount('overdue'), 'nav-button', 'overdue-tasks-button');
-    const { container: completedTasksContainer } = createButtonWithCounter('Completed', calculateTaskCount('completed'), 'nav-button', 'completed-tasks-button');
+    const { container: todayTasksContainer, button: todayTasksButton } = createButtonWithCounter('Today', calculateTaskCount('today'), 'nav-button', 'today-tasks-button');
+    todayTasksButton.addEventListener('click', () => renderFilteredTasks('Today'));
+
+    const { container: upcomingTaskContainer, button: upcomingTasksButton } = createButtonWithCounter('Upcoming', calculateTaskCount('upcoming'), 'nav-button', 'upcoming-tasks-button');
+    upcomingTasksButton.addEventListener('click', () => renderFilteredTasks('Upcoming'));
+
+    const { container: overdueTasksContainer, button: overdueTasksButton } = createButtonWithCounter('Overdue', calculateTaskCount('overdue'), 'nav-button', 'overdue-tasks-button');
+    overdueTasksButton.addEventListener('click', () => renderFilteredTasks('Overdue'));
+
+    const { container: completedTasksContainer, button: completedTasksButton } = createButtonWithCounter('Completed', calculateTaskCount('completed'), 'nav-button', 'completed-tasks-button');
+    completedTasksButton.addEventListener('click', () => renderFilteredTasks('Completed'));
 
 
     const projectListContainer = createProjectListElement([{ name: 'Home' }, { name: 'Work' }]);
@@ -140,9 +179,43 @@ const createSidebar = () => {
 };
 
 function calculateTaskCount(filterCriteria) {
-    return 42; //example
+    switch (filterCriteria) {
+        case 'all':
+            return allTasksArray.length;
+        case 'today':
+            return allTasksArray.filter(isTaskDueToday).length;
+        case 'upcoming':
+            return allTasksArray.filter(isTaskUpcoming).length;
+        case 'overdue':
+            return allTasksArray.filter(isTaskOverdue).length;
+        case 'completed':
+            return allTasksArray.filter(isTaskCompleted).length;
+        default:
+            return 0; //example
+    }
 }
 
+function updateCounters() {
+    const updateCounter = (buttonId) => {
+        const buttonContainer = document.querySelector(`#${buttonId}`).parentNode;
+        if (buttonContainer) {
+            const span = buttonContainer.querySelector('.task-counter');
+            if (span) {
+                span.textContent = calculateTaskCount(buttonId.replace('-button', ''));
+            } else {
+                console.error(`Counter span not found in container for button with ID ${buttonId}.`);
+            }
+        } else {
+            console.error(`Container for button with ID ${buttonId} is not found.`);
+        }
+    };
+
+    updateCounter('all-tasks-button');
+    updateCounter('today-tasks-button');
+    updateCounter('upcoming-tasks-button');
+    updateCounter('overdue-tasks-button');
+    updateCounter('completed-tasks-button');
+}
 //Create Main Content DOM
 const createMainContent = () => {
     const mainContent = document.createElement('div');
@@ -164,6 +237,29 @@ const createMainContent = () => {
 
 
 //Create task element DOM
+function renderFilteredTasks(filterType) {
+    const tasksContainer = document.querySelector('.tasks-container');
+    tasksContainer.innerHTML = `<h2>${filterType}</h2>`;
+
+    let filteredTasks = [];
+    if (filterType === 'Today') {
+        filteredTasks = allTasksArray.filter(isTaskDueToday);
+
+    } else if (filterType === 'Upcoming') {
+        filteredTasks = allTasksArray.filter(isTaskUpcoming);
+    } else if (filterType === 'Overdue') {
+        filteredTasks = allTasksArray.filter(isTaskOverdue);
+    } else if (filterType === 'Completed') {
+        filteredTasks = allTasksArray.filter(task => task.status === 'complete');
+    } else {
+        filteredTasks = allTasksArray;
+    }
+
+    filteredTasks.forEach(task => {
+        const taskElement = createTaskElement(task);
+        tasksContainer.appendChild(taskElement);
+    });
+}
 
 const createTaskElement = (task) => {
     const taskElement = document.createElement('div');
@@ -582,6 +678,12 @@ function generateProjectDropdown() {
     const select = document.createElement('select');
     select.id = 'projectSelect';
     console.log('Generating dropdown with projects:', projectsArray); // Debugging line
+
+    const noProjectOption = document.createElement('option');
+    noProjectOption.textContent = "No Project";
+    noProjectOption.value = "";
+    select.appendChild(noProjectOption);
+
     projectsArray.forEach(project => {
         const option = document.createElement('option');
         option.value = project.name;
@@ -723,22 +825,19 @@ const addTaskToProject = (title, description, dueDate, priority, projectName) =>
     const newTask = Task(title, description, dueDate, priority, projectName);
     allTasksArray.push(newTask);
 
-    let assignedProject = projectsArray.find(p => p.name === projectName);
-
-    if (!assignedProject) {
-        assignedProject = projectsArray.find(p => p.name === "Default");
-        if (!assignedProject) {
-            console.error("default project not found");
-            return;
+    if (projectName) {
+        const project = projectsArray.find(p => p.name === projectName);
+        if (project) {
+            project.tasks.push(newTask);
         }
     }
-    assignedProject.tasks.push(newTask);
-    console.log('Added new task to project', newTask, 'Current tasks:', assignedProject.tasks);
 
 
     saveToLocalStorage();
     renderAllTasksView();
-    updateMainContentForProject(assignedProject);
+    console.log('Tasks rendered, updating counters.');
+    updateCounters();
+    // updateMainContentForProject(assignedProject);
 }
 
 
@@ -748,12 +847,15 @@ const loadApplication = () => {
     root.classList.add('root');
 
     const sidebar = createSidebar();
+
     const mainContent = createMainContent();
     const formContainer = createTaskForm();
     mainContent.appendChild(formContainer);
 
     root.appendChild(sidebar);
+
     root.appendChild(mainContent);
+
 
     document.getElementById('add-task-button').addEventListener('click', showTaskForm);
 
@@ -769,6 +871,7 @@ const loadApplication = () => {
 
     updateProjectListUI();
     renderAllTasksView();
+
 };
 
 function renderAllTasksView() {
@@ -785,6 +888,7 @@ function renderAllTasksView() {
 document.addEventListener('DOMContentLoaded', () => {
     loadApplication();
     createTaskDetailModal();
+    updateCounters();
     const addTaskButton = document.getElementById('add-task-button');
     if (addTaskButton) {
         addTaskButton.addEventListener('click', showTaskForm);
