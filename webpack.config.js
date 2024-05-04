@@ -8,6 +8,16 @@ module.exports = {
         path: path.resolve(__dirname, 'dist'),
     },
 
+    resolve: {
+        extensions: ['.js'],
+        alias: {
+            Models: path.resolve(__dirname, 'src/models/'),
+            Views: path.resolve(__dirname, 'src/views/'),
+            Controllers: path.resolve(__dirname, 'src/controllers/'),
+            Utils: path.resolve(__dirname, 'src/utils/')
+        }
+    },
+
     module: {
         rules: [
             {
@@ -35,5 +45,11 @@ module.exports = {
     devServer: {
         static: './dist', // Where dev server will look for static files, not compiled at runtime
         open: true // Open the page in browser
-    }
+    },
+    devetool: 'source-map',
+    optimization: {
+        splitChunks: {
+            chunks: 'all',
+        },
+    },
 };
