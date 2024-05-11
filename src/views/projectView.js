@@ -1,8 +1,10 @@
+//projectView.js
+import { Project } from "../models/projectModel";
+import { loadFromLocalStorage } from "../utils/localStorage";
+import { getProjects, addProject, setProjects, setCurrentProject } from "../models/appState";
+import { updateMainContentForProject, addNewProject } from "../controllers/projectController";
 
-const getProjectNameFromUser = (onsubmit) => {
-    const projectNameInput = prompt('Enter new project name:');
-    onsubmit(projectNameInput);
-}
+
 // Create Project list element DOM
 const createProjectListElement = () => {
     const projectListContainer = document.createElement('div');
@@ -27,16 +29,10 @@ const createProjectListElement = () => {
     const toggleButton = document.createElement('button');
     toggleButton.textContent = 'Hide';
     toggleButton.classList.add('toggle-projects-button');
-    toggleButton.addEventListener('click', function () {
+    toggleButton.addEventListener('click', () => {
         const projectList = document.getElementById('project-list');
-        if (projectList.style.display === 'none' || projectList.style.display === '') {
-            projectList.style.display = 'block';
-            toggleButton.textContent = 'hide'
-        } else {
-            projectList.style.display = 'none';
-            toggleButton.textContent = 'show';
-        }
-
+        projectList.style.display = (projectList.style.display === 'none' || projectList.style.display === '') ? 'block' : 'none';
+        toggleButton.textContent = projectList.style.display === 'block' ? 'Hide' : 'Show'
     });
 
     controlsContainer.appendChild(addProjectButton);
@@ -44,16 +40,58 @@ const createProjectListElement = () => {
 
     headerContainer.appendChild(projectListTitle);
     headerContainer.appendChild(controlsContainer);
+
     projectListContainer.appendChild(headerContainer);
 
     const projectListElement = document.createElement('div');
     projectListElement.classList.add('project-list');
     projectListElement.id = 'project-list';
-    projectListElement.style.display = 'flex';
     projectListContainer.appendChild(projectListElement);
 
     return projectListContainer;
 };
+
+const getProjectNameFromUser = (onSubmit) => {
+    const projectNameInput = prompt('Enter new project name:');
+    if (projectNameInput && projectNameInput.trim() !== '') {
+        onSubmit(projectNameInput.trim());
+    } else {
+        alert("Project name cannot be empty.");
+    }
+};
+
+
+const loadProjects = () => {
+    const storedProjects = loadFromLocalStorage() || [];
+    if (storedProjects.length === 0) {
+        addProject({ name: "Default", tasks: [] });
+    } else {
+        setProjects(storedProjects);
+    }
+    updateProjectListUI();
+};
+
+
+const updateProjectListUI = () => {
+    const projects = getProjects();
+    const projectListElement = document.getElementById('project-list');
+    projectListElement.innerHTML = '';
+    projects.forEach(project => {
+        const projectElement = document.createElement('div');
+        projectElement.textContent = project.name;
+        projectElement.classList.add('project');
+        projectElement.addEventListener('click', () => {
+            setCurrentProject(project);
+            updateMainContentForProject(project);
+        });
+        projectListElement.appendChild(projectElement);
+    });
+};
+
+
+
+
+
 
 function createProjectContent(project) {
     const projectContent = document.createElement('div');
@@ -103,7 +141,7 @@ function createProjectContent(project) {
 function generateProjectDropdown() {
     const select = document.createElement('select');
     select.id = 'projectSelect';
-    console.log('Generating dropdown with projects:', projectsArray); // Debugging line
+
 
     const noProjectOption = document.createElement('option');
     noProjectOption.textContent = "No Project";
@@ -128,4 +166,8 @@ function closeProjectView() {
 
 
 
-export { createProjectListElement, createProjectContent, generateProjectDropdown, getProjectNameFromUser, closeProjectView };
+
+
+
+
+export { createProjectListElement, createProjectContent, generateProjectDropdown, closeProjectView, updateProjectListUI, getProjectNameFromUser, loadProjects };

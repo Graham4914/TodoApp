@@ -1,38 +1,25 @@
+//projectController.js
 import { Project } from "../models/projectModel";
-import { saveToLocalStorage } from "../utils/localStorage";
-import { getProjectNameFromUser, updateProjectListUI, closeProjectView } from "../views/projectView";
+import { saveToLocalStorage, loadFromLocalStorage } from "../utils/localStorage";
+import { updateProjectListUI } from "../views/projectView";
+import { addProject, setCurrentProject } from "../models/appState";
 
 function handleProjectClose() {
     closeProjectView();
 }
 
 const addNewProject = () => {
-    getProjectNameFromUser((projectName) => {
-        if (projectName) {
-            const newProject = Project(projectName);
-            projectsArray.push(newProject);
-            updateProjectListUI();
-            saveToLocalStorage();
-        }
-    });
+    const projectName = prompt('Enter new project name:');
+    if (projectName && projectName.trim() !== '') {
+        const newProject = { name: projectName.trim(), tasks: [] };
+        addProject(newProject);
+        setCurrentProject(newProject);
+        updateProjectListUI();
+    } else {
+        alert("Project name cannot be empty.");
+    }
 };
 
-const updateProjectListUI = () => {
-    const projectListElement = document.getElementById('project-list');
-    projectListElement.innerHTML = '';
-
-    projectsArray.forEach(project => {
-        const projectElement = document.createElement('div');
-        projectElement.textContent = project.name;
-        projectElement.classList.add('project');
-        projectElement.addEventListener('click', () => {
-            currentProject = project;
-            updateMainContentForProject(project);
-
-        });
-        projectListElement.appendChild(projectElement);
-    });
-};
 
 function deleteProject(projectToDelete) {
     projectsArray = projectsArray.filter(project => project !== projectToDelete);
@@ -85,4 +72,4 @@ function saveProjectName(project, newName) {
     updateMainContentForProject(project);
 }
 
-export { addNewProject, updateProjectListUI, deleteProject, updateMainContentForProject, saveProjectName, closeProjectView };
+export { addNewProject, deleteProject, updateMainContentForProject, saveProjectName, };

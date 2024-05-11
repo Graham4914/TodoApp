@@ -1,6 +1,7 @@
-//Create Task Form DOM
+//taskView.js
+import { generateProjectDropdown } from "./projectView";
 
-export const createTaskForm = () => {
+const createTaskForm = () => {
     const form = document.createElement('form');
     form.id = 'task-form';
     form.classList.add('task-form');
@@ -35,17 +36,18 @@ export const createTaskForm = () => {
     });
     form.appendChild(prioritySelect);
 
-    const projectDropdown = generateProjectDropdown();
-    form.appendChild(projectDropdown);
+    // const projectDropdown = generateProjectDropdown();
+    // form.appendChild(projectDropdown);
 
 
     // add Task from close button
     const closeButton = document.createElement('span');
+    closeButton.textContent = 'X';
     closeButton.classList.add('close-modal');
     closeButton.id = 'closeButton';
-    closeButton.textContent = 'X';
-    form.appendChild(closeButton);
     closeButton.addEventListener('click', closeNewTaskModal);
+    form.appendChild(closeButton);
+
 
     //submit button
 
@@ -59,7 +61,7 @@ export const createTaskForm = () => {
     formContainer.classList.add('form-container');
     formContainer.style.display = 'none';
     formContainer.appendChild(form);
-    form.addEventListener('submit', handleFormSubmit);
+    // form.addEventListener('submit', handleFormSubmit);
 
     return formContainer;
 };
@@ -205,24 +207,10 @@ function closeNewTaskModal() {
 
 const showTaskForm = () => {
     const formContainer = document.querySelector('.form-container');
+    console.log("Attempting to show form, found container:", formContainer);
 
     if (formContainer) {
         formContainer.style.display = 'block';
-        const form = document.getElementById('task-form')
-        const existingDropdown = document.getElementById('projectSelect');
-
-        if (existingDropdown) {
-            existingDropdown.remove();
-        }
-        const dropdown = generateProjectDropdown();
-        form.insertBefore(dropdown, form.querySelector('button[type="submit"]'));
-
-        if (form) {
-            form.reset();
-        } else {
-            console.error('Task form or project select is missing from DOM');
-        }
-
     } else {
         console.error('Form container is missing from DOM');
     }
@@ -303,4 +291,7 @@ const hideTaskDetailModal = () => {
     const taskDetailModal = document.getElementById('taskDetailModal');
     taskDetailModal.style.display = 'none';
 };
-export { createTaskForm, createTaskElement, createTaskDetailModal, createTaskList, closeNewTaskModal, showTaskForm, toggleTaskFormVisibility, renderFilteredTasks, renderTasks, renderAllTasksView, showTaskDetailModal, hideTaskDetailModal };
+export {
+    createTaskForm, createTaskElement, createTaskDetailModal, createTaskList, closeNewTaskModal, showTaskForm,
+    toggleTaskFormVisibility, renderFilteredTasks, renderTasks, renderAllTasksView, showTaskDetailModal, hideTaskDetailModal
+};

@@ -1,22 +1,43 @@
-import { Project } from "../models/projectModel";
-import { Task } from "../models/taskModel";
+//appController.js
+import { Project } from '../models/projectModel';
+import { Task } from '../models/taskModel';
 import { loadFromLocalStorage } from '../utils/localStorage'
+import { setProjects, setAllTasks, getProjects, getAllTasks, setCurrentProject, getCurrentProject } from "../models/appState";
 
 export const initializeApp = () => {
     const projectData = loadFromLocalStorage();
+    let loadedProjects = [];
+    let loadedAllTasks = [];
 
-    projectsArray = [];
-    allTasksArray = [];
-    savedProjects.forEach(projData => {
-        const proj = Project(projData.name);
-        projData.tasks.forEach(task => {
-            const loadedTask = Task(task.title, task.description, task.dueDate, task.priority, task.projectName, task.status);
-            proj.addTask(loadedTask); ``
-            allTasksArray.push(loadedTask);
+
+    if (!projectData || projectData.length === 0) {
+        const defaultProject = Project('Default');
+        loadedProjects.push(defaultProject);
+        setCurrentProject(defaultProject);
+    } else {
+        projectData.forEach(projData => {
+            const proj = Project(projData.name);
+            projData.tasks.forEach(taskData => {
+                const loadedTask = Task(taskData.title, taskData.description, taskData.dueDate, taskData.priority, taskData.projectName, taskData.status);
+                proj.addTask(loadedTask);
+                loadedAllTasks.push(loadedTask);
+            });
+            loadedProjects.push(proj);
         });
-        projectsArray.push(proj);
-    });
+        setCurrentProject(loadedProjects[0]);
+    }
 
-    console.log('Projects and All Tasks loaded:', projectsArray, allTasksArray);
-    return { projectsArray, allTasksArray };
+    setProjects(loadedProjects);
+    setAllTasks(loadedAllTasks);
+
+
+    console.log('Projects and All Tasks loaded:', getProjects, getAllTasks());
+    return {
+        projects: getProjects(),
+        allTasks: getAllTasks(),
+        currentProject: getCurrentProject()
+    };
 };
+
+
+

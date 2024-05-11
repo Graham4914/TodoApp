@@ -1,9 +1,8 @@
+//taskController.js
 import { Task } from '../models/taskModel';
-import { createTaskElement, updateTaskElement } from '../views/taskView';
+import { createTaskElement, showTaskDetailModal, hideTaskDetailModal, updateTaskElement } from '../views/taskView';
 import { saveToLocalStorage } from '../utils/localStorage';
-import { showTaskDetailModal, hideTaskdetailModal } from ' ./Views/taskView';
 import { updateMainContentForProject } from './projectController';
-
 
 let currentEditingTaskId = null;
 
@@ -91,25 +90,30 @@ const addTaskToProject = (title, description, dueDate, priority, projectName) =>
     updateCounters();
     // updateMainContentForProject(assignedProject);
 }
-
 const handleFormSubmit = (event) => {
     event.preventDefault();
     const form = event.target;
 
-    const title = form.elements['title'].value;
-    const description = form.elements['description'].value;
+    const title = form.elements['title'].value.trim();
+    const description = form.elements['description'].value.trim();
     const dueDate = form.elements['due-date'].value;
     const priority = form.elements['priority'].value;
     const projectName = form.elements['projectSelect'].value;
 
-    console.log('Form submitted with:', { title, description, dueDate, priority, projectName });
+    if (!title) {
+        alert("Please enter a title for the task.");
+        return;
+    }
 
-    addTaskToProject(title, description, dueDate, priority, projectName);
-
-    toggleTaskFormVisibility(false);
-
-    console.log('Current project after adding task:', currentProject);
-
+    try {
+        addTaskToProject(title, description, dueDate, priority, projectName);
+        toggleTaskFormVisibility(false);
+        console.log('Task added successfully:', { title, description, dueDate, priority, projectName });
+        alert("Task added successfully.");
+    } catch (error) {
+        console.error('Error adding task:', error);
+        alert("Failed to add task.");
+    }
 };
 
 export { deleteTask, saveCurrentTask, addTaskToProject, handleFormSubmit, openTaskDetail, closeTaskDetail };

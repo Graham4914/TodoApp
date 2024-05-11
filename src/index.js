@@ -1,62 +1,75 @@
 import { loadFromLocalStorage, saveToLocalStorage } from './utils/localStorage';
-import { createSidebar, createButtonWithCounter } from './views/sidebarView';
+import { createSidebar, } from './views/sidebarView';
 import { createMainContent } from './views/maincontentView';
-import { createProjectListElement, createProjectContent, generateProjectDropdown, } from './views/projectView';
-import { createTaskForm, createTaskElement, createTaskDetailModal, createTaskList, closeNewTaskModal, showTaskForm, toggleTaskFormVisibility, renderTasks, renderAllTasksView, renderFilteredTasks } from './views/taskView';
-import { initializeApp } from './controllers/appController';
-import { deleteTask, saveCurrentTask, addTaskToProject, handleFormSubmit, openTaskDetail, closeTaskDetail } from './controllers/taskController';
-import { addNewProject, updateProjectListUI, deleteProject, updateMainContentForProject, saveProjectName } from './controllers/projectController';
-import { isTaskDueToday, isTaskUpcoming, isTaskOverdue, isTaskCompleted, calculateTaskCount, updateCounters } from './utils/taskUtils';
+import { initializeApp, } from './controllers/appController';
+import { getProjects, addProject, setCurrentProject, getCurrentProject } from './models/appState';
+import { createTaskForm } from './views/taskView';
+import { loadProjects } from './views/projectView';
 import './style.css';
 
 
-//initial state
-let allTasksArray = [];
-let projectsArray = [];
-let currentProject;
 
-
-//Load the eitire application
+//Initialize and load the application
 const loadApplication = () => {
     const root = document.getElementById('root');
     root.classList.add('root');
+
     const sidebar = createSidebar();
     const mainContent = createMainContent();
-    const formContainer = createTaskForm();
-    mainContent.appendChild(formContainer);
 
     root.appendChild(sidebar);
-
     root.appendChild(mainContent);
 
-    document.getElementById('add-task-button').addEventListener('click', showTaskForm);
 
     loadFromLocalStorage();
 
-    if (projectsArray.length > 0) {
-        currentProject = projectsArray[0];
+    const projects = getProjects();
+    if (projects.length > 0) {
+        setCurrentProject(projects[0]);
     } else {
-        currentProject = Project('Default');
-        projectsArray.push(currentProject);
+        const defaultProject = { name: "Default", tasks: [] };
+        addProject(defaultProject);
+        setCurrentProject(defaultProject);
+
         saveToLocalStorage();
     }
 
-    updateProjectListUI();
-    renderAllTasksView();
 };
 
 
 //Event listener for DOMContentLoaded
+
 document.addEventListener('DOMContentLoaded', () => {
+    console.log("DOM fully loaded and parsed");
+
+    // Initialize your app's state or load from storage
+    initializeApp();
+
+    // Load the main application structure only once
     loadApplication();
-    createTaskDetailModal();
-    updateCounters();
-    const { projectsArray, allTasksArray } = initializeApp();
-    const addTaskButton = document.getElementById('add-task-button');
-    if (addTaskButton) {
-        addTaskButton.addEventListener('click', showTaskForm);
-    } else {
-        console.error('Add Task button not found!');
+    loadProjects();
+
+
+    // Since loadApplication already appends sidebar and main content,
+    // we only need to append the task form to the already created main content
+    const mainContent = document.getElementById('main-content');
+    if (!mainContent) {
+        console.error('Main content area is missing');
+        return;
     }
 
+    const taskFormContainer = createTaskForm();
+    mainContent.appendChild(taskFormContainer); // Append the hidden task form to the main content
+
+    // Setup the button to toggle form visibility
+    const addButton = document.getElementById('add-task-button');
+    if (addButton) {
+        addButton.addEventListener('click', () => {
+            taskFormContainer.style.display = 'block'; // Show the form when the button is clicked
+        });
+    } else {
+        console.error('Add Task button not found');
+    }
 });
+
+
