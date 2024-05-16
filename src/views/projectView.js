@@ -1,8 +1,9 @@
 //projectView.js
 import { Project } from "../models/projectModel";
-import { loadFromLocalStorage } from "../utils/localStorage";
+import { loadFromLocalStorage, saveToLocalStorage } from "../utils/localStorage";
 import { getProjects, addProject, setProjects, setCurrentProject } from "../models/appState";
-import { updateMainContentForProject, addNewProject } from "../controllers/projectController";
+import { showTaskForm, createTaskList, createTaskElement } from "./taskView";
+import { saveProjectName, deleteProject, addNewProject, updateMainContentForProject } from "../controllers/projectController";
 
 
 // Create Project list element DOM
@@ -62,9 +63,11 @@ const getProjectNameFromUser = (onSubmit) => {
 
 
 const loadProjects = () => {
-    const storedProjects = loadFromLocalStorage() || [];
+    const storedProjects = loadFromLocalStorage('projects') || [];
     if (storedProjects.length === 0) {
-        addProject({ name: "Default", tasks: [] });
+        const defaultProject = Project("Default");
+        addProject(defaultProject);
+        saveToLocalStorage('projects', [defaultProject]);
     } else {
         setProjects(storedProjects);
     }
@@ -74,6 +77,10 @@ const loadProjects = () => {
 
 const updateProjectListUI = () => {
     const projects = getProjects();
+    if (!Array.isArray(projects)) {
+        console.error('Projects data is not an array', projects);
+        return;
+    }
     const projectListElement = document.getElementById('project-list');
     projectListElement.innerHTML = '';
     projects.forEach(project => {
@@ -148,7 +155,9 @@ function generateProjectDropdown() {
     noProjectOption.value = "";
     select.appendChild(noProjectOption);
 
-    projectsArray.forEach(project => {
+    const projects = getProjects();
+
+    projects.forEach(project => {
         const option = document.createElement('option');
         option.value = project.name;
         option.textContent = project.name;

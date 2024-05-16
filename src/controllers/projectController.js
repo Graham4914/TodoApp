@@ -1,12 +1,13 @@
 //projectController.js
 import { Project } from "../models/projectModel";
 import { saveToLocalStorage, loadFromLocalStorage } from "../utils/localStorage";
-import { updateProjectListUI } from "../views/projectView";
-import { addProject, setCurrentProject } from "../models/appState";
+import { updateProjectListUI, createProjectContent } from "../views/projectView";
+import { createTaskList } from "../views/taskView";
+import { addProject, setCurrentProject, getCurrentProject, currentProject } from "../models/appState";
 
-function handleProjectClose() {
-    closeProjectView();
-}
+// function handleProjectClose() {
+//     closeProjectView();
+// }
 
 const addNewProject = () => {
     const projectName = prompt('Enter new project name:');
@@ -35,30 +36,35 @@ function deleteProject(projectToDelete) {
     }
 }
 
-function updateMainContentForProject(project) {
-
+const updateMainContentForProject = () => {
+    const project = getCurrentProject();
     if (!project) {
-        console.error("no project provided to updatemaincontentforproject", project.name);
-        return;
-    }
-
-    if (!project.name) {
-        console.error("Project data is invalid", project);
+        console.error("No project provided to updateMainContentForProject");
         return;
     }
 
     console.log("Attempting to update content for project:", project.name);
-    const relevantTasks = currentProject.tasks.filter(task => task.projectName === project.name);
 
     const tasksContainer = document.querySelector('.tasks-container');
+    if (!tasksContainer) {
+        console.error("Tasks container not found in the DOM");
+        return;
+    }
 
     tasksContainer.innerHTML = '';
 
-    tasksContainer.appendChild(createProjectContent(project));
+    const projectContent = createProjectContent(project);
+    tasksContainer.appendChild(projectContent);
+
     const tasksList = createTaskList(project.tasks);
-    tasksContainer.appendChild(tasksList);
-    currentProject = project;
-}
+    const tasksPlaceholder = tasksContainer.querySelector('.tasks-placeholder');
+    if (tasksPlaceholder) {
+        tasksPlaceholder.replaceWith(tasksList); // Replace the placeholder with the actual tasks list
+    } else {
+        tasksContainer.appendChild(tasksList); // Append tasks list if no placeholder exists
+    }
+
+};
 
 function saveProjectName(project, newName) {
     if (!project) {
@@ -72,4 +78,4 @@ function saveProjectName(project, newName) {
     updateMainContentForProject(project);
 }
 
-export { addNewProject, deleteProject, updateMainContentForProject, saveProjectName, };
+export { addNewProject, deleteProject, updateMainContentForProject, saveProjectName };

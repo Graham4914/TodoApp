@@ -1,5 +1,7 @@
 //taskView.js
 import { generateProjectDropdown } from "./projectView";
+import { handleFormSubmit, deleteTask, closeTaskDetail } from "../controllers/taskController";
+import { saveToLocalStorage } from "../utils/localStorage";
 
 const createTaskForm = () => {
     const form = document.createElement('form');
@@ -36,8 +38,8 @@ const createTaskForm = () => {
     });
     form.appendChild(prioritySelect);
 
-    // const projectDropdown = generateProjectDropdown();
-    // form.appendChild(projectDropdown);
+    const projectDropdown = generateProjectDropdown();
+    form.appendChild(projectDropdown);
 
 
     // add Task from close button
@@ -45,7 +47,7 @@ const createTaskForm = () => {
     closeButton.textContent = 'X';
     closeButton.classList.add('close-modal');
     closeButton.id = 'closeButton';
-    closeButton.addEventListener('click', closeNewTaskModal);
+    closeButton.addEventListener('click', () => toggleTaskFormVisibility(false));
     form.appendChild(closeButton);
 
 
@@ -56,12 +58,13 @@ const createTaskForm = () => {
     submitButton.textContent = 'Add Task';
     form.appendChild(submitButton);
 
+    form.addEventListener('submit', handleFormSubmit);
 
     const formContainer = document.createElement('div');
     formContainer.classList.add('form-container');
     formContainer.style.display = 'none';
     formContainer.appendChild(form);
-    // form.addEventListener('submit', handleFormSubmit);
+
 
     return formContainer;
 };
@@ -97,12 +100,6 @@ const createTaskElement = (task) => {
     const priority = document.createElement('span');
     priority.textContent = `Priority: ${task.priority}`;
 
-    taskElement.addEventListener('click', function (event) {
-        if (event.target.type !== 'checkbox') {
-            openTaskDetail(task);
-        }
-
-    });
 
     taskElement.appendChild(title);
     taskElement.appendChild(description);
@@ -124,6 +121,13 @@ const createTaskElement = (task) => {
 
     });
     taskElement.appendChild(deleteBtn);
+
+    taskElement.addEventListener('click', function (event) {
+        if (event.target.type !== 'checkbox') {
+            showTaskDetailModal(task);
+        }
+
+    });
 
     return taskElement;
 };
@@ -178,6 +182,7 @@ function createTaskDetailModal() {
     modalContent.appendChild(description);
     modalContent.appendChild(dueDate);
     modalContent.appendChild(priority);
+
     modal.appendChild(modalContent);
     document.body.appendChild(modal);
 
@@ -268,7 +273,13 @@ const renderTasks = (tasks) => {
 
 function renderAllTasksView(allTasksArray) {
     const tasksContainer = document.querySelector('.tasks-container');
+    if (!tasksContainer) {
+        console.error("Tasks container not found in the DOM");
+        return;
+    }
+
     console.log('Rendering all tasks:', allTasksArray);  // Debug log
+
     tasksContainer.innerHTML = '<h2>All Tasks</h2>';
     allTasksArray.forEach(task => {
         const taskElement = createTaskElement(task);
@@ -277,8 +288,12 @@ function renderAllTasksView(allTasksArray) {
 }
 
 const showTaskDetailModal = (task) => {
-    const taskDetailModal = document.getElementById('taskDetailNodal');
-    document, getElementById('modalTitle').value = task.title;
+    const taskDetailModal = document.getElementById('taskDetailModal');
+    if (!taskDetailModal) {
+        console.error('Task detail modal not found in dom');
+        return;
+    }
+    document.getElementById('modalTitle').value = task.title;
     document.getElementById('modalDescription').value = task.description;
     document.getElementById('modalDueDate').value = task.dueDate;
     document.getElementById('modalPriority').value = task.priority.toLowerCase();
@@ -289,7 +304,10 @@ const showTaskDetailModal = (task) => {
 
 const hideTaskDetailModal = () => {
     const taskDetailModal = document.getElementById('taskDetailModal');
-    taskDetailModal.style.display = 'none';
+    if (taskDetailModal) {
+        taskDetailModal.style.display = 'none';
+    }
+
 };
 export {
     createTaskForm, createTaskElement, createTaskDetailModal, createTaskList, closeNewTaskModal, showTaskForm,

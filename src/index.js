@@ -2,9 +2,9 @@ import { loadFromLocalStorage, saveToLocalStorage } from './utils/localStorage';
 import { createSidebar, } from './views/sidebarView';
 import { createMainContent } from './views/maincontentView';
 import { initializeApp, } from './controllers/appController';
-import { getProjects, addProject, setCurrentProject, getCurrentProject } from './models/appState';
-import { createTaskForm } from './views/taskView';
-import { loadProjects } from './views/projectView';
+import { getProjects, addProject, setCurrentProject, getCurrentProject, getAllTasks } from './models/appState';
+import { createTaskForm, createTaskDetailModal, closeNewTaskModal, renderAllTasksView } from './views/taskView';
+import { loadProjects, updateProjectListUI } from './views/projectView';
 import './style.css';
 
 
@@ -21,7 +21,7 @@ const loadApplication = () => {
     root.appendChild(mainContent);
 
 
-    loadFromLocalStorage();
+    loadFromLocalStorage('projects');
 
     const projects = getProjects();
     if (projects.length > 0) {
@@ -31,8 +31,15 @@ const loadApplication = () => {
         addProject(defaultProject);
         setCurrentProject(defaultProject);
 
-        saveToLocalStorage();
+        saveToLocalStorage('projects', getProjects());
     }
+    renderAllTasksView(getAllTasks());
+    // Append the hidden task form to the main content
+    const taskFormContainer = createTaskForm();
+    mainContent.appendChild(taskFormContainer);
+
+    // Ensure the task detail modal is created and appended to the DOM
+    createTaskDetailModal();
 
 };
 
@@ -42,16 +49,11 @@ const loadApplication = () => {
 document.addEventListener('DOMContentLoaded', () => {
     console.log("DOM fully loaded and parsed");
 
-    // Initialize your app's state or load from storage
     initializeApp();
 
-    // Load the main application structure only once
     loadApplication();
     loadProjects();
 
-
-    // Since loadApplication already appends sidebar and main content,
-    // we only need to append the task form to the already created main content
     const mainContent = document.getElementById('main-content');
     if (!mainContent) {
         console.error('Main content area is missing');
@@ -59,7 +61,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     const taskFormContainer = createTaskForm();
-    mainContent.appendChild(taskFormContainer); // Append the hidden task form to the main content
+    mainContent.appendChild(taskFormContainer);
 
     // Setup the button to toggle form visibility
     const addButton = document.getElementById('add-task-button');

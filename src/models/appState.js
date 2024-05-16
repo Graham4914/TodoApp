@@ -1,7 +1,12 @@
 //appState.js
+
+import { loadFromLocalStorage, saveToLocalStorage } from "../utils/localStorage";
+
+//state for tasks
+export let allTasksArray = [];
 // State for projects
-let currentProject = null;
-let projectsArray = [];
+export let currentProject = null;
+export let projectsArray = [];
 
 // Projects handling
 export const getProjects = () => projectsArray;
@@ -17,11 +22,12 @@ export const addProject = (project) => {
 };
 
 // Tasks handling
-let allTasksArray = [];
+
 
 export const getAllTasks = () => allTasksArray;
 export const setAllTasks = (tasks) => {
     allTasksArray = tasks;
+
 };
 export const addTask = (task) => {
     allTasksArray.push(task);
