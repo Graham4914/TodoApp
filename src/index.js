@@ -3,7 +3,7 @@ import { createSidebar, } from './views/sidebarView';
 import { createMainContent } from './views/maincontentView';
 import { initializeApp, } from './controllers/appController';
 import { getProjects, addProject, setCurrentProject, getCurrentProject, getAllTasks } from './models/appState';
-import { createTaskForm, createTaskDetailModal, closeNewTaskModal, renderAllTasksView } from './views/taskView';
+import { createTaskForm, createTaskDetailModal, closeNewTaskModal, renderAllTasksView, showTaskForm } from './views/taskView';
 import { loadProjects, updateProjectListUI } from './views/projectView';
 import './style.css';
 
@@ -67,7 +67,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const addButton = document.getElementById('add-task-button');
     if (addButton) {
         addButton.addEventListener('click', () => {
-            taskFormContainer.style.display = 'block'; // Show the form when the button is clicked
+            showTaskForm();
+            // taskFormContainer.style.display = 'block'; // Show the form when the button is clicked
         });
     } else {
         console.error('Add Task button not found');

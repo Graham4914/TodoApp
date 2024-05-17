@@ -1,9 +1,9 @@
 //projectController.js
 import { Project } from "../models/projectModel";
 import { saveToLocalStorage, loadFromLocalStorage } from "../utils/localStorage";
-import { updateProjectListUI, createProjectContent } from "../views/projectView";
-import { createTaskList } from "../views/taskView";
-import { addProject, setCurrentProject, getCurrentProject, currentProject } from "../models/appState";
+import { updateProjectListUI, createProjectContent, generateProjectDropdown } from "../views/projectView";
+import { createTaskList, } from "../views/taskView";
+import { addProject, getProjects, setCurrentProject, getCurrentProject, currentProject } from "../models/appState";
 
 // function handleProjectClose() {
 //     closeProjectView();
@@ -16,6 +16,14 @@ const addNewProject = () => {
         addProject(newProject);
         setCurrentProject(newProject);
         updateProjectListUI();
+        saveToLocalStorage('projects', getProjects());
+        // Update the task form dropdown
+        const oldDropdown = document.getElementById('projectSelect');
+        const newDropdown = generateProjectDropdown();
+        if (oldDropdown && oldDropdown.parentNode) {
+            oldDropdown.parentNode.replaceChild(newDropdown, oldDropdown);
+        }
+        // generateProjectDropdown();
     } else {
         alert("Project name cannot be empty.");
     }

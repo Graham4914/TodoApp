@@ -32,3 +32,9 @@ export const setAllTasks = (tasks) => {
 export const addTask = (task) => {
     allTasksArray.push(task);
 };
+
+// New function to get task by ID
+export const getTaskById = (taskId) => {
+    const allTasks = getAllTasks();
+    return allTasks.find(task => task.id === taskId);
+};

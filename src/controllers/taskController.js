@@ -1,24 +1,29 @@
 //taskController.js
 import { Task } from '../models/taskModel';
-import { renderAllTasksView, renderTasks, hideTaskDetailModal, toggleTaskFormVisibility, closeNewTaskModal } from '../views/taskView';
+import { renderAllTasksView, renderTasks, showTaskDetailModal, closeTaskDetailModal, hideTaskDetailModal, toggleTaskFormVisibility, closeNewTaskModal } from '../views/taskView';
 import { saveToLocalStorage } from '../utils/localStorage';
 import { updateMainContentForProject } from './projectController';
-import { allTasksArray, projectsArray, getCurrentProject, getProjects, getAllTasks, setAllTasks, setProjects } from '../models/appState';
+import { projectsArray, getCurrentProject, getProjects, getAllTasks, getTaskById, setAllTasks, setProjects } from '../models/appState';
 
 let currentEditingTaskId = null;
 
-const openTaskDetail = (task) => {
-    currentEditingTaskId = task.id;
-    taskView.showTaskDetailModal(task);
+const openTaskDetail = (taskId) => {
+    const task = getTaskById(taskId);
+    if (task) {
+        currentEditingTaskId = task.id;
+        showTaskDetailModal(task);
+        console.log("Opening task detail for ID:", currentEditingTaskId); // Debugging line
+    } else {
+        console.error("Task not found with ID:", taskId);
+    }
+
+
 };
 
 const closeTaskDetail = () => {
-    hideTaskDetailModal();
+    saveCurrentTask(currentEditingTaskId);
     currentEditingTaskId = null;
-    saveToLocalStorage('projects', getAllTasks());
-    saveToLocalStorage('tasks', getAllTasks());
-
-
+    hideTaskDetailModal();
 };
 
 
@@ -41,61 +46,91 @@ function deleteTask(taskToDelete) {
     saveToLocalStorage('tasks', updatedAllTasks);
 
     renderAllTasksView(updatedAllTasks);
+}
+
+
+// Adjust saveCurrentTask to use currentEditingTaskId
+function saveCurrentTask(taskId) {
+    console.log("Task ID in saveCurrentTask:", taskId);
+    const task = getTaskById(taskId);
+    if (!task) {
+        console.error('Task not found with ID:', taskId);
+        return;
+    }
+
+    console.log("Task retrieved:", task);
+    // Update task details
+    task.title = document.getElementById('modalTitle').value;
+    task.description = document.getElementById('modalDescription').value;
+    task.dueDate = document.getElementById('modalDueDate').value;
+    task.priority = document.getElementById('modalPriority').value;
+
+    const newProjectName = document.getElementById('modalProjectSelect').value;
+
+    // Check if task has been reassigned to a new project
+    if (task.projectName !== newProjectName) {
+        const currentProject = getCurrentProject();
+        const taskIndex = currentProject.tasks.findIndex(t => t.id === taskId);
+
+        if (taskIndex !== -1) {
+            currentProject.tasks.splice(taskIndex, 1);
+        }
+
+        const newProject = projectsArray.find(p => p.name === newProjectName);
+        if (newProject) {
+            task.projectName = newProjectName;
+            newProject.tasks.push(task);
+        } else {
+            console.error("New project not found:", newProjectName);
+        }
+    }
+
+    console.log("Updated Task Data:", JSON.stringify(task));
+    renderTasks(getCurrentProject().tasks);
+    saveToLocalStorage('projects', getProjects());
+    saveToLocalStorage('tasks', getAllTasks());
+    updateMainContentForProject(getCurrentProject());
 
     // const currentProject = getCurrentProject(); // Use getter to access current project
-    // if (currentProject) {
-    //     currentProject.tasks = currentProject.tasks.filter(task => task.id !== taskToDelete.id);
-    //     allTasksArray = allTasksArray.filter(task => task.id !== taskToDelete.id);
-    //     saveToLocalStorage();
-    //     renderTasks(currentProject.tasks);
-    //     updateMainContentForProject(currentProject);
+    // if (currentProject && Array.isArray(currentProject.tasks)) {
+    //     const taskIndex = currentProject.tasks.findIndex(t => t.id === taskId);
+    //     console.log("Saving task details for ID:", taskId);
+
+    //     if (taskIndex !== -1) {
+    //         // Update task details
+    //         task.title = document.getElementById('modalTitle').value;
+    //         task.description = document.getElementById('modalDescription').value;
+    //         task.dueDate = document.getElementById('modalDueDate').value;
+    //         task.priority = document.getElementById('modalPriority').value;
+
+    //         const newProjectName = document.getElementById('modalProjectSelect').value;
+
+    //         // Check if task has been reassigned to a new project
+    //         if (task.projectName !== newProjectName) {
+    //             currentProject.tasks.splice(taskIndex, 1);
+
+    //             const newProject = projectsArray.find(p => p.name === newProjectName);
+    //             if (newProject) {
+    //                 task.projectName = newProjectName;
+    //                 newProject.tasks.push(task);
+    //             } else {
+    //                 console.error("New project not found:", newProjectName);
+    //             }
+    //         }
+
+    //         console.log("Updated Task Data", JSON.stringify(task));
+    //         renderTasks(currentProject.tasks);
+    //         saveToLocalStorage('projects', getProjects());
+    //         saveToLocalStorage('tasks', getAllTasks());
+    //         updateMainContentForProject(currentProject);
+    //     } else {
+    //         console.log("Task not found with ID:", taskId);
+    //     }
     // } else {
-    //     console.error("No current project set.");
+    //     console.error("The current project is not defined or has no tasks property.");
     // }
 }
 
-function saveCurrentTask(currentEditingTaskId) {
-    const currentProject = getCurrentProject(); // Use getter to access current project
-    if (currentProject && Array.isArray(currentProject.tasks)) {
-        const taskIndex = currentProject.tasks.findIndex(t => t.id === currentEditingTaskId);
-        console.log("Saving task details for ID:", currentEditingTaskId);
-
-        if (taskIndex !== -1) {
-            const task = currentProject.tasks[taskIndex];
-            console.log("Old Task Data:", JSON.stringify(task));
-
-            // Update task details
-            task.title = document.getElementById('modalTitle').value;
-            task.description = document.getElementById('modalDescription').value;
-            task.dueDate = document.getElementById('modalDueDate').value;
-            task.priority = document.getElementById('modalPriority').value;
-
-            const newProjectName = document.getElementById('modalProjectSelect').value;
-
-            // Check if task has been reassigned to a new project
-            if (task.projectName !== newProjectName) {
-                currentProject.tasks.splice(taskIndex, 1);
-
-                const newProject = projectsArray.find(p => p.name === newProjectName);
-                if (newProject) {
-                    task.projectName = newProjectName;
-                    newProject.tasks.push(task);
-                } else {
-                    console.error("New project not found:", newProjectName);
-                }
-            }
-
-            console.log("Updated Task Data", JSON.stringify(task));
-            renderTasks(currentProject.tasks);
-            saveToLocalStorage();
-            updateMainContentForProject(currentProject);
-        } else {
-            console.log("Task not found with ID:", currentEditingTaskId);
-        }
-    } else {
-        console.error("The current project is not defined or has no tasks property.");
-    }
-}
 
 const addTaskToProject = (title, description, dueDate, priority, projectName) => {
     console.log('Adding task with:', { title, description, dueDate, priority, projectName });
@@ -151,7 +186,7 @@ const handleFormSubmit = (event) => {
         toggleTaskFormVisibility(false);
         console.log('Task added successfully:', { title, description, dueDate, priority, projectName });
         alert("Task added successfully.");
-        closeNewTaskModal()
+        closeNewTaskModal();
     } catch (error) {
         console.error('Error adding task:', error);
         alert("Failed to add task.");

@@ -21,17 +21,14 @@ export const initializeApp = () => {
     let loadedProjects = [];
     let loadedAllTasks = [];
 
-    if (!projectData || projectData.length === 0) {
+    if (!Array.isArray(projectData) || projectData.length === 0) {
         const defaultProject = Project('Default');
         loadedProjects.push(defaultProject);
         setCurrentProject(defaultProject);
     } else {
         projectData.forEach(projData => {
-            if (!projData.tasks) {
-                console.warn('Protect data without tasks: ', projData);
-                projData.tasks = [];
-            }
             const proj = Project(projData.name);
+            if (Array.isArray(projData.name));
             projData.tasks.forEach(taskData => {
                 const loadedTask = Task(taskData.title, taskData.description, taskData.dueDate, taskData.priority, taskData.projectName, taskData.status);
                 proj.addTask(loadedTask);

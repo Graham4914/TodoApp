@@ -1,7 +1,8 @@
 //taskView.js
 import { generateProjectDropdown } from "./projectView";
-import { handleFormSubmit, deleteTask, closeTaskDetail } from "../controllers/taskController";
+import { handleFormSubmit, deleteTask, closeTaskDetail, openTaskDetail } from "../controllers/taskController";
 import { saveToLocalStorage } from "../utils/localStorage";
+import { getAllTasks, getTaskById } from "../models/appState";
 
 const createTaskForm = () => {
     const form = document.createElement('form');
@@ -83,7 +84,8 @@ const createTaskElement = (task) => {
     checkbox.addEventListener('change', function (event) {
         event.stopImmediatePropagation();
         task.status = this.checked ? 'complete' : 'incomplete'; // Update the task's completed property
-        saveToLocalStorage();
+        saveToLocalStorage('tasks', getAllTasks());
+        renderAllTasksView(getAllTasks());
     });
 
     taskElement.appendChild(checkbox);
@@ -118,13 +120,14 @@ const createTaskElement = (task) => {
     deleteBtn.addEventListener('click', (event) => {
         event.stopPropagation();
         deleteTask(task);
+        renderAllTasksView(getAllTasks)
 
     });
     taskElement.appendChild(deleteBtn);
 
     taskElement.addEventListener('click', function (event) {
         if (event.target.type !== 'checkbox') {
-            showTaskDetailModal(task);
+            openTaskDetail(task.id);
         }
 
     });
@@ -201,13 +204,21 @@ function createTaskList(tasks) {
     return tasksList;
 };
 
-function closeNewTaskModal() {
+const closeNewTaskModal = () => {
+    const form = document.getElementById('task-form');
+    if (!form) {
+        console.error('Task form not found in the DOM');
+        return;
+    }
 
-    document.getElementById('modalTitle').textContent = '';
-    document.getElementById('modalDescription').value = '';
-    document.getElementById('modalDueDate').value = '';
-    document.getElementById('modalPriority').selectedIndex = 0;
-    document.querySelector('.form-container').style.display = 'none';
+    form.reset(); // This will reset all form inputs to their default values
+
+    const formContainer = document.querySelector('.form-container');
+    if (formContainer) {
+        formContainer.style.display = 'none';
+    } else {
+        console.error('Form container not found in the DOM');
+    }
 };
 
 const showTaskForm = () => {
@@ -219,8 +230,6 @@ const showTaskForm = () => {
     } else {
         console.error('Form container is missing from DOM');
     }
-
-
 };
 
 const toggleTaskFormVisibility = (show) => {
@@ -271,17 +280,17 @@ const renderTasks = (tasks) => {
 
 };
 
-function renderAllTasksView(allTasksArray) {
+function renderAllTasksView(tasks) {
     const tasksContainer = document.querySelector('.tasks-container');
     if (!tasksContainer) {
         console.error("Tasks container not found in the DOM");
         return;
     }
 
-    console.log('Rendering all tasks:', allTasksArray);  // Debug log
+    console.log('Rendering all tasks:', tasks);  // Debug log
 
     tasksContainer.innerHTML = '<h2>All Tasks</h2>';
-    allTasksArray.forEach(task => {
+    tasks.forEach(task => {
         const taskElement = createTaskElement(task);
         tasksContainer.appendChild(taskElement);
     });
@@ -299,7 +308,42 @@ const showTaskDetailModal = (task) => {
     document.getElementById('modalPriority').value = task.priority.toLowerCase();
     document.getElementById('modalProjectSelect').value = task.projectName; // assuming this select exists
 
+    // taskDetailModal.dataset.taskId = task.id;
+
     taskDetailModal.style.display = 'block';
+};
+
+const closeTaskDetailModal = () => {
+    const taskDetailModal = document.getElementById('taskDetailModal');
+    if (taskDetailModal) {
+        taskDetailModal.style.display = 'none';
+        // console.error('Task detail modal not found in the DOM');
+        // return;
+    }
+
+    // Save the changes to the task
+    const title = document.getElementById('modalTitle').value;
+    const description = document.getElementById('modalDescription').value;
+    const dueDate = document.getElementById('modalDueDate').value;
+    const priority = document.getElementById('modalPriority').value;
+    const projectName = document.getElementById('modalProjectSelect').value;
+
+    // Find the task to update it
+    const taskId = taskDetailModal.dataset.taskId;
+    const task = getTaskById(taskId); // Implement getTaskById to find a task by its ID
+    if (task) {
+        task.title = title;
+        task.description = description;
+        task.dueDate = dueDate;
+        task.priority = priority;
+        task.projectName = projectName;
+
+        saveToLocalStorage('tasks', getAllTasks());
+        renderAllTasksView(getAllTasks());
+        updateProjectListUI(); // To reflect changes in the project list if needed
+    }
+
+    taskDetailModal.style.display = 'none';
 };
 
 const hideTaskDetailModal = () => {
@@ -311,5 +355,5 @@ const hideTaskDetailModal = () => {
 };
 export {
     createTaskForm, createTaskElement, createTaskDetailModal, createTaskList, closeNewTaskModal, showTaskForm,
-    toggleTaskFormVisibility, renderFilteredTasks, renderTasks, renderAllTasksView, showTaskDetailModal, hideTaskDetailModal
+    toggleTaskFormVisibility, renderFilteredTasks, renderTasks, renderAllTasksView, showTaskDetailModal, closeTaskDetailModal, hideTaskDetailModal
 };

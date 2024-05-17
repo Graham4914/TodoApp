@@ -1,11 +1,11 @@
-export const Task = (title, description, dueDate, priority, projectName = null, status = 'incomplete') => {
+export const Task = (title, description, dueDate, priority, projectName) => {
     return {
-        id: Date.now() + Math.random().toString(36).substring(2, 9),
+        id: `task-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
         title,
         description,
         dueDate,
         priority,
         projectName,
-        status
+        status: 'incomplete'
     };
 };

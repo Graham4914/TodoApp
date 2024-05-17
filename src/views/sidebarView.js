@@ -3,8 +3,8 @@
 // import { calculateTaskCount } from "../utils/taskUtils";
 // import { getAllTasks } from "../models/appState";
 import { createProjectListElement } from "./projectView";
-import { showTaskForm } from "./taskView";
-import { getProjects, setProjects, addProject } from "../models/appState";
+import { showTaskForm, renderAllTasksView } from "./taskView";
+import { getProjects, setProjects, addProject, getAllTasks } from "../models/appState";
 
 
 const createSidebar = () => {
@@ -24,19 +24,31 @@ const createSidebar = () => {
 
     sidebar.appendChild(taskListTitle);
     sidebar.appendChild(addButton);
+
+    // Add functionality to the All Tasks button
+    const allTasksButton = document.createElement('button');
+    allTasksButton.textContent = 'All Tasks';
+    allTasksButton.classList.add('nav-button');
+    allTasksButton.addEventListener('click', () => {
+        const allTasks = getAllTasks();
+        renderAllTasksView(allTasks);
+    });
+
+    sidebar.appendChild(allTasksButton);
+
     // Static button creation for demonstration
-    const buttonNames = ['All Tasks', 'Today', 'Upcoming', 'Overdue', 'Completed'];
+    const buttonNames = ['Today', 'Upcoming', 'Overdue', 'Completed'];
     buttonNames.forEach(name => {
         const button = document.createElement('button');
         button.textContent = name;
         button.classList.add('nav-button');
         // Uncomment below line once you are ready to add functionality back
-        // button.addEventListener('click', () => console.log(name + ' clicked'));
+        button.addEventListener('click', () => console.log(name + ' clicked'));
         sidebar.appendChild(button);
     });
 
 
-    const projectListContainer = createProjectListElement([{ name: 'Home' }, { name: 'Work' }]);
+    const projectListContainer = createProjectListElement();
     sidebar.appendChild(projectListContainer);
 
     return sidebar;
