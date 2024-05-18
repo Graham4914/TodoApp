@@ -145,9 +145,9 @@ function createProjectContent(project) {
     return projectContent;
 }
 
-function generateProjectDropdown() {
+function generateProjectDropdown(id) {
     const select = document.createElement('select');
-    select.id = 'projectSelect';
+    select.id = id || 'projectSelect';
 
 
     const noProjectOption = document.createElement('option');
@@ -166,6 +166,19 @@ function generateProjectDropdown() {
     return select;
 }
 
+const updateAllProjectDropdowns = () => {
+    const dropdownSelectors = ['projectSelect', 'modalProjectSelect'];
+
+    dropdownSelectors.forEach(selector => {
+        const oldDropdown = document.getElementById(selector);
+        const newDropdown = generateProjectDropdown();
+        newDropdown.id = selector;
+        if (oldDropdown && oldDropdown.parentNode) {
+            oldDropdown.parentNode.replaceChild(newDropdown, oldDropdown);
+        }
+    });
+};
+
 function closeProjectView() {
     const tasksContainer = document.querySelector('.tasks-container');
     if (tasksContainer) {
@@ -179,4 +192,4 @@ function closeProjectView() {
 
 
 
-export { createProjectListElement, createProjectContent, generateProjectDropdown, closeProjectView, updateProjectListUI, getProjectNameFromUser, loadProjects };
+export { createProjectListElement, createProjectContent, generateProjectDropdown, closeProjectView, updateProjectListUI, getProjectNameFromUser, loadProjects, updateAllProjectDropdowns };

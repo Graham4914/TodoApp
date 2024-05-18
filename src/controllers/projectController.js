@@ -1,9 +1,9 @@
 //projectController.js
 import { Project } from "../models/projectModel";
 import { saveToLocalStorage, loadFromLocalStorage } from "../utils/localStorage";
-import { updateProjectListUI, createProjectContent, generateProjectDropdown } from "../views/projectView";
-import { createTaskList, } from "../views/taskView";
-import { addProject, getProjects, setCurrentProject, getCurrentProject, currentProject } from "../models/appState";
+import { updateProjectListUI, createProjectContent, updateAllProjectDropdowns, generateProjectDropdown } from "../views/projectView";
+import { createTaskList, renderAllTasksView } from "../views/taskView";
+import { addProject, getProjects, setProjects, setCurrentProject, getCurrentProject, getAllTasks, currentProject } from "../models/appState";
 
 // function handleProjectClose() {
 //     closeProjectView();
@@ -18,31 +18,31 @@ const addNewProject = () => {
         updateProjectListUI();
         saveToLocalStorage('projects', getProjects());
         // Update the task form dropdown
-        const oldDropdown = document.getElementById('projectSelect');
-        const newDropdown = generateProjectDropdown();
-        if (oldDropdown && oldDropdown.parentNode) {
-            oldDropdown.parentNode.replaceChild(newDropdown, oldDropdown);
-        }
-        // generateProjectDropdown();
+        updateAllProjectDropdowns(); // Ensure all dropdowns are updated
     } else {
         alert("Project name cannot be empty.");
     }
 };
 
+const deleteProject = (project) => {
+    const projects = getProjects();
+    const allTasks = getAllTasks();
 
-function deleteProject(projectToDelete) {
-    projectsArray = projectsArray.filter(project => project !== projectToDelete);
-    saveToLocalStorage();
+    // Reassign tasks from the project to "No Project"
+    project.tasks.forEach(task => {
+        task.projectName = "";
+    });
+
+    const updatedProjects = projects.filter(p => p.name !== project.name);
+    setProjects(updatedProjects);
+    saveToLocalStorage('projects', updatedProjects);
+    saveToLocalStorage('tasks', allTasks);
 
     updateProjectListUI();
+    renderAllTasksView(allTasks);
+};
 
-    if (projectsArray.length > 0) {
-        updateMainContentForProject(projectsArray[0]);
-    } else {
-        console.log('no projects selected')
-        // showEmptyStateOrPrompt();
-    }
-}
+
 
 const updateMainContentForProject = () => {
     const project = getCurrentProject();

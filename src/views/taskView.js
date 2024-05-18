@@ -289,12 +289,32 @@ function renderAllTasksView(tasks) {
 
     console.log('Rendering all tasks:', tasks);  // Debug log
 
+    if (!Array.isArray(tasks)) {
+        console.error("Expected an array of tasks, but received:", tasks);
+        return;
+    }
+
     tasksContainer.innerHTML = '<h2>All Tasks</h2>';
     tasks.forEach(task => {
         const taskElement = createTaskElement(task);
         tasksContainer.appendChild(taskElement);
     });
 }
+// function renderAllTasksView(tasks) {
+//     const tasksContainer = document.querySelector('.tasks-container');
+//     if (!tasksContainer) {
+//         console.error("Tasks container not found in the DOM");
+//         return;
+//     }
+
+//     console.log('Rendering all tasks:', tasks);  // Debug log
+
+//     tasksContainer.innerHTML = '<h2>All Tasks</h2>';
+//     tasks.forEach(task => {
+//         const taskElement = createTaskElement(task);
+//         tasksContainer.appendChild(taskElement);
+//     });
+// }
 
 const showTaskDetailModal = (task) => {
     const taskDetailModal = document.getElementById('taskDetailModal');

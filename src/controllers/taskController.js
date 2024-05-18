@@ -26,9 +26,7 @@ const closeTaskDetail = () => {
     hideTaskDetailModal();
 };
 
-
 function deleteTask(taskToDelete) {
-
     const projects = getProjects();
     const allTasks = getAllTasks();
     // Remove task from its project
@@ -45,12 +43,27 @@ function deleteTask(taskToDelete) {
     saveToLocalStorage('projects', projects);
     saveToLocalStorage('tasks', updatedAllTasks);
 
-    renderAllTasksView(updatedAllTasks);
+    renderAllTasksView(updatedAllTasks); // Ensure we're passing an array
 }
+// const deleteTask = (taskId) => {
+//     const projects = getProjects();
+//     const allTasks = getAllTasks();
+
+//     const updatedAllTasks = allTasks.filter(task => task.id !== taskId);
+//     setAllTasks(updatedAllTasks);
+
+//     projects.forEach(project => {
+//         project.tasks = project.tasks.filter(task => task.id !== taskId);
+//     });
+//     setProjects(projects);
+
+//     saveToLocalStorage('projects', projects);
+//     saveToLocalStorage('tasks', updatedAllTasks);
+//     renderAllTasksView(updatedAllTasks);
+// };
 
 
-// Adjust saveCurrentTask to use currentEditingTaskId
-function saveCurrentTask(taskId) {
+const saveCurrentTask = (taskId) => {
     console.log("Task ID in saveCurrentTask:", taskId);
     const task = getTaskById(taskId);
     if (!task) {
@@ -58,7 +71,9 @@ function saveCurrentTask(taskId) {
         return;
     }
 
-    console.log("Task retrieved:", task);
+    const projects = getProjects();
+    const allTasks = getAllTasks();
+
     // Update task details
     task.title = document.getElementById('modalTitle').value;
     task.description = document.getElementById('modalDescription').value;
@@ -69,14 +84,12 @@ function saveCurrentTask(taskId) {
 
     // Check if task has been reassigned to a new project
     if (task.projectName !== newProjectName) {
-        const currentProject = getCurrentProject();
-        const taskIndex = currentProject.tasks.findIndex(t => t.id === taskId);
-
-        if (taskIndex !== -1) {
-            currentProject.tasks.splice(taskIndex, 1);
+        const oldProject = projects.find(p => p.name === task.projectName);
+        if (oldProject) {
+            oldProject.tasks = oldProject.tasks.filter(t => t.id !== taskId);
         }
 
-        const newProject = projectsArray.find(p => p.name === newProjectName);
+        const newProject = projects.find(p => p.name === newProjectName);
         if (newProject) {
             task.projectName = newProjectName;
             newProject.tasks.push(task);
@@ -85,51 +98,13 @@ function saveCurrentTask(taskId) {
         }
     }
 
-    console.log("Updated Task Data:", JSON.stringify(task));
-    renderTasks(getCurrentProject().tasks);
-    saveToLocalStorage('projects', getProjects());
-    saveToLocalStorage('tasks', getAllTasks());
+    saveToLocalStorage('projects', projects);
+    saveToLocalStorage('tasks', allTasks);
+    renderAllTasksView(allTasks);
     updateMainContentForProject(getCurrentProject());
 
-    // const currentProject = getCurrentProject(); // Use getter to access current project
-    // if (currentProject && Array.isArray(currentProject.tasks)) {
-    //     const taskIndex = currentProject.tasks.findIndex(t => t.id === taskId);
-    //     console.log("Saving task details for ID:", taskId);
-
-    //     if (taskIndex !== -1) {
-    //         // Update task details
-    //         task.title = document.getElementById('modalTitle').value;
-    //         task.description = document.getElementById('modalDescription').value;
-    //         task.dueDate = document.getElementById('modalDueDate').value;
-    //         task.priority = document.getElementById('modalPriority').value;
-
-    //         const newProjectName = document.getElementById('modalProjectSelect').value;
-
-    //         // Check if task has been reassigned to a new project
-    //         if (task.projectName !== newProjectName) {
-    //             currentProject.tasks.splice(taskIndex, 1);
-
-    //             const newProject = projectsArray.find(p => p.name === newProjectName);
-    //             if (newProject) {
-    //                 task.projectName = newProjectName;
-    //                 newProject.tasks.push(task);
-    //             } else {
-    //                 console.error("New project not found:", newProjectName);
-    //             }
-    //         }
-
-    //         console.log("Updated Task Data", JSON.stringify(task));
-    //         renderTasks(currentProject.tasks);
-    //         saveToLocalStorage('projects', getProjects());
-    //         saveToLocalStorage('tasks', getAllTasks());
-    //         updateMainContentForProject(currentProject);
-    //     } else {
-    //         console.log("Task not found with ID:", taskId);
-    //     }
-    // } else {
-    //     console.error("The current project is not defined or has no tasks property.");
-    // }
-}
+    console.log("Updated Task Data", JSON.stringify(task));
+};
 
 
 const addTaskToProject = (title, description, dueDate, priority, projectName) => {
