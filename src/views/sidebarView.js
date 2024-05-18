@@ -3,7 +3,7 @@
 // import { calculateTaskCount } from "../utils/taskUtils";
 // import { getAllTasks } from "../models/appState";
 import { createProjectListElement } from "./projectView";
-import { showTaskForm, renderAllTasksView } from "./taskView";
+import { showTaskForm, renderAllTasksView, renderFilteredTasks } from "./taskView";
 import { getProjects, setProjects, addProject, getAllTasks } from "../models/appState";
 
 
@@ -25,27 +25,39 @@ const createSidebar = () => {
     sidebar.appendChild(taskListTitle);
     sidebar.appendChild(addButton);
 
-    // Add functionality to the All Tasks button
-    const allTasksButton = document.createElement('button');
-    allTasksButton.textContent = 'All Tasks';
-    allTasksButton.classList.add('nav-button');
-    allTasksButton.addEventListener('click', () => {
-        const allTasks = getAllTasks();
-        renderAllTasksView(allTasks);
-    });
+    const buttonNames = ['All Tasks', 'Today', 'Upcoming', 'Overdue', 'Completed'];
+    const buttonIds = ['all-tasks-button', 'today-tasks-button', 'upcoming-tasks-button', 'overdue-tasks-button', 'completed-tasks-button'];
 
-    sidebar.appendChild(allTasksButton);
-
-    // Static button creation for demonstration
-    const buttonNames = ['Today', 'Upcoming', 'Overdue', 'Completed'];
-    buttonNames.forEach(name => {
+    buttonNames.forEach((name, index) => {
         const button = document.createElement('button');
         button.textContent = name;
+        button.id = buttonIds[index];
         button.classList.add('nav-button');
-        // Uncomment below line once you are ready to add functionality back
-        button.addEventListener('click', () => console.log(name + ' clicked'));
+        button.addEventListener('click', () => renderFilteredTasks(name.toLowerCase().replace(' ', '')));
         sidebar.appendChild(button);
     });
+
+    // // Add functionality to the All Tasks button
+    // const allTasksButton = document.createElement('button');
+    // allTasksButton.textContent = 'All Tasks';
+    // allTasksButton.classList.add('nav-button');
+    // allTasksButton.addEventListener('click', () => {
+    //     const allTasks = getAllTasks();
+    //     renderAllTasksView(allTasks);
+    // });
+
+    // sidebar.appendChild(allTasksButton);
+
+    // // Static button creation for demonstration
+    // const buttonNames = ['Today', 'Upcoming', 'Overdue', 'Completed'];
+    // buttonNames.forEach(name => {
+    //     const button = document.createElement('button');
+    //     button.textContent = name;
+    //     button.classList.add('nav-button');
+    //     // Uncomment below line once you are ready to add functionality back
+    //     button.addEventListener('click', () => console.log(name + ' clicked'));
+    //     sidebar.appendChild(button);
+    // });
 
 
     const projectListContainer = createProjectListElement();

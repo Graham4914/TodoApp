@@ -2,7 +2,8 @@
 import { generateProjectDropdown } from "./projectView";
 import { handleFormSubmit, deleteTask, closeTaskDetail, openTaskDetail } from "../controllers/taskController";
 import { saveToLocalStorage } from "../utils/localStorage";
-import { getAllTasks, getTaskById } from "../models/appState";
+import { isTaskDueToday, isTaskOverdue, isTaskUpcoming, isTaskCompleted, calculateTaskCount, updateCounters } from "../utils/taskUtils";
+import { getAllTasks, getTaskById, allTasksArray, setAllTasks, getProjects, setProjects } from "../models/appState";
 
 const createTaskForm = () => {
     const form = document.createElement('form');
@@ -84,8 +85,42 @@ const createTaskElement = (task) => {
     checkbox.addEventListener('change', function (event) {
         event.stopImmediatePropagation();
         task.status = this.checked ? 'complete' : 'incomplete'; // Update the task's completed property
+
+        // Debugging statement
+        console.log(`Task "${task.title}" status changed to: ${task.status}`);
+
+        // Update tasks arrays and save to local storage
+        const allTasks = getAllTasks();
+        const projects = getProjects();
+
+        if (this.checked) {
+            // Remove task from project tasks if marked complete
+            const project = projects.find(p => p.name === task.projectName);
+            if (project) {
+                project.tasks = project.tasks.filter(t => t.id !== task.id);
+            }
+            // Remove task from allTasks array
+            // const updatedAllTasks = allTasks.filter(t => t.id !== task.id);
+            // setAllTasks(updatedAllTasks);
+        } else {
+            // Re-add task to allTasks array if marked incomplete
+            // allTasks.push(task);
+            // setAllTasks(allTasks);
+            // Re-add task to project tasks if marked incomplete
+            const project = projects.find(p => p.name === task.projectName);
+            if (project) {
+                project.tasks.push(task);
+            }
+        }
+
+        saveToLocalStorage('projects', projects);
         saveToLocalStorage('tasks', getAllTasks());
-        renderAllTasksView(getAllTasks());
+
+        console.log('Filtered Tasks after status change:', getAllTasks().filter(t => t.status === 'complete'));
+
+        renderFilteredTasks('all');
+        renderFilteredTasks('completed');
+        // renderAllTasksView(getAllTasks());
     });
 
     taskElement.appendChild(checkbox);
@@ -120,7 +155,7 @@ const createTaskElement = (task) => {
     deleteBtn.addEventListener('click', (event) => {
         event.stopPropagation();
         deleteTask(task);
-        renderAllTasksView(getAllTasks)
+        renderAllTasksView(getAllTasks)//check this line
 
     });
     taskElement.appendChild(deleteBtn);
@@ -257,12 +292,15 @@ function renderFilteredTasks(filterType) {
             filteredTasks = allTasksArray.filter(isTaskOverdue);
             break;
         case 'completed':
-            filteredTasks = allTasksArray.filter(task => task.status === 'complete');
+            filteredTasks = allTasksArray.filter(isTaskCompleted);
             break;
         default:
-            filteredTasks = allTasksArray;
+            filteredTasks = allTasksArray.filter(task => task.status !== 'complete');
             break;
     }
+
+    console.log(`Rendering ${filterType} tasks:`, filteredTasks);
+
     // cherck position of this code after refactoring
     filteredTasks.forEach(task => {
         const taskElement = createTaskElement(task);
@@ -300,21 +338,7 @@ function renderAllTasksView(tasks) {
         tasksContainer.appendChild(taskElement);
     });
 }
-// function renderAllTasksView(tasks) {
-//     const tasksContainer = document.querySelector('.tasks-container');
-//     if (!tasksContainer) {
-//         console.error("Tasks container not found in the DOM");
-//         return;
-//     }
 
-//     console.log('Rendering all tasks:', tasks);  // Debug log
-
-//     tasksContainer.innerHTML = '<h2>All Tasks</h2>';
-//     tasks.forEach(task => {
-//         const taskElement = createTaskElement(task);
-//         tasksContainer.appendChild(taskElement);
-//     });
-// }
 
 const showTaskDetailModal = (task) => {
     const taskDetailModal = document.getElementById('taskDetailModal');
@@ -373,6 +397,8 @@ const hideTaskDetailModal = () => {
     }
 
 };
+
+
 export {
     createTaskForm, createTaskElement, createTaskDetailModal, createTaskList, closeNewTaskModal, showTaskForm,
     toggleTaskFormVisibility, renderFilteredTasks, renderTasks, renderAllTasksView, showTaskDetailModal, closeTaskDetailModal, hideTaskDetailModal

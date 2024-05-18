@@ -2,6 +2,7 @@
 import { Task } from '../models/taskModel';
 import { renderAllTasksView, renderTasks, showTaskDetailModal, closeTaskDetailModal, hideTaskDetailModal, toggleTaskFormVisibility, closeNewTaskModal } from '../views/taskView';
 import { saveToLocalStorage } from '../utils/localStorage';
+import { isTaskDueToday, isTaskOverdue, isTaskUpcoming, isTaskCompleted, calculateTaskCount, updateCounters } from '../utils/taskUtils';
 import { updateMainContentForProject } from './projectController';
 import { projectsArray, getCurrentProject, getProjects, getAllTasks, getTaskById, setAllTasks, setProjects } from '../models/appState';
 
@@ -45,22 +46,6 @@ function deleteTask(taskToDelete) {
 
     renderAllTasksView(updatedAllTasks); // Ensure we're passing an array
 }
-// const deleteTask = (taskId) => {
-//     const projects = getProjects();
-//     const allTasks = getAllTasks();
-
-//     const updatedAllTasks = allTasks.filter(task => task.id !== taskId);
-//     setAllTasks(updatedAllTasks);
-
-//     projects.forEach(project => {
-//         project.tasks = project.tasks.filter(task => task.id !== taskId);
-//     });
-//     setProjects(projects);
-
-//     saveToLocalStorage('projects', projects);
-//     saveToLocalStorage('tasks', updatedAllTasks);
-//     renderAllTasksView(updatedAllTasks);
-// };
 
 
 const saveCurrentTask = (taskId) => {
