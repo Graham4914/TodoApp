@@ -127,6 +127,7 @@ const createTaskElement = (task) => {
 
         renderFilteredTasks('all');
         renderFilteredTasks('completed');
+        updateCounters();
 
         console.log('Filtered Tasks after status change:', getAllTasks().filter(t => t.status === 'complete'));
 
@@ -284,15 +285,13 @@ const toggleTaskFormVisibility = (show) => {
 };
 
 function renderFilteredTasks(filterType) {
+
     const tasksContainer = document.querySelector('.tasks-container');
-    let heading = filterType.charAt(0).toUpperCase() + filterType.slice(1);
+    console.log(`Filter type received: ${filterType}`);  // Debug log to verify filter type received
+    const headingText = filterType === 'all' ? 'All Tasks' : filterType.charAt(0).toUpperCase() + filterType.slice(1);
+    console.log(`Setting heading to: ${headingText}`);
+    tasksContainer.innerHTML = `<h2>${headingText}</h2>`;
 
-    // Special case for 'all' filter
-    if (filterType === 'all') {
-        heading = 'All Tasks';
-    }
-
-    tasksContainer.innerHTML = `<h2>${heading}</h2>`;
 
     let filteredTasks = [];
     switch (filterType) {

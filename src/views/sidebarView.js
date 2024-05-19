@@ -3,6 +3,7 @@
 import { createProjectListElement } from "./projectView";
 import { showTaskForm, renderAllTasksView, renderFilteredTasks } from "./taskView";
 import { getProjects, setProjects, addProject, getAllTasks } from "../models/appState";
+import { updateCounters } from "../utils/taskUtils";
 
 
 const createSidebar = () => {
@@ -14,31 +15,37 @@ const createSidebar = () => {
     taskListTitle.classList.add('task-list-title');
 
     const addButton = document.createElement('button');
-    addButton.textContent = '+ Add Task';
+    addButton.textContent = '+ ';
     addButton.classList.add('add-task-button');
     addButton.id = 'add-task-button';
     addButton.addEventListener('click', showTaskForm);
 
-
-    sidebar.appendChild(taskListTitle);
     sidebar.appendChild(addButton);
+    sidebar.appendChild(taskListTitle);
 
-    const buttonNames = [
-        { name: 'All Tasks', id: 'all-tasks-button', filter: 'all' },
-        { name: 'Today', id: 'today-tasks-button', filter: 'today' },
-        { name: 'Upcoming', id: 'upcoming-tasks-button', filter: 'upcoming' },
-        { name: 'Overdue', id: 'overdue-tasks-button', filter: 'overdue' },
-        { name: 'Completed', id: 'completed-tasks-button', filter: 'completed' }
-    ];
-
-    buttonNames.forEach(buttonData => {
+    const buttonNames = ['All', 'Today', 'Upcoming', 'Overdue', 'Completed'];
+    buttonNames.forEach(name => {
         const button = document.createElement('button');
-        button.textContent = buttonData.name;
-        button.id = buttonData.id;
+        button.textContent = `${name} `;
         button.classList.add('nav-button');
-        button.addEventListener('click', () => renderFilteredTasks(buttonData.filter));
+        button.id = `${name.toLowerCase().replace(' ', '-')}-button`;
+
+        console.log(`Created button with ID: ${button.id}`); // Debugging line
+
+        const counter = document.createElement('span');
+        counter.classList.add('task-counter');
+        button.appendChild(counter);
+
+        button.addEventListener('click', () => {
+            const filterType = name.toLowerCase().replace(' ', '');
+            console.log(`Button clicked: ${filterType}`);
+            renderFilteredTasks(filterType);
+            updateCounters();
+        });
+
         sidebar.appendChild(button);
     });
+
 
 
 

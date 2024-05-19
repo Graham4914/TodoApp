@@ -1,4 +1,4 @@
-
+import { getAllTasks } from "../models/appState";
 
 
 function isTaskDueToday(task) {
@@ -30,42 +30,58 @@ function isTaskCompleted(task) {
 
 
 function calculateTaskCount(filterCriteria) {
+    const allTasks = getAllTasks();
+
+    console.log(`Calculating count for filter: ${filterCriteria}`);
+    console.log('All tasks:', allTasks);
+
     switch (filterCriteria) {
         case 'all':
-            return allTasksArray.length;
+            return allTasks.filter(task => task.status !== 'complete').length;
         case 'today':
-            return allTasksArray.filter(isTaskDueToday).length;
+            return allTasks.filter(isTaskDueToday).length;
         case 'upcoming':
-            return allTasksArray.filter(isTaskUpcoming).length;
+            return allTasks.filter(isTaskUpcoming).length;
         case 'overdue':
-            return allTasksArray.filter(isTaskOverdue).length;
+            return allTasks.filter(isTaskOverdue).length;
         case 'completed':
-            return allTasksArray.filter(isTaskCompleted).length;
+            return allTasks.filter(isTaskCompleted).length;
         default:
             return 0; //example
     }
 }
 
 function updateCounters() {
-    const updateCounter = (buttonId) => {
-        const buttonContainer = document.querySelector(`#${buttonId}`).parentNode;
-        if (buttonContainer) {
-            const span = buttonContainer.querySelector('.task-counter');
-            if (span) {
-                span.textContent = calculateTaskCount(buttonId.replace('-button', ''));
-            } else {
-                console.error(`Counter span not found in container for button with ID ${buttonId}.`);
-            }
-        } else {
-            console.error(`Container for button with ID ${buttonId} is not found.`);
+    const updateCounter = (filterCriteria, buttonId) => {
+        const button = document.querySelector(`#${buttonId}`);
+        if (!button) {
+            console.error(`Button with ID ${buttonId} not found.`);
+            return;
         }
+
+        console.log(`Updating counter for button with ID: ${buttonId}`); // Debugging line
+
+        const span = button.querySelector('.task-counter');
+        if (!span) {
+            console.error(`Counter span not found in button with ID ${buttonId}.`);
+            return;
+        }
+
+        span.textContent = calculateTaskCount(filterCriteria);
     };
 
-    updateCounter('all-tasks-button');
-    updateCounter('today-tasks-button');
-    updateCounter('upcoming-tasks-button');
-    updateCounter('overdue-tasks-button');
-    updateCounter('completed-tasks-button');
+    const buttonIds = ['all-button', 'today-button', 'upcoming-button', 'overdue-button', 'completed-button'];
+    const filterTypes = ['all', 'today', 'upcoming', 'overdue', 'completed'];
+
+    buttonIds.forEach((buttonId, index) => {
+        console.log(`Attempting to update counter for button with ID: ${buttonId}`); // Debugging line
+        updateCounter(filterTypes[index], buttonId);
+    });
 }
+
+
+
+
+
 
 export { isTaskDueToday, isTaskOverdue, isTaskUpcoming, isTaskCompleted, calculateTaskCount, updateCounters };

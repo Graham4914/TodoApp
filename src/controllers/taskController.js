@@ -23,6 +23,7 @@ const closeTaskDetail = () => {
     saveCurrentTask(currentEditingTaskId);
     currentEditingTaskId = null;
     hideTaskDetailModal();
+    updateCounters();
 };
 
 function deleteTask(taskToDelete) {
@@ -42,6 +43,7 @@ function deleteTask(taskToDelete) {
     saveToLocalStorage('projects', projects);
     saveToLocalStorage('tasks', updatedAllTasks);
     renderAllTasksView(updatedAllTasks);
+    updateCounters();
 }
 
 
@@ -80,10 +82,10 @@ const saveCurrentTask = (taskId) => {
         }
     }
 
-    saveToLocalStorage('projects', projects);
-    saveToLocalStorage('tasks', allTasks);
+    saveAppState();
     renderAllTasksView(allTasks);
     updateMainContentForProject(getCurrentProject());
+    updateCounters();
 
     console.log("Updated Task Data", JSON.stringify(task));
 };

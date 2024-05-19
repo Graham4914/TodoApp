@@ -5,6 +5,7 @@ import { initializeApp } from './controllers/appController';
 import { getProjects, addProject, setCurrentProject, getAllTasks, loadAppState, saveAppState } from './models/appState';
 import { createTaskForm, createTaskDetailModal, renderFilteredTasks, renderAllTasksView, showTaskForm } from './views/taskView';
 import { loadProjects } from './views/projectView';
+import { updateCounters } from './utils/taskUtils';
 import './style.css';
 
 // Initialize and load the application
@@ -31,6 +32,7 @@ const loadApplication = () => {
         saveAppState();
     }
     renderFilteredTasks('all');
+    updateCounters();
 
     // Append the hidden task form to the main content
     const taskFormContainer = createTaskForm();
@@ -48,14 +50,15 @@ document.addEventListener('DOMContentLoaded', () => {
     loadApplication();
     loadProjects();
 
+
     const mainContent = document.getElementById('main-content');
     if (!mainContent) {
         console.error('Main content area is missing');
         return;
     }
 
-    const taskFormContainer = createTaskForm();
-    mainContent.appendChild(taskFormContainer);
+    // const taskFormContainer = createTaskForm();
+    // mainContent.appendChild(taskFormContainer);
 
 
     const addButton = document.getElementById('add-task-button');
@@ -66,5 +69,6 @@ document.addEventListener('DOMContentLoaded', () => {
     } else {
         console.error('Add Task button not found');
     }
+    // updateCounters();
 });
 
