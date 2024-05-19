@@ -7,21 +7,48 @@ import { updateCounters } from "../utils/taskUtils";
 
 
 const createSidebar = () => {
+    // const sidebar = document.createElement('div');
+    // sidebar.classList.add('sidebar');
+
+    // const taskListTitle = document.createElement('h2')
+    // taskListTitle.textContent = 'Tasks';
+    // taskListTitle.classList.add('task-list-title');
+
+    // const addButton = document.createElement('button');
+    // addButton.textContent = '+ ';
+    // addButton.classList.add('add-task-button');
+    // addButton.id = 'add-task-button';
+    // addButton.addEventListener('click', showTaskForm);
+
+    // sidebar.appendChild(addButton);
+    // sidebar.appendChild(taskListTitle);
     const sidebar = document.createElement('div');
     sidebar.classList.add('sidebar');
 
-    const taskListTitle = document.createElement('h2')
-    taskListTitle.textContent = 'Tasks';
-    taskListTitle.classList.add('task-list-title');
+    // Task Header Container
+    const taskHeaderContainer = document.createElement('div');
+    taskHeaderContainer.classList.add('task-header-container');
 
-    const addButton = document.createElement('button');
-    addButton.textContent = '+ ';
-    addButton.classList.add('add-task-button');
-    addButton.id = 'add-task-button';
-    addButton.addEventListener('click', showTaskForm);
+    const tasksHeading = document.createElement('h2');
+    tasksHeading.classList.add('tasks-heading');
+    tasksHeading.textContent = 'Tasks';
 
-    sidebar.appendChild(addButton);
-    sidebar.appendChild(taskListTitle);
+    const taskControls = document.createElement('div');
+    taskControls.classList.add('task-controls');
+
+    const addTaskButton = document.createElement('button');
+    addTaskButton.classList.add('add-task-button');
+    addTaskButton.textContent = '+';
+    addTaskButton.addEventListener('click', () => {
+        // Add your logic to show the add task form
+        showTaskForm();
+    });
+
+    taskControls.appendChild(addTaskButton);
+    taskHeaderContainer.appendChild(tasksHeading);
+    taskHeaderContainer.appendChild(taskControls);
+    sidebar.appendChild(taskHeaderContainer);
+
 
     const buttonNames = ['All', 'Today', 'Upcoming', 'Overdue', 'Completed'];
     buttonNames.forEach(name => {

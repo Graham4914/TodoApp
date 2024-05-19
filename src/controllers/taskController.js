@@ -123,6 +123,7 @@ const addTaskToProject = (title, description, dueDate, priority, projectName) =>
         setProjects(projects);
         saveAppState();
         renderAllTasksView(allTasks);
+        updateCounters();
         console.log('Task added, updated tasks list:', allTasks);
     } catch (error) {
         console.error('Failed to add task in addTaskToProject:', error);
