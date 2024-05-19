@@ -14,7 +14,6 @@ const createProjectListElement = () => {
     const headerContainer = document.createElement('div');
     headerContainer.classList.add('project-header-container');
 
-
     const projectListTitle = document.createElement('h2');
     projectListTitle.textContent = 'Projects';
     projectListTitle.classList.add('projects-heading');
@@ -61,7 +60,6 @@ const getProjectNameFromUser = (onSubmit) => {
     }
 };
 
-
 const loadProjects = () => {
     const storedProjects = loadFromLocalStorage('projects') || [];
     if (storedProjects.length === 0) {
@@ -73,7 +71,6 @@ const loadProjects = () => {
     }
     updateProjectListUI();
 };
-
 
 const updateProjectListUI = () => {
     const projects = getProjects();
@@ -94,10 +91,6 @@ const updateProjectListUI = () => {
         projectListElement.appendChild(projectElement);
     });
 };
-
-
-
-
 
 
 function createProjectContent(project) {
@@ -149,7 +142,6 @@ function generateProjectDropdown(id) {
     const select = document.createElement('select');
     select.id = id || 'projectSelect';
 
-
     const noProjectOption = document.createElement('option');
     noProjectOption.textContent = "No Project";
     noProjectOption.value = "";
@@ -185,11 +177,6 @@ function closeProjectView() {
         tasksContainer.innerHTML = '';
     }
 }
-
-
-
-
-
 
 
 export { createProjectListElement, createProjectContent, generateProjectDropdown, closeProjectView, updateProjectListUI, getProjectNameFromUser, loadProjects, updateAllProjectDropdowns };

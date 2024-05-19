@@ -29,8 +29,6 @@ function isTaskCompleted(task) {
 }
 
 
-
-
 function calculateTaskCount(filterCriteria) {
     switch (filterCriteria) {
         case 'all':

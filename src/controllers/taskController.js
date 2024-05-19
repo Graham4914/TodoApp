@@ -4,7 +4,7 @@ import { renderAllTasksView, renderTasks, showTaskDetailModal, closeTaskDetailMo
 import { saveToLocalStorage } from '../utils/localStorage';
 import { isTaskDueToday, isTaskOverdue, isTaskUpcoming, isTaskCompleted, calculateTaskCount, updateCounters } from '../utils/taskUtils';
 import { updateMainContentForProject } from './projectController';
-import { projectsArray, getCurrentProject, getProjects, getAllTasks, getTaskById, setAllTasks, setProjects } from '../models/appState';
+import { projectsArray, getCurrentProject, getProjects, getAllTasks, getTaskById, setAllTasks, saveAppState, setProjects } from '../models/appState';
 
 let currentEditingTaskId = null;
 
@@ -17,8 +17,6 @@ const openTaskDetail = (taskId) => {
     } else {
         console.error("Task not found with ID:", taskId);
     }
-
-
 };
 
 const closeTaskDetail = () => {
@@ -43,8 +41,7 @@ function deleteTask(taskToDelete) {
     setAllTasks(updatedAllTasks);
     saveToLocalStorage('projects', projects);
     saveToLocalStorage('tasks', updatedAllTasks);
-
-    renderAllTasksView(updatedAllTasks); // Ensure we're passing an array
+    renderAllTasksView(updatedAllTasks);
 }
 
 
@@ -91,7 +88,6 @@ const saveCurrentTask = (taskId) => {
     console.log("Updated Task Data", JSON.stringify(task));
 };
 
-
 const addTaskToProject = (title, description, dueDate, priority, projectName) => {
     console.log('Adding task with:', { title, description, dueDate, priority, projectName });
     const projects = getProjects();
@@ -100,7 +96,15 @@ const addTaskToProject = (title, description, dueDate, priority, projectName) =>
     console.log('Current state before adding:', { allTasks, projects });
 
     try {
-        const newTask = Task(title, description, dueDate, priority, projectName);
+        const newTask = {
+            id: `task-${Date.now()}`, // Generate a unique ID for the task
+            title,
+            description,
+            dueDate,
+            priority,
+            projectName,
+            status: 'incomplete' // Default status
+        };
         allTasks.push(newTask);
 
         if (projectName) {
@@ -112,12 +116,10 @@ const addTaskToProject = (title, description, dueDate, priority, projectName) =>
                 console.log('No project found with name:', projectName);
             }
         }
-        saveToLocalStorage('projects', projects);
-        saveToLocalStorage('tasks', allTasks);
 
         setAllTasks(allTasks);
         setProjects(projects);
-
+        saveAppState();
         renderAllTasksView(allTasks);
         console.log('Task added, updated tasks list:', allTasks);
     } catch (error) {
@@ -125,6 +127,7 @@ const addTaskToProject = (title, description, dueDate, priority, projectName) =>
         throw error; // Rethrow or handle the error appropriately
     }
 };
+
 
 const handleFormSubmit = (event) => {
     event.preventDefault();

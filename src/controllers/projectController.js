@@ -5,9 +5,6 @@ import { updateProjectListUI, createProjectContent, updateAllProjectDropdowns, g
 import { createTaskList, renderAllTasksView } from "../views/taskView";
 import { addProject, getProjects, setProjects, setCurrentProject, getCurrentProject, getAllTasks, currentProject } from "../models/appState";
 
-// function handleProjectClose() {
-//     closeProjectView();
-// }
 
 const addNewProject = () => {
     const projectName = prompt('Enter new project name:');
@@ -17,8 +14,7 @@ const addNewProject = () => {
         setCurrentProject(newProject);
         updateProjectListUI();
         saveToLocalStorage('projects', getProjects());
-        // Update the task form dropdown
-        updateAllProjectDropdowns(); // Ensure all dropdowns are updated
+        updateAllProjectDropdowns();
     } else {
         alert("Project name cannot be empty.");
     }
@@ -41,8 +37,6 @@ const deleteProject = (project) => {
     updateProjectListUI();
     renderAllTasksView(allTasks);
 };
-
-
 
 const updateMainContentForProject = () => {
     const project = getCurrentProject();

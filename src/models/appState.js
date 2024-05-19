@@ -38,3 +38,13 @@ export const getTaskById = (taskId) => {
     const allTasks = getAllTasks();
     return allTasks.find(task => task.id === taskId);
 };
+
+export const loadAppState = () => {
+    projectsArray = loadFromLocalStorage('projects');
+    allTasksArray = loadFromLocalStorage('tasks');
+};
+
+export const saveAppState = () => {
+    saveToLocalStorage('projects', projectsArray);
+    saveToLocalStorage('tasks', allTasksArray);
+};

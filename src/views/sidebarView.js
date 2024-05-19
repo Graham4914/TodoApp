@@ -1,7 +1,5 @@
 // sidebarView.js
 
-// import { calculateTaskCount } from "../utils/taskUtils";
-// import { getAllTasks } from "../models/appState";
 import { createProjectListElement } from "./projectView";
 import { showTaskForm, renderAllTasksView, renderFilteredTasks } from "./taskView";
 import { getProjects, setProjects, addProject, getAllTasks } from "../models/appState";
@@ -25,39 +23,23 @@ const createSidebar = () => {
     sidebar.appendChild(taskListTitle);
     sidebar.appendChild(addButton);
 
-    const buttonNames = ['All Tasks', 'Today', 'Upcoming', 'Overdue', 'Completed'];
-    const buttonIds = ['all-tasks-button', 'today-tasks-button', 'upcoming-tasks-button', 'overdue-tasks-button', 'completed-tasks-button'];
+    const buttonNames = [
+        { name: 'All Tasks', id: 'all-tasks-button', filter: 'all' },
+        { name: 'Today', id: 'today-tasks-button', filter: 'today' },
+        { name: 'Upcoming', id: 'upcoming-tasks-button', filter: 'upcoming' },
+        { name: 'Overdue', id: 'overdue-tasks-button', filter: 'overdue' },
+        { name: 'Completed', id: 'completed-tasks-button', filter: 'completed' }
+    ];
 
-    buttonNames.forEach((name, index) => {
+    buttonNames.forEach(buttonData => {
         const button = document.createElement('button');
-        button.textContent = name;
-        button.id = buttonIds[index];
+        button.textContent = buttonData.name;
+        button.id = buttonData.id;
         button.classList.add('nav-button');
-        button.addEventListener('click', () => renderFilteredTasks(name.toLowerCase().replace(' ', '')));
+        button.addEventListener('click', () => renderFilteredTasks(buttonData.filter));
         sidebar.appendChild(button);
     });
 
-    // // Add functionality to the All Tasks button
-    // const allTasksButton = document.createElement('button');
-    // allTasksButton.textContent = 'All Tasks';
-    // allTasksButton.classList.add('nav-button');
-    // allTasksButton.addEventListener('click', () => {
-    //     const allTasks = getAllTasks();
-    //     renderAllTasksView(allTasks);
-    // });
-
-    // sidebar.appendChild(allTasksButton);
-
-    // // Static button creation for demonstration
-    // const buttonNames = ['Today', 'Upcoming', 'Overdue', 'Completed'];
-    // buttonNames.forEach(name => {
-    //     const button = document.createElement('button');
-    //     button.textContent = name;
-    //     button.classList.add('nav-button');
-    //     // Uncomment below line once you are ready to add functionality back
-    //     button.addEventListener('click', () => console.log(name + ' clicked'));
-    //     sidebar.appendChild(button);
-    // });
 
 
     const projectListContainer = createProjectListElement();

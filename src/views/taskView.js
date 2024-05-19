@@ -1,9 +1,9 @@
 //taskView.js
 import { generateProjectDropdown } from "./projectView";
 import { handleFormSubmit, deleteTask, closeTaskDetail, openTaskDetail } from "../controllers/taskController";
-import { saveToLocalStorage } from "../utils/localStorage";
+import { saveToLocalStorage, loadFromLocalStorage } from "../utils/localStorage";
 import { isTaskDueToday, isTaskOverdue, isTaskUpcoming, isTaskCompleted, calculateTaskCount, updateCounters } from "../utils/taskUtils";
-import { getAllTasks, getTaskById, allTasksArray, setAllTasks, getProjects, setProjects } from "../models/appState";
+import { getAllTasks, getTaskById, allTasksArray, setAllTasks, getProjects, setProjects, saveAppState } from "../models/appState";
 
 const createTaskForm = () => {
     const form = document.createElement('form');
@@ -52,7 +52,6 @@ const createTaskForm = () => {
     closeButton.addEventListener('click', () => toggleTaskFormVisibility(false));
     form.appendChild(closeButton);
 
-
     //submit button
 
     const submitButton = document.createElement('button');
@@ -67,10 +66,8 @@ const createTaskForm = () => {
     formContainer.style.display = 'none';
     formContainer.appendChild(form);
 
-
     return formContainer;
 };
-
 
 const createTaskElement = (task) => {
     const taskElement = document.createElement('div');
@@ -90,8 +87,14 @@ const createTaskElement = (task) => {
         console.log(`Task "${task.title}" status changed to: ${task.status}`);
 
         // Update tasks arrays and save to local storage
-        const allTasks = getAllTasks();
+        let allTasks = getAllTasks();
         const projects = getProjects();
+
+        console.log("Initial allTasks:", allTasks);
+        console.log("Initial projects:", projects);
+
+        // Remove task from allTasks array to avoid duplication
+        allTasks = allTasks.filter(t => t.id !== task.id);
 
         if (this.checked) {
             // Remove task from project tasks if marked complete
@@ -99,28 +102,34 @@ const createTaskElement = (task) => {
             if (project) {
                 project.tasks = project.tasks.filter(t => t.id !== task.id);
             }
-            // Remove task from allTasks array
-            // const updatedAllTasks = allTasks.filter(t => t.id !== task.id);
-            // setAllTasks(updatedAllTasks);
+            console.log(`Task "${task.title}" marked as complete and removed from its project tasks:`, project);
         } else {
-            // Re-add task to allTasks array if marked incomplete
-            // allTasks.push(task);
-            // setAllTasks(allTasks);
-            // Re-add task to project tasks if marked incomplete
+            allTasks.push(task);
+            // Add task back to project tasks if marked incomplete
             const project = projects.find(p => p.name === task.projectName);
             if (project) {
                 project.tasks.push(task);
             }
+            console.log(`Task "${task.title}" marked as incomplete and added back to project tasks:`, project)
         }
 
-        saveToLocalStorage('projects', projects);
-        saveToLocalStorage('tasks', getAllTasks());
+        if (!allTasks.some(t => t.id === task.id)) {
+            allTasks.push(task);
+        }
+        console.log("Updated allTasks before setting:", allTasks);
 
-        console.log('Filtered Tasks after status change:', getAllTasks().filter(t => t.status === 'complete'));
+        setAllTasks(allTasks);
+        setProjects(projects);
+        saveAppState();
+
+        console.log("Updated allTasks after setting:", getAllTasks());
+        console.log("Updated projects after setting:", getProjects());
 
         renderFilteredTasks('all');
         renderFilteredTasks('completed');
-        // renderAllTasksView(getAllTasks());
+
+        console.log('Filtered Tasks after status change:', getAllTasks().filter(t => t.status === 'complete'));
+
     });
 
     taskElement.appendChild(checkbox);
@@ -136,7 +145,6 @@ const createTaskElement = (task) => {
 
     const priority = document.createElement('span');
     priority.textContent = `Priority: ${task.priority}`;
-
 
     taskElement.appendChild(title);
     taskElement.appendChild(description);
@@ -164,7 +172,6 @@ const createTaskElement = (task) => {
         if (event.target.type !== 'checkbox') {
             openTaskDetail(task.id);
         }
-
     });
 
     return taskElement;
@@ -278,7 +285,14 @@ const toggleTaskFormVisibility = (show) => {
 
 function renderFilteredTasks(filterType) {
     const tasksContainer = document.querySelector('.tasks-container');
-    tasksContainer.innerHTML = `<h2>${filterType.charAt(0).toUpperCase() + filterType.slice(1)}</h2>`;
+    let heading = filterType.charAt(0).toUpperCase() + filterType.slice(1);
+
+    // Special case for 'all' filter
+    if (filterType === 'all') {
+        heading = 'All Tasks';
+    }
+
+    tasksContainer.innerHTML = `<h2>${heading}</h2>`;
 
     let filteredTasks = [];
     switch (filterType) {
@@ -294,6 +308,7 @@ function renderFilteredTasks(filterType) {
         case 'completed':
             filteredTasks = allTasksArray.filter(isTaskCompleted);
             break;
+        case 'all':
         default:
             filteredTasks = allTasksArray.filter(task => task.status !== 'complete');
             break;
@@ -301,7 +316,6 @@ function renderFilteredTasks(filterType) {
 
     console.log(`Rendering ${filterType} tasks:`, filteredTasks);
 
-    // cherck position of this code after refactoring
     filteredTasks.forEach(task => {
         const taskElement = createTaskElement(task);
         tasksContainer.appendChild(taskElement);
@@ -352,8 +366,6 @@ const showTaskDetailModal = (task) => {
     document.getElementById('modalPriority').value = task.priority.toLowerCase();
     document.getElementById('modalProjectSelect').value = task.projectName; // assuming this select exists
 
-    // taskDetailModal.dataset.taskId = task.id;
-
     taskDetailModal.style.display = 'block';
 };
 
@@ -361,8 +373,6 @@ const closeTaskDetailModal = () => {
     const taskDetailModal = document.getElementById('taskDetailModal');
     if (taskDetailModal) {
         taskDetailModal.style.display = 'none';
-        // console.error('Task detail modal not found in the DOM');
-        // return;
     }
 
     // Save the changes to the task
@@ -397,7 +407,6 @@ const hideTaskDetailModal = () => {
     }
 
 };
-
 
 export {
     createTaskForm, createTaskElement, createTaskDetailModal, createTaskList, closeNewTaskModal, showTaskForm,
