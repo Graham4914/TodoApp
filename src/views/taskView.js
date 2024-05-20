@@ -135,26 +135,35 @@ const createTaskElement = (task) => {
 
     taskElement.appendChild(checkbox);
 
-    const title = document.createElement('h2');
+    const taskDetail = document.createElement('div');
+    taskDetail.classList.add('task-detail');
+
+    const title = document.createElement('span');
     title.textContent = task.title;
+    title.classList.add('task-title');
 
-    const description = document.createElement('p');
+    const description = document.createElement('span');
     description.textContent = task.description;
+    description.classList.add('task-description');
 
-    const dueDate = document.createElement('p');
+    taskDetail.appendChild(title);
+    taskDetail.appendChild(description);
+
+    // Right-aligned container for due date, priority, and delete button
+    const taskRightContainer = document.createElement('div');
+    taskRightContainer.classList.add('task-right-container');
+
+    const dueDate = document.createElement('span');
     dueDate.textContent = `Due:${task.dueDate}`;
+    dueDate.classList.add('task-due-date');
 
     const priority = document.createElement('span');
     priority.textContent = `Priority: ${task.priority}`;
+    priority.classList.add('task-priority', task.priority.toLowerCase());
 
-    taskElement.appendChild(title);
-    taskElement.appendChild(description);
-    taskElement.appendChild(dueDate);
-    taskElement.appendChild(priority);
-
-    //color coding
-    const priorityColors = { high: 'red', medium: 'yellow', low: 'green' };
-    priority.style.backgroundColor = priorityColors[task.priority.toLowerCase()];
+    // //color coding
+    // const priorityColors = { high: 'red', medium: 'yellow', low: 'green' };
+    // priority.style.backgroundColor = priorityColors[task.priority.toLowerCase()];
 
     //Delete button
     const deleteBtn = document.createElement('button');
@@ -167,13 +176,22 @@ const createTaskElement = (task) => {
         renderAllTasksView(getAllTasks)//check this line
 
     });
-    taskElement.appendChild(deleteBtn);
+
+    taskRightContainer.appendChild(dueDate);
+    taskRightContainer.appendChild(priority);
+    taskRightContainer.appendChild(deleteBtn);
+
+    taskElement.appendChild(taskDetail);
+    taskElement.appendChild(taskRightContainer);
 
     taskElement.addEventListener('click', function (event) {
         if (event.target.type !== 'checkbox') {
             openTaskDetail(task.id);
         }
     });
+
+
+
 
     return taskElement;
 };
