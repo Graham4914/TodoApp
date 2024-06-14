@@ -38,7 +38,7 @@ const createSidebar = () => {
 
     const addTaskButton = document.createElement('button');
     addTaskButton.classList.add('add-task-button');
-    addTaskButton.textContent = '+';
+    addTaskButton.innerHTML = '<i class="fas fa-plus"></i>';
     addTaskButton.addEventListener('click', () => {
         // Add your logic to show the add task form
         showTaskForm();

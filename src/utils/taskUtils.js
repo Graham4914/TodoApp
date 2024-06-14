@@ -1,6 +1,12 @@
 import { getAllTasks } from "../models/appState";
 
 
+function truncateText(text, maxLength) {
+    if (text.length > maxLength) {
+        return text.substring(0, maxLength) + '...';
+    }
+    return text;
+}
 function isTaskDueToday(task) {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
@@ -84,4 +90,4 @@ function updateCounters() {
 
 
 
-export { isTaskDueToday, isTaskOverdue, isTaskUpcoming, isTaskCompleted, calculateTaskCount, updateCounters };
+export { isTaskDueToday, isTaskOverdue, isTaskUpcoming, isTaskCompleted, calculateTaskCount, updateCounters, truncateText };

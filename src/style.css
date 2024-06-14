@@ -1,3 +1,13 @@
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&family=Roboto:wght@400;700&display=swap');
+
+body {
+    font-family: 'Roboto', sans-serif;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-family: 'Open Sans', sans-serif;
+}
+
 h1 {
     color: rgb(255, 33, 100);
 }
@@ -69,7 +79,7 @@ html,body {
     position: fixed;
     top: 50%;
     left:50%;
-    height: 600px;
+    height: 300px;
     transform: translate(-50%, -50%);
     background: white;
     padding: 30px;
@@ -77,9 +87,10 @@ html,body {
     
 }
 .task-form {
+ 
     display: flex;
     flex-direction: column;
-    width: 300px;
+    width: 600px;
     margin: auto;
 }
 
@@ -100,13 +111,12 @@ html,body {
     border-radius: 4px;
     cursor: pointer;
 }
-.task {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 10px;
-    border-bottom: 1px solid #ccc;
 
+.task {
+    padding: 10px 20px;
+    display: flex;
+    align-items: center;
+    border-bottom: 1px solid #ccc;
 }
 /* task list*/
 .tasks-container {
@@ -131,6 +141,7 @@ html,body {
     width: 20px;
     height: 20px;
     position: relative;
+    margin-right: 15px;
 }
 
 .task-checkbox:checked {
@@ -178,16 +189,17 @@ html,body {
     position: absolute;
     top: 4px;
     right: 4px;
-    color: white;
+    color: black;
     font-size: 28px;
     font-weight: bold;
-    background-color: red;
+   
     line-height: 1;
 }
 
 .close-modal:hover,
 .close-modal:focus {
     color: black;
+    background-color: #dc3545;
     text-decoration: none;
     cursor: pointer;
 }
@@ -274,14 +286,14 @@ button[type="submit"] {
     gap: 10px;
 }
 
-.add-task-button {
+/* .add-task-button {
     padding: 5px 10px;
     font-size: 16px;
     cursor: pointer;
     background-color: white;
     border: 1px solid #ccc;
     border-radius: 5px;
-}
+} */
 
 .add-task-button:hover {
     background-color: #e1e1e1;
@@ -296,13 +308,30 @@ button[type="submit"] {
     gap: 2px;
 }
 
+
+
 .task-title {
     font-weight: bold;
-    font-size: 1.2em;
+    font-size: 1em;
+    margin: 0 0 5px 0;
 }
+
+span.task-description {
+    font-size: .9em;
+    margin: 0;
+    max-width: 90%;
+}
+
 
 .task-due-date, .task-priority {
     font-size: 0.9em;
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+}
+
+.task .due-date {
+    margin-right: 15px;
 }
 
 .task-delete {
@@ -316,10 +345,12 @@ button[type="submit"] {
     flex-direction: column;
     align-items: flex-end;
     gap: 5px;
+    width: 150px;
+    
 }
 
 /* Ensure buttons and inputs have consistent spacing */
-button, input, textarea, select {
+input, textarea, select {
     margin-bottom: 10px;
 }
 .tasks-container h2 {
@@ -342,3 +373,198 @@ button, input, textarea, select {
 .task-priority.low {
     color: green;
 }
+
+/* Project heading*/
+.project-content {
+    border: 1px solid #ccc;
+    padding: 10px;
+    margin: 10px 0;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+}
+
+.project-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 5px;
+    background-color: #f4f4f4;
+    border-bottom: 1px solid #ccc;
+    position: relative;
+}
+
+.project-title-wrapper {
+    flex-grow: 1;
+    display: flex;
+    justify-content: center;
+}
+
+
+.project-title-input {
+    font-size: 18px;
+    font-weight: bold;
+    border: none;
+    background-color: transparent;
+    width: auto;
+    text-align: center;
+}
+
+.button-wrapper {
+    display: flex;
+    align-items: center;
+}
+
+.project-title-input:focus {
+    border-bottom: 1px solid #000;
+    outline: none;
+}
+
+.add-task-button, .close-button, .delete-button {
+    background-color: transparent;
+    color: #000;
+    border: none;
+    cursor: pointer;
+    padding: 5px;
+    margin-left: 5px;
+}
+
+.add-task-button:hover, .delete-button:hover {
+    background-color: #ccc;
+}
+
+.add-task-button i, .close-button i, .delete-button i {
+    font-size: 18px;
+}
+
+
+.add-task-button i {
+    color: #28a745;
+}
+
+.delete-button i {
+    color: #dc3545;
+}
+
+.close-button i {
+    color: black;
+    /* position: absolute; */
+    top: 5px;
+    right: 5px;
+}
+
+.close-button:hover, .close-button i:hover {
+    background-color: #dc3545;
+    color: white;
+}
+
+/* Styles for the task detail modal */
+.task-detail-modal {
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    top: 20%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 80%;
+    max-width: 600px;
+    max-height: 80vh; /* Make sure modal doesn't exceed viewport height */
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+    overflow-y: auto; /* Add vertical scroll if content overflows */
+}
+/* Background overlay */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.4); /* Transparent background */
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.modal-header input.modal-title {
+    flex-grow: 1;
+    font-size: 24px;
+    border: none;
+    border-bottom: 2px solid #ccc;
+    outline: none;
+}
+.modal-description {
+    width: 100%;
+    padding: 10px;
+    box-sizing: border-box;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 16px;
+    resize: vertical; /* Allow vertical resizing only */
+    overflow-y: auto; /* Add scroll if content overflows */
+}
+
+.modal-header .close-modal {
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+}
+
+.modal-body {
+    flex-grow: 1; /* Ensure the body takes up available space */
+    overflow-y: auto; /* Add scroll if content overflows */
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.modal-body input,
+.modal-body textarea,
+.modal-body select
+ {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 16px;
+}
+#modalDueDate {
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: auto; /* Push footer to the bottom */
+}
+
+.modal-footer .save-button {
+    padding: 10px 20px;
+    background-color: #4caf50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.modal-footer .cancel-button {
+    padding: 10px 20px;
+    background-color: #f44336;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+

@@ -97,6 +97,12 @@ function createProjectContent(project) {
     const projectContent = document.createElement('div');
     projectContent.classList.add('project-content');
 
+    const projectHeader = document.createElement('div');
+    projectHeader.classList.add('project-header');
+
+    const projectTitleWrapper = document.createElement('div');
+    projectTitleWrapper.classList.add('project-title-wrapper');
+
     const projectTitleInput = document.createElement('input');
     projectTitleInput.type = 'text';
     projectTitleInput.value = project.name;
@@ -112,28 +118,40 @@ function createProjectContent(project) {
         }
     });
 
-    projectContent.appendChild(projectTitleInput);
-    // Check if projectTitle is set correctly
-    console.log("projectTitle set to:", projectTitleInput);
+    projectTitleWrapper.appendChild(projectTitleInput);
+    projectHeader.appendChild(projectTitleWrapper);
+
+    const buttonWrapper = document.createElement('div');
+    buttonWrapper.classList.add('button-wrapper');
 
     const addTaskButton = document.createElement('button');
-    addTaskButton.textContent = "Add Task to Project";
+    addTaskButton.innerHTML = '<i class="fas fa-plus"></i>';
+    addTaskButton.classList.add('add-task-button');
     addTaskButton.addEventListener('click', showTaskForm);
-    projectContent.appendChild(addTaskButton);
-
-    // add project close button
-    const closeButton = document.createElement('button');
-    closeButton.textContent = 'X';
-    closeButton.classList.add('close-button');
-    closeButton.addEventListener('click', () => closeProjectView());
-    projectContent.appendChild(closeButton);
+    buttonWrapper.appendChild(addTaskButton);
 
     //add delete button
     const deleteButton = document.createElement('button');
-    deleteButton.textContent = 'Delete';
+    deleteButton.innerHTML = '<i class="fas fa-trash-alt"></i>';
     deleteButton.classList.add('delete-button');
     deleteButton.addEventListener('click', () => deleteProject(project));
-    projectContent.appendChild(deleteButton)
+    buttonWrapper.appendChild(deleteButton);
+
+    projectHeader.appendChild(buttonWrapper);
+
+    // add project close button
+    const closeButton = document.createElement('button');
+    closeButton.innerHTML = '<i class="fas fa-times"></i>';
+    closeButton.classList.add('close-button');
+    closeButton.addEventListener('click', () => closeProjectView());
+    projectHeader.appendChild(closeButton);
+
+
+    projectContent.appendChild(projectHeader);
+
+
+    // Check if projectTitle is set correctly
+    console.log("projectTitle set to:", projectTitleInput);
 
     return projectContent;
 }

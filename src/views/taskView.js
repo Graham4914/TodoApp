@@ -2,7 +2,7 @@
 import { generateProjectDropdown } from "./projectView";
 import { handleFormSubmit, deleteTask, closeTaskDetail, openTaskDetail } from "../controllers/taskController";
 import { saveToLocalStorage, loadFromLocalStorage } from "../utils/localStorage";
-import { isTaskDueToday, isTaskOverdue, isTaskUpcoming, isTaskCompleted, calculateTaskCount, updateCounters } from "../utils/taskUtils";
+import { isTaskDueToday, isTaskOverdue, isTaskUpcoming, isTaskCompleted, calculateTaskCount, updateCounters, truncateText } from "../utils/taskUtils";
 import { getAllTasks, getTaskById, allTasksArray, setAllTasks, getProjects, setProjects, saveAppState } from "../models/appState";
 
 const createTaskForm = () => {
@@ -143,7 +143,7 @@ const createTaskElement = (task) => {
     title.classList.add('task-title');
 
     const description = document.createElement('span');
-    description.textContent = task.description;
+    description.textContent = truncateText(task.description, 100);
     description.classList.add('task-description');
 
     taskDetail.appendChild(title);
@@ -161,14 +161,11 @@ const createTaskElement = (task) => {
     priority.textContent = `Priority: ${task.priority}`;
     priority.classList.add('task-priority', task.priority.toLowerCase());
 
-    // //color coding
-    // const priorityColors = { high: 'red', medium: 'yellow', low: 'green' };
-    // priority.style.backgroundColor = priorityColors[task.priority.toLowerCase()];
 
     //Delete button
     const deleteBtn = document.createElement('button');
-    deleteBtn.textContent = 'Delete';
-    deleteBtn.classList.add('delete-task-button');
+    deleteBtn.innerHTML = '<i class="fas fa-trash-alt"></i>';
+    deleteBtn.classList.add('delete-button');
 
     deleteBtn.addEventListener('click', (event) => {
         event.stopPropagation();
@@ -190,13 +187,9 @@ const createTaskElement = (task) => {
         }
     });
 
-
-
-
     return taskElement;
 };
 
-//Create task detail modal
 function createTaskDetailModal() {
     const modal = document.createElement('div');
     modal.id = 'taskDetailModal';
@@ -204,18 +197,28 @@ function createTaskDetailModal() {
     modal.classList.add('modal');
 
     const modalContent = document.createElement('div');
-    modalContent.classList.add('modal-content');
+    modalContent.classList.add('modal-content', 'task-detail-modal');
+
+    const modalHeader = document.createElement('div');
+    modalHeader.classList.add('modal-header');
 
     const closeButton = document.createElement('span');
-    closeButton.classList.add('close-modal');
-    closeButton.id = 'closeButton';
-    closeButton.textContent = 'X';
-    closeButton.onclick = closeTaskDetail;
+    closeButton.classList.add('close-modal', 'fas', 'fa-times');
+    closeButton.onclick = () => closeTaskDetailModal(false);
 
     const titleInput = document.createElement('input');
-    titleInput.type = 'text'
+    titleInput.type = 'text';
     titleInput.classList.add('modal-title');
     titleInput.id = 'modalTitle';
+
+    modalHeader.appendChild(titleInput);
+    modalHeader.appendChild(closeButton);
+
+    const modalBody = document.createElement('div');
+    modalBody.classList.add('modal-body');
+
+    const projectDropdown = generateProjectDropdown();
+    projectDropdown.id = 'modalProjectSelect';
 
     const description = document.createElement('textarea');
     description.classList.add('modal-description');
@@ -233,25 +236,41 @@ function createTaskDetailModal() {
     priority.id = 'modalPriority';
     ['High', 'Medium', 'Low'].forEach((p) => {
         const option = document.createElement('option');
-        option.value = p.toLocaleLowerCase();
+        option.value = p.toLowerCase();
         option.textContent = p;
         priority.appendChild(option);
     });
 
-    const projectDropdown = generateProjectDropdown();
-    projectDropdown.id = 'modalProjectSelect';
-    modalContent.appendChild(projectDropdown);
-    modalContent.appendChild(titleInput);
-    modalContent.appendChild(closeButton);
-    modalContent.appendChild(description);
-    modalContent.appendChild(dueDate);
-    modalContent.appendChild(priority);
+    modalBody.appendChild(projectDropdown);
+    modalBody.appendChild(description);
+    modalBody.appendChild(dueDate);
+    modalBody.appendChild(priority);
 
+    const modalFooter = document.createElement('div');
+    modalFooter.classList.add('modal-footer');
+
+    const saveButton = document.createElement('button');
+    saveButton.classList.add('save-button');
+    saveButton.textContent = 'Save';
+    saveButton.onclick = () => closeTaskDetailModal(true);
+
+    const cancelButton = document.createElement('button');
+    cancelButton.classList.add('cancel-button');
+    cancelButton.textContent = 'Cancel';
+    cancelButton.onclick = () => closeTaskDetailModal(false);
+
+    modalFooter.appendChild(saveButton);
+    modalFooter.appendChild(cancelButton);
+
+    modalContent.appendChild(modalHeader);
+    modalContent.appendChild(modalBody);
+    modalContent.appendChild(modalFooter);
     modal.appendChild(modalContent);
     document.body.appendChild(modal);
 
     return modal;
-};
+}
+
 
 function createTaskList(tasks) {
     const tasksList = document.createElement('div');
@@ -370,51 +389,51 @@ function renderAllTasksView(tasks) {
     });
 }
 
-
 const showTaskDetailModal = (task) => {
-    const taskDetailModal = document.getElementById('taskDetailModal');
+    let taskDetailModal = document.getElementById('taskDetailModal');
     if (!taskDetailModal) {
-        console.error('Task detail modal not found in dom');
-        return;
+        taskDetailModal = createTaskDetailModal();
     }
+
+    taskDetailModal.dataset.taskId = task.id; // Store the task ID for later use
     document.getElementById('modalTitle').value = task.title;
     document.getElementById('modalDescription').value = task.description;
     document.getElementById('modalDueDate').value = task.dueDate;
     document.getElementById('modalPriority').value = task.priority.toLowerCase();
-    document.getElementById('modalProjectSelect').value = task.projectName; // assuming this select exists
+    document.getElementById('modalProjectSelect').value = task.projectName;
 
     taskDetailModal.style.display = 'block';
 };
 
-const closeTaskDetailModal = () => {
+
+const closeTaskDetailModal = (saveChanges) => {
     const taskDetailModal = document.getElementById('taskDetailModal');
     if (taskDetailModal) {
+        if (saveChanges) {
+            // Save the changes to the task
+            const title = document.getElementById('modalTitle').value;
+            const description = document.getElementById('modalDescription').value;
+            const dueDate = document.getElementById('modalDueDate').value;
+            const priority = document.getElementById('modalPriority').value;
+            const projectName = document.getElementById('modalProjectSelect').value;
+
+            // Find the task to update it
+            const taskId = taskDetailModal.dataset.taskId;
+            const task = getTaskById(taskId); // Implement getTaskById to find a task by its ID
+            if (task) {
+                task.title = title;
+                task.description = description;
+                task.dueDate = dueDate;
+                task.priority = priority;
+                task.projectName = projectName;
+
+                saveToLocalStorage('tasks', getAllTasks());
+                renderAllTasksView(getAllTasks());
+                // updateProjectListUI(); // To reflect changes in the project list if needed
+            }
+        }
         taskDetailModal.style.display = 'none';
     }
-
-    // Save the changes to the task
-    const title = document.getElementById('modalTitle').value;
-    const description = document.getElementById('modalDescription').value;
-    const dueDate = document.getElementById('modalDueDate').value;
-    const priority = document.getElementById('modalPriority').value;
-    const projectName = document.getElementById('modalProjectSelect').value;
-
-    // Find the task to update it
-    const taskId = taskDetailModal.dataset.taskId;
-    const task = getTaskById(taskId); // Implement getTaskById to find a task by its ID
-    if (task) {
-        task.title = title;
-        task.description = description;
-        task.dueDate = dueDate;
-        task.priority = priority;
-        task.projectName = projectName;
-
-        saveToLocalStorage('tasks', getAllTasks());
-        renderAllTasksView(getAllTasks());
-        updateProjectListUI(); // To reflect changes in the project list if needed
-    }
-
-    taskDetailModal.style.display = 'none';
 };
 
 const hideTaskDetailModal = () => {
@@ -422,8 +441,9 @@ const hideTaskDetailModal = () => {
     if (taskDetailModal) {
         taskDetailModal.style.display = 'none';
     }
-
 };
+
+
 
 export {
     createTaskForm, createTaskElement, createTaskDetailModal, createTaskList, closeNewTaskModal, showTaskForm,
