@@ -22,18 +22,31 @@ const createProjectListElement = () => {
     controlsContainer.classList.add('project-controls');
 
     const addProjectButton = document.createElement('button');
-    addProjectButton.textContent = '+';
-    addProjectButton.classList.add('add-project-button');
-    addProjectButton.addEventListener('click', addNewProject);
+    addProjectButton.classList.add('uniform-plus-button', 'add-project-button')
+    addProjectButton.innerHTML = '<i class="fas fa-plus"></i>';
+    // addProjectButton.addEventListener('click', addNewProject);
+    addProjectButton.addEventListener('click', () => {
+        const addProjectForm = document.querySelector('.add-project-form');
+        addProjectForm.style.display = addProjectForm.style.display === 'none' ? 'flex' : 'none';
+    });
 
     const toggleButton = document.createElement('button');
-    toggleButton.textContent = 'Hide';
-    toggleButton.classList.add('toggle-projects-button');
+    toggleButton.classList.add('toggle-button');
+    toggleButton.innerHTML = '<i class="fas fa-angle-up"></i>';
     toggleButton.addEventListener('click', () => {
         const projectList = document.getElementById('project-list');
-        projectList.style.display = (projectList.style.display === 'none' || projectList.style.display === '') ? 'block' : 'none';
-        toggleButton.textContent = projectList.style.display === 'block' ? 'Hide' : 'Show'
+        const isHidden = projectList.style.display === 'none';
+        projectList.style.display = isHidden ? 'block' : 'none';
+        toggleButton.innerHTML = isHidden ? '<i class="fas fa-angle-up"></i>' : '<i class="fas fa-angle-down"></i>';
     });
+    // toggleButton.textContent = 'Hide';
+    // toggleButton.classList.add('toggle-projects-button');
+
+    // toggleButton.addEventListener('click', () => {
+    //     const projectList = document.getElementById('project-list');
+    //     projectList.style.display = (projectList.style.display === 'none' || projectList.style.display === '') ? 'block' : 'none';
+    //     toggleButton.textContent = projectList.style.display === 'block' ? 'Hide' : 'Show'
+    // });
 
     controlsContainer.appendChild(addProjectButton);
     controlsContainer.appendChild(toggleButton);
@@ -42,6 +55,36 @@ const createProjectListElement = () => {
     headerContainer.appendChild(controlsContainer);
 
     projectListContainer.appendChild(headerContainer);
+
+    // Add Project Form
+    const addProjectForm = document.createElement('form');
+    addProjectForm.classList.add('add-project-form');
+    addProjectForm.style.display = 'none';
+
+    const projectNameInput = document.createElement('input');
+    projectNameInput.type = 'text';
+    projectNameInput.id = 'newProjectName';
+    projectNameInput.placeholder = 'Enter project name';
+
+    const submitButton = document.createElement('button');
+    submitButton.type = 'submit';
+    submitButton.textContent = 'Add';
+
+    addProjectForm.appendChild(projectNameInput);
+    addProjectForm.appendChild(submitButton);
+
+    addProjectForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const projectName = projectNameInput.value.trim();
+        if (projectName) {
+            addNewProject(projectName);
+            addProjectForm.style.display = 'none';
+            projectNameInput.value = '';
+        }
+    });
+
+    projectListContainer.appendChild(addProjectForm);
+
 
     const projectListElement = document.createElement('div');
     projectListElement.classList.add('project-list');

@@ -7,21 +7,7 @@ import { updateCounters } from "../utils/taskUtils";
 
 
 const createSidebar = () => {
-    // const sidebar = document.createElement('div');
-    // sidebar.classList.add('sidebar');
 
-    // const taskListTitle = document.createElement('h2')
-    // taskListTitle.textContent = 'Tasks';
-    // taskListTitle.classList.add('task-list-title');
-
-    // const addButton = document.createElement('button');
-    // addButton.textContent = '+ ';
-    // addButton.classList.add('add-task-button');
-    // addButton.id = 'add-task-button';
-    // addButton.addEventListener('click', showTaskForm);
-
-    // sidebar.appendChild(addButton);
-    // sidebar.appendChild(taskListTitle);
     const sidebar = document.createElement('div');
     sidebar.classList.add('sidebar');
 

@@ -6,15 +6,44 @@ import { createTaskList, renderAllTasksView } from "../views/taskView";
 import { addProject, getProjects, setProjects, setCurrentProject, getCurrentProject, getAllTasks, currentProject } from "../models/appState";
 
 
-const addNewProject = () => {
-    const projectName = prompt('Enter new project name:');
+// const addNewProject = () => {
+//     const projectName = prompt('Enter new project name:');
+//     if (projectName && projectName.trim() !== '') {
+//         const newProject = { name: projectName.trim(), tasks: [] };
+//         addProject(newProject);
+//         setCurrentProject(newProject);
+//         updateProjectListUI();
+//         saveToLocalStorage('projects', getProjects());
+//         updateAllProjectDropdowns();
+//     } else {
+//         alert("Project name cannot be empty.");
+//     }
+// };
+// const addNewProject = (projectName) => {
+//     // Implement the function to add a new project to the list
+//     const projectList = document.getElementById('project-list');
+//     const projectElement = document.createElement('div');
+//     projectElement.classList.add('project');
+//     projectElement.textContent = projectName;
+//     projectList.appendChild(projectElement);
+//     // Add logic to save the new project
+// };
+
+const addNewProject = (projectName) => {
     if (projectName && projectName.trim() !== '') {
         const newProject = { name: projectName.trim(), tasks: [] };
-        addProject(newProject);
-        setCurrentProject(newProject);
-        updateProjectListUI();
-        saveToLocalStorage('projects', getProjects());
-        updateAllProjectDropdowns();
+        addProject(newProject); // Function to add the new project to your projects array
+        setCurrentProject(newProject); // Function to set the new project as the current project
+        updateProjectListUI(); // Function to update the project list UI
+        saveToLocalStorage('projects', getProjects()); // Save projects to local storage
+        updateAllProjectDropdowns(); // Update any dropdowns with the new project
+
+        // Add new project element to the UI
+        const projectList = document.getElementById('project-list');
+        const projectElement = document.createElement('div');
+        projectElement.classList.add('project');
+        projectElement.textContent = newProject.name;
+        projectList.appendChild(projectElement);
     } else {
         alert("Project name cannot be empty.");
     }
