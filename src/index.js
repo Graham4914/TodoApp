@@ -6,7 +6,12 @@ import { getProjects, addProject, setCurrentProject, getAllTasks, loadAppState, 
 import { createTaskForm, createTaskDetailModal, renderFilteredTasks, renderAllTasksView, showTaskForm } from './views/taskView';
 import { loadProjects } from './views/projectView';
 import { updateCounters } from './utils/taskUtils';
-import './style.css';
+import './styles/nav.css';
+import './styles/modals.css';
+import './styles/base.css';
+import './styles/layout.css';
+import './styles/tasklist.css';
+import './styles/project.css';
 
 // Initialize and load the application
 const loadApplication = () => {

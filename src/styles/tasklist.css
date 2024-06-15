@@ -1,0 +1,158 @@
+.task {
+    padding: 10px 20px;
+    display: flex;
+    align-items: center;
+    border-bottom: 1px solid #ccc;
+}
+/* task list*/
+.tasks-container {
+    width: 100%;
+    margin: 20px 0;
+    padding: 20px;
+    box-sizing: border-box;
+    border: 1px solid #ccc;
+    background-color: #f8f8f8;
+    border-radius: 8px;
+}
+
+
+/* Tasks element checkbox*/
+.task-checkbox {
+    appearance: none;
+    background-color: fff;
+    border: 2px solid #ccc;
+    padding: 10px;
+    border-radius: 50%;
+    cursor: pointer;
+    width: 20px;
+    height: 20px;
+    position: relative;
+    margin-right: 15px;
+}
+
+.task-checkbox:checked {
+    background-color: #4caf50;
+    border-color: #4caf50;
+}
+
+.task-checkbox:checked:after {
+    content: '';
+    position: absolute;
+    left: 4px;
+    top: 4px;
+    width: 10px;
+    height: 10px;
+    background-color: #fff;
+    border-radius: 50%;
+}
+
+
+/* Tasks Header Styles */
+.task-header-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    background-color: #f4f4f4;
+    border-bottom: 1px solid #ccc;
+    margin-bottom: 10px;
+    height: 2rem;
+}
+
+.tasks-heading {
+    margin: 0;
+    font-size: 24px;
+}
+
+.task-controls {
+    display: flex;
+    gap: 10px;
+}
+
+/* .add-task-button {
+    padding: 5px 10px;
+    font-size: 16px;
+    cursor: pointer;
+    background-color: white;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+} */
+
+.add-task-button:hover {
+    background-color: #e1e1e1;
+}
+
+/* Task detail styles */
+.task-detail {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2px;
+}
+
+
+
+.task-title {
+    font-weight: bold;
+    font-size: 1em;
+    margin: 0 0 5px 0;
+}
+
+span.task-description {
+    font-size: .9em;
+    margin: 0;
+    max-width: 90%;
+}
+
+
+.task-due-date, .task-priority {
+    font-size: 0.9em;
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+}
+
+.task .due-date {
+    margin-right: 15px;
+}
+
+.task-delete {
+    margin-left: 20px;
+    cursor: pointer;
+    color: #ff3333;
+}
+
+.task-right-container {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 5px;
+    width: 150px;
+    
+}
+
+/* Ensure buttons and inputs have consistent spacing */
+input, textarea, select {
+    margin-bottom: 10px;
+}
+.tasks-container h2 {
+    text-align: center;
+}
+
+.task-priority {
+    font-size: 0.9em;
+    font-weight: bold;
+}
+
+.task-priority.high {
+    color: red;
+}
+
+.task-priority.medium {
+    color: orange;
+}
+
+.task-priority.low {
+    color: green;
+}

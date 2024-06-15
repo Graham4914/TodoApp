@@ -1,0 +1,26 @@
+
+.nav-button {
+    margin-bottom: 10px;
+}
+
+.nav-button {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    padding: 10px;
+    text-align: left; /* Ensures text aligns to the left */
+    box-sizing: border-box; /* Ensures padding is included in width */
+    border: 1px solid #ccc; /* Optional: to match project buttons styling */
+    background-color: white; /* Optional: to match project buttons styling */
+}
+
+.nav-button .task-counter {
+    margin-left: auto; /* Pushes counter to the far right */
+}
+
+
+
+
+
+
