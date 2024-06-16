@@ -47,9 +47,9 @@ const createProjectListElement = () => {
     //     projectList.style.display = (projectList.style.display === 'none' || projectList.style.display === '') ? 'block' : 'none';
     //     toggleButton.textContent = projectList.style.display === 'block' ? 'Hide' : 'Show'
     // });
-
-    controlsContainer.appendChild(addProjectButton);
     controlsContainer.appendChild(toggleButton);
+    controlsContainer.appendChild(addProjectButton);
+
 
     headerContainer.appendChild(projectListTitle);
     headerContainer.appendChild(controlsContainer);
@@ -68,6 +68,7 @@ const createProjectListElement = () => {
 
     const submitButton = document.createElement('button');
     submitButton.type = 'submit';
+    submitButton.classList.add('submit-project-button')
     submitButton.textContent = 'Add';
 
     addProjectForm.appendChild(projectNameInput);

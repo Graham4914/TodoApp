@@ -3,32 +3,100 @@
     min-height: 100vh;
 }
 
+/* Toggle button styles */
+.burger-menu {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    background-color: #d6eaf8;
+    
+    border: none;
+    padding: 5px;
+    cursor: pointer;
+    z-index: 1000; /* Ensure it appears above other elements */
+     /* Larger icon */
+    border-radius: 3px;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+.burger-menu i {
+    font-size: 1.2rem;
+    color: #2c3e50;
+}
+
+.toggle-sidebar:hover {
+    background-color: #b3cde0;
+    color: #34495e;
+}
 .sidebar {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    overflow-y: auto;
     flex: 1;
     display: flex;
     flex-direction: column;
-    background-color: antiquewhite;
+    background-color: #b3cde0;
     padding: 20px;
-    width: 20%; /* Adjust based on your preference */
-    min-width: 250px; /* Set a minimum width */
-    max-width: 300px; /* Set a maximum width */
-    box-sizing: border-box; /* Add this to ensure padding is included in the width */
+    width: 300px;
+    box-sizing: border-box; 
+    transition: width 0.3s, transform 0.3s;
+    left: 0;
+    transform: translateX(0); /* Show by default */
+}
+
+.sidebar.hidden {
+    transform: translateX(-100%); /* Hide when 'hidden' class is added */
 }
 
 /* Main content styles*/
 .main-content {
+    background-color: #d6eaf8 ;
     flex: 3;
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
+    justify-content: flex-start;
     padding: 20px;
-    margin: auto;
-    width: 60%;
-    max-width: 800px;
+    margin-left: 300px;
+    height: 100vh;
+    overflow-y: auto;
+    width: calc(100% - 300px) ;
+    /* max-width: 1200px; */
     min-width: 300px;
-    background-color: #ffffff;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    border-radius: 8px;
+    box-sizing: border-box;
+    transition: margin-left 0.3s ease, width 0.3s ease;
     
+}
+.main-content.full-width {
+    margin-left: 0;
+    width: 100%;
+}
+
+
+
+.sidebar.show {
+    transform: translateX(0);
+}
+
+@media (max-width: 768px) {
+    .sidebar {
+        width: 250px; /* Adjust sidebar width for smaller screens */
+    }
+    .main-content {
+        margin-left: 250px; /* Match the adjusted sidebar width */
+        width: calc(100% - 250px);
+    }
+}
+
+
+@media (max-width: 600px) {
+    .sidebar {
+        width: 250px;
+    }
+
+    .main-content {
+        margin-left: 250px;
+        width: calc(100% - 250px);
+    }
 }

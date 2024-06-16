@@ -9,9 +9,11 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding:10px;
+    padding:10px 3px 10px 10px;
     background-color: #f4f4f4;
     border-bottom: 1px solid #ccc;
+    margin: 10px 0;
+    
 }
 
 .projects-heading {
@@ -41,7 +43,7 @@
     display: flex;
     flex-direction: column;
     justify-content: center;
-    gap: 2px;
+   
 }
 .project {
     padding: 2px 10px; 
@@ -49,8 +51,7 @@
     cursor: pointer;
     background-color: white;
     border: 1px solid #ccc;
-    border-radius: 5px;
-    gap: 2px;
+    margin-bottom: 5px;
 }
 
 button[type="submit"] {
@@ -140,4 +141,81 @@ button[type="submit"] {
 .close-button:hover, .close-button i:hover {
     background-color: #dc3545;
     color: white;
+}
+
+/* New Styles for Uniform Plus Button and Toggle Button */
+.uniform-plus-button {
+    font-size: 24px;
+    color: #28a745;
+    background: none;
+    border: none;
+    cursor: pointer;
+    margin-left: 5 px;
+}
+
+.uniform-plus-button:hover {
+    color: #218838;
+}
+
+.toggle-button {
+    font-size: 24px;
+    color: #000;
+    background: none;
+    border: none;
+    cursor: pointer;
+    margin-left: 10px;
+}
+
+.toggle-button:hover {
+    color: #555;
+}
+
+/* Add Project Form Styles */
+form.add-project-form {
+    display: none; /* Hidden by default */
+    margin-top: 10px;
+    align-items: center;
+   
+}
+
+.add-project-form #newProjectName {
+    width: calc(100% - 20px);
+    padding: 5px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    margin-right: 5px;
+    margin-bottom: 0;
+}
+
+.project-list-container  .add-project-form .submit-project-button {
+    padding: 3px 10px;
+    font-size: 16px;
+    cursor: pointer;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    margin-top: 0;
+    margin-right: 0px;
+}
+
+.add-project-form button:hover {
+    background-color: #0056b3;
+}
+
+.nav-button, .project-header-container,  .task-header-container {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3); /* Subtle shadow effect */
+    border-radius: 3px;
+    transition: all 0.2s ease-in-out;
+}
+.project-list .project {
+    border-radius: 3px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3); /* Subtle shadow effect */
+    transition: all 0.2s ease-in-out;
+}
+
+.nav-button:hover, .project-list .project:hover {
+    background-color: #e3f2fd; /* Slight shade over the background color */
+    transform: scale(1.01); /* Slight zoom effect */
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3); /* Slightly heavier shadow on hover */
 }

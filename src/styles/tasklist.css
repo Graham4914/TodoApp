@@ -5,14 +5,16 @@
     border-bottom: 1px solid #ccc;
 }
 /* task list*/
-.tasks-container {
-    width: 100%;
-    margin: 20px 0;
+.tasks-container  {
+    width: 90%;
     padding: 20px;
     box-sizing: border-box;
     border: 1px solid #ccc;
     background-color: #f8f8f8;
-    border-radius: 8px;
+    border-radius: 3px;
+    align-items: flex-start; /* Align to top */
+    margin-top: 50px;
+    
 }
 
 
@@ -52,16 +54,19 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 10px;
+    padding:10px 3px 10px 10px;
     background-color: #f4f4f4;
     border-bottom: 1px solid #ccc;
     margin-bottom: 10px;
-    height: 2rem;
+    margin-top: 50px;
+    border-radius: 3px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
 }
 
 .tasks-heading {
     margin: 0;
     font-size: 24px;
+   
 }
 
 .task-controls {
@@ -69,14 +74,7 @@
     gap: 10px;
 }
 
-/* .add-task-button {
-    padding: 5px 10px;
-    font-size: 16px;
-    cursor: pointer;
-    background-color: white;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-} */
+
 
 .add-task-button:hover {
     background-color: #e1e1e1;
@@ -156,3 +154,109 @@ input, textarea, select {
 .task-priority.low {
     color: green;
 }
+
+.nav-button .task-counter {
+    margin-right: 9px; /* Adjust this value as needed */
+}
+
+
+.toggle-dark-mode {
+    position: fixed;
+    top: 20px;
+    right: 40px;
+    background-color: #b3cde0;
+    color: #34495e;
+    border: none;
+    padding: 5px;
+    cursor: pointer;
+    z-index: 1000;
+    font-size: 1.2rem; /* Larger icon */
+    border-radius: 3px;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+body.dark-mode {
+    background-color: #333; /* Dark background color */
+    color: #e0e0e0; /* Light text color */
+}
+
+body.dark-mode .sidebar {
+    background-color: #444; /* Slightly lighter dark color for sidebar */
+}
+
+body.dark-mode .main-content {
+    background-color: #312f2f; /* Dark background for main content */
+    color: #e0e0e0; /* Light text color */
+}
+
+body.dark-mode .tasks-container {
+    background-color: #555;
+}
+
+body.dark-mode .nav-button {
+    background-color: #555;
+}
+body.dark-mode .task-counter  {
+    color: #e0e0e0; /* Light text color for navigation buttons and task counters */
+}
+body.dark-mode .nav-button  {
+    color: #e0e0e0; /* Light text color for navigation buttons and task counters */
+}
+body.dark-mode .project {
+    background-color: #555;
+    color: #e0e0e0;
+}
+body.dark-mode .project:hover {
+    background-color: #666;
+    color: #e0e0e0;
+}
+
+body.dark-mode .nav-button:hover {
+    background-color: #666; /* Darker hover color for nav buttons */
+}
+
+body.dark-mode .task-header-container,
+body.dark-mode .project-header-container {
+    background-color: #333; /* Slightly lighter dark color for header containers */
+    color: #e0e0e0; /* Light text color for headers */
+    border: none;
+}
+
+body.dark-mode .task {
+    background-color: #444; /* Dark background for tasks */
+    color: #e0e0e0; /* Light text color for tasks */
+}
+
+body.dark-mode .task:hover {
+    background-color: #555; /* Darker hover color for tasks */
+}
+
+body.dark-mode .uniform-plus-button {
+    background-color: #333;
+    color: #218838;
+}
+body.dark-mode .burger-menu {
+    background-color: #333;
+}
+
+body.dark-mode .toggle-dark-mode,
+body.dark-mode .toggle-button{
+    background-color: #333; /* Dark background for buttons */
+    color: #e0e0e0; /* Light text/icon color for buttons */
+}
+
+body.dark-mode .burger-menu i {
+    color: #e0e0e0 ;
+}
+body.dark-mode .toggle-button:hover {
+    background-color: #444;
+}
+body.dark-mode .uniform-plus-button:hover {
+    background-color: #444;
+    color: #218838;
+}
+body.dark-mode .toggle-dark-mode:hover,
+body.dark-mode .burger-menu:hover {
+    background-color: #666; /* Darker hover color for buttons */
+}
+
