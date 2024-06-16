@@ -3,7 +3,7 @@ import { Project } from "../models/projectModel";
 import { saveToLocalStorage, loadFromLocalStorage } from "../utils/localStorage";
 import { updateProjectListUI, createProjectContent, updateAllProjectDropdowns, generateProjectDropdown } from "../views/projectView";
 import { createTaskList, renderAllTasksView } from "../views/taskView";
-import { addProject, getProjects, setProjects, setCurrentProject, getCurrentProject, getAllTasks, currentProject } from "../models/appState";
+import { addProject, getProjects, setProjects, setCurrentProject, getCurrentProject, getAllTasks, currentProject, } from "../models/appState";
 
 
 

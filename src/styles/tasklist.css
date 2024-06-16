@@ -163,7 +163,7 @@ input, textarea, select {
 .toggle-dark-mode {
     position: fixed;
     top: 20px;
-    right: 40px;
+    right: 20px;
     background-color: #b3cde0;
     color: #34495e;
     border: none;

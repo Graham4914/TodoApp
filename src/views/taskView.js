@@ -3,7 +3,7 @@ import { generateProjectDropdown } from "./projectView";
 import { handleFormSubmit, deleteTask, closeTaskDetail, openTaskDetail } from "../controllers/taskController";
 import { saveToLocalStorage, loadFromLocalStorage } from "../utils/localStorage";
 import { isTaskDueToday, isTaskOverdue, isTaskUpcoming, isTaskCompleted, calculateTaskCount, updateCounters, truncateText } from "../utils/taskUtils";
-import { getAllTasks, getTaskById, allTasksArray, setAllTasks, getProjects, setProjects, saveAppState } from "../models/appState";
+import { getAllTasks, getTaskById, allTasksArray, setAllTasks, getProjects, setProjects, saveAppState, projectsArray } from "../models/appState";
 
 const createTaskForm = () => {
     const form = document.createElement('form');
@@ -402,8 +402,17 @@ const showTaskDetailModal = (task) => {
     document.getElementById('modalPriority').value = task.priority.toLowerCase();
     document.getElementById('modalProjectSelect').value = task.projectName;
 
+    // Ensure event listeners are added only once
+    const saveButton = document.querySelector('.save-button');
+    const cancelButton = document.querySelector('.cancel-button');
+
+    saveButton.onclick = () => closeTaskDetailModal(true);
+    cancelButton.onclick = () => closeTaskDetailModal(false);
+
+
     taskDetailModal.style.display = 'block';
 };
+
 
 
 const closeTaskDetailModal = (saveChanges) => {
@@ -425,7 +434,21 @@ const closeTaskDetailModal = (saveChanges) => {
                 task.description = description;
                 task.dueDate = dueDate;
                 task.priority = priority;
+                const oldProjectName = task.projectName;
                 task.projectName = projectName;
+
+                // If the project has changed, move the task to the new project
+                if (oldProjectName !== projectName) {
+                    const oldProject = projectsArray.find(p => p.name === oldProjectName);
+                    const newProject = projectsArray.find(p => p.name === projectName);
+                    if (oldProject) {
+                        oldProject.tasks = oldProject.tasks.filter(t => t.id !== task.id);
+                    }
+                    if (newProject) {
+                        newProject.tasks.push(task);
+                    }
+                }
+
 
                 saveToLocalStorage('tasks', getAllTasks());
                 renderAllTasksView(getAllTasks());

@@ -82,6 +82,15 @@ const saveCurrentTask = (taskId) => {
         }
     }
 
+    // Update the allTasks array
+    const taskIndex = allTasks.findIndex(t => t.id === taskId);
+    if (taskIndex !== -1) {
+        allTasks[taskIndex] = task;
+    }
+
+    setProjects(projects);
+    setAllTasks(allTasks);
+
     saveAppState();
     renderAllTasksView(allTasks);
     updateMainContentForProject(getCurrentProject());
