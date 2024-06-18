@@ -56,16 +56,17 @@
 
 button[type="submit"] {
     padding: 10px 20px;
-    margin-top: 20px;
+    margin-top: 10px;
 }
 
 
 /* Project heading*/
 .project-content {
-    border: 1px solid #ccc;
-    padding: 10px;
-    margin: 10px 0;
-    border-radius: 5px;
+    /* border: 1px solid #ccc; */
+    /* padding: 10px; */
+   
+    margin: 5px 0 15px;
+    border-radius: 3px;
     background-color: #f9f9f9;
 }
 
@@ -74,9 +75,10 @@ button[type="submit"] {
     align-items: center;
     justify-content: space-between;
     padding: 5px;
+    height: 3rem;
     background-color: #f4f4f4;
-    border-bottom: 1px solid #ccc;
     position: relative;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
 }
 
 .project-title-wrapper {
@@ -93,6 +95,7 @@ button[type="submit"] {
     background-color: transparent;
     width: auto;
     text-align: center;
+    margin-top: 10px;
 }
 
 .button-wrapper {
@@ -131,7 +134,7 @@ button[type="submit"] {
     color: #dc3545;
 }
 
-.close-button i {
+.close-button .close-button i {
     color: black;
     /* position: absolute; */
     top: 5px;
@@ -173,7 +176,7 @@ button[type="submit"] {
 /* Add Project Form Styles */
 form.add-project-form {
     display: none; /* Hidden by default */
-    margin-top: 10px;
+    margin: 10px 0;
     align-items: center;
    
 }

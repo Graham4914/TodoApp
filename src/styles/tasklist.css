@@ -4,6 +4,11 @@
     align-items: center;
     border-bottom: 1px solid #ccc;
 }
+
+.task:hover {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    background-color: #ececec;
+}
 /* task list*/
 .tasks-container  {
     width: 90%;
@@ -14,6 +19,7 @@
     border-radius: 3px;
     align-items: flex-start; /* Align to top */
     margin-top: 50px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
     
 }
 
@@ -74,6 +80,32 @@
     gap: 10px;
 }
 
+/* Task from styles */
+.task-form label {
+    display: block;
+    margin-top: 10px;
+    font-weight: bold;
+}
+
+.button-container {
+    display: flex;
+    justify-content: flex-end;  /* Align buttons to the right */
+    margin-top: 10px;
+}
+
+.task-form .submit-button {
+    padding: 10px 20px;
+}
+
+.task-form input,
+.task-form textarea,
+.task-form select {
+    display: block;
+    width: 100%;
+    padding: 8px;
+    margin-top: 5px;
+    box-sizing: border-box;
+}
 
 
 .add-task-button:hover {
@@ -81,6 +113,8 @@
 }
 
 /* Task detail styles */
+
+
 .task-detail {
     flex-grow: 1;
     display: flex;
@@ -160,6 +194,7 @@ input, textarea, select {
 }
 
 
+/* Dark Mode Styles */
 .toggle-dark-mode {
     position: fixed;
     top: 20px;
@@ -215,12 +250,61 @@ body.dark-mode .nav-button:hover {
     background-color: #666; /* Darker hover color for nav buttons */
 }
 
+.dark-mode .project-controls button,
+.dark-mode .task-controls button,
+.dark-mode .modal-footer button,
+.dark-mode .submit-button {
+    background-color: #444; /* Darker button background */
+    color: #fff; /* Lighter button text */
+}
+.dark-mode .project-controls button:hover,
+.dark-mode .task-controls button:hover,
+.dark-mode .modal-footer button:hover,
+.dark-mode .submit-button:hover {
+    background-color: #555; /* Even darker on hover */
+}
+body.dark-mode .project-content,
+body.dark-mode .project-header,
+body.dark-mode .project-title-input {
+    background-color: #333; /* Slightly lighter dark color for header containers */
+    color: #e0e0e0;
+    
+}
+body.dark-mode .project-content{
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); 
+}
+
+body.dark-mode  .close-button i {
+    background-color: transparent;
+    color: #e0e0e0;
+}
+
+body.dark-mode  button.close-button:hover {
+    background-color: #dc3545;
+}
 body.dark-mode .task-header-container,
 body.dark-mode .project-header-container {
     background-color: #333; /* Slightly lighter dark color for header containers */
     color: #e0e0e0; /* Light text color for headers */
     border: none;
 }
+
+/* Modal dark mode rules */
+body.dark-mode .modal-content,
+body.dark-mode .form-container {
+    background-color: #312f2f;
+}
+body.dark-mode  .modal-content input,
+body.dark-mode  .form-container input,
+body.dark-mode .modal-content textarea,
+body.dark-mode .form-container textarea,
+body.dark-mode .modal-content select,
+body.dark-mode .form-container select {
+    background-color: #555 ;
+    color: #e0e0e0 ;
+}
+
+
 
 body.dark-mode .task {
     background-color: #444; /* Dark background for tasks */
@@ -237,6 +321,10 @@ body.dark-mode .uniform-plus-button {
 }
 body.dark-mode .burger-menu {
     background-color: #333;
+}
+
+body.dark-mode .close-modal {
+    color: #e0e0e0;
 }
 
 body.dark-mode .toggle-dark-mode,
@@ -260,3 +348,7 @@ body.dark-mode .burger-menu:hover {
     background-color: #666; /* Darker hover color for buttons */
 }
 
+body.dark-mode .button-wrapper button.add-task-button:hover,
+body.dark-mode .button-wrapper button.delete-button:hover {
+    background-color: #666 ;
+}

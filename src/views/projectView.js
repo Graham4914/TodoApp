@@ -39,14 +39,7 @@ const createProjectListElement = () => {
         projectList.style.display = isHidden ? 'block' : 'none';
         toggleButton.innerHTML = isHidden ? '<i class="fas fa-angle-up"></i>' : '<i class="fas fa-angle-down"></i>';
     });
-    // toggleButton.textContent = 'Hide';
-    // toggleButton.classList.add('toggle-projects-button');
 
-    // toggleButton.addEventListener('click', () => {
-    //     const projectList = document.getElementById('project-list');
-    //     projectList.style.display = (projectList.style.display === 'none' || projectList.style.display === '') ? 'block' : 'none';
-    //     toggleButton.textContent = projectList.style.display === 'block' ? 'Hide' : 'Show'
-    // });
     controlsContainer.appendChild(toggleButton);
     controlsContainer.appendChild(addProjectButton);
 

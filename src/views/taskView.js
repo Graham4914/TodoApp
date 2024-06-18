@@ -24,12 +24,18 @@ const createTaskForm = () => {
     form.appendChild(descriptionInput);
 
     //input due date
+    const dueDateLabel = document.createElement('label');
+    dueDateLabel.textContent = 'Due Date';
+    form.appendChild(dueDateLabel);
     const dueDateInput = document.createElement('input');
     dueDateInput.type = 'date';
     dueDateInput.name = 'due-date';
     form.appendChild(dueDateInput);
 
     //input for priority
+    const priorityLabel = document.createElement('label');
+    priorityLabel.textContent = 'Priority';
+    form.appendChild(priorityLabel);
     const prioritySelect = document.createElement('select');
     prioritySelect.name = 'priority';
     ['High', 'Medium', 'Low'].forEach(priority => {
@@ -40,24 +46,31 @@ const createTaskForm = () => {
     });
     form.appendChild(prioritySelect);
 
+    const projectLabel = document.createElement('label');
+    projectLabel.textContent = 'Project';
+    form.appendChild(projectLabel);
     const projectDropdown = generateProjectDropdown();
     form.appendChild(projectDropdown);
 
 
     // add Task from close button
     const closeButton = document.createElement('span');
-    closeButton.textContent = 'X';
+    closeButton.innerHTML = '<i class="fas fa-times"></i>';
     closeButton.classList.add('close-modal');
     closeButton.id = 'closeButton';
     closeButton.addEventListener('click', () => toggleTaskFormVisibility(false));
     form.appendChild(closeButton);
 
+    const buttonContainer = document.createElement('div');
+    buttonContainer.classList.add('button-container');
     //submit button
-
     const submitButton = document.createElement('button');
     submitButton.type = 'submit';
     submitButton.textContent = 'Add Task';
-    form.appendChild(submitButton);
+    submitButton.classList.add('submit-button');
+    buttonContainer.appendChild(submitButton);
+
+    form.appendChild(buttonContainer);
 
     form.addEventListener('submit', handleFormSubmit);
 
@@ -190,6 +203,13 @@ const createTaskElement = (task) => {
     return taskElement;
 };
 
+const createLabel = (forId, text) => {
+    const label = document.createElement('label');
+    label.htmlFor = forId;
+    label.textContent = text;
+    return label;
+};
+
 function createTaskDetailModal() {
     const modal = document.createElement('div');
     modal.id = 'taskDetailModal';
@@ -203,7 +223,7 @@ function createTaskDetailModal() {
     modalHeader.classList.add('modal-header');
 
     const closeButton = document.createElement('span');
-    closeButton.classList.add('close-modal', 'fas', 'fa-times');
+    closeButton.classList.add('close-modal');
     closeButton.onclick = () => closeTaskDetailModal(false);
 
     const titleInput = document.createElement('input');
@@ -217,8 +237,15 @@ function createTaskDetailModal() {
     const modalBody = document.createElement('div');
     modalBody.classList.add('modal-body');
 
-    const projectDropdown = generateProjectDropdown();
-    projectDropdown.id = 'modalProjectSelect';
+    const titleLabel = createLabel('modalTitle', 'Title');
+    const descriptionLabel = createLabel('modalDescription', 'Description');
+    const dueDateLabel = createLabel('modalDueDate', 'Due Date');
+    const priorityLabel = createLabel('modalPriority', 'Priority');
+    const projectLabel = createLabel('modalProjectSelect', 'Project');
+
+
+
+
 
     const description = document.createElement('textarea');
     description.classList.add('modal-description');
@@ -241,10 +268,18 @@ function createTaskDetailModal() {
         priority.appendChild(option);
     });
 
-    modalBody.appendChild(projectDropdown);
+    const projectDropdown = generateProjectDropdown();
+    projectDropdown.id = 'modalProjectSelect';
+
+
+    modalBody.appendChild(descriptionLabel);
     modalBody.appendChild(description);
+    modalBody.appendChild(dueDateLabel);
     modalBody.appendChild(dueDate);
+    modalBody.appendChild(priorityLabel);
     modalBody.appendChild(priority);
+    modalBody.appendChild(projectLabel);
+    modalBody.appendChild(projectDropdown);
 
     const modalFooter = document.createElement('div');
     modalFooter.classList.add('modal-footer');
