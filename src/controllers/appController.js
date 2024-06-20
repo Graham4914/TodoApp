@@ -1,9 +1,24 @@
 //appController.js
 import { Project } from '../models/projectModel';
 import { Task } from '../models/taskModel';
-import { renderAllTasksView } from '../views/taskView';
+import { renderAllTasksView, renderTasks } from '../views/taskView';
 import { loadFromLocalStorage, initializeLocalStorage, saveToLocalStorage } from '../utils/localStorage'
 import { setProjects, setAllTasks, getProjects, getAllTasks, setCurrentProject, getCurrentProject, loadAppState, addProject } from "../models/appState";
+import { createMainContent } from '../views/mainContentView';
+
+// document.addEventListener('DOMContentLoaded', () => {
+//     const app = document.getElementById('root');
+//     if (!document.getElementById('main-content')) {
+//         const mainContent = createMainContent();
+//         app.appendChild(mainContent);
+//     }
+
+//     // Initialize the app
+//     const appState = initializeApp();
+
+//     // Render all tasks view as default
+//     renderAllTasksView(appState.allTasks);
+// });
 
 export const initializeApp = () => {
     loadAppState();
@@ -46,8 +61,9 @@ export const initializeApp = () => {
     setAllTasks(loadedAllTasks);
 
     console.log('Projects and All Tasks loaded:', getProjects(), getAllTasks());
+    // renderAllTasksView(loadedAllTasks);
 
-    renderAllTasksView(loadedAllTasks);
+
     return {
         projects: getProjects(),
         allTasks: getAllTasks(),

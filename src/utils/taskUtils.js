@@ -1,4 +1,5 @@
 import { getAllTasks } from "../models/appState";
+import { createFilterContainer } from "../views/taskView";
 
 
 function truncateText(text, maxLength) {
@@ -87,7 +88,29 @@ function updateCounters() {
 
 
 
+// const appendFilterContainer = (tasksContainer) => {
+//     const filterContainer = createFilterContainer();
+//     tasksContainer.appendChild(filterContainer);
+// };
+// const appendFilterContainerToTasks = (tasksContainer) => {
+//     const filterContainer = createFilterContainer();
+//     tasksContainer.insertBefore(filterContainer, tasksContainer.firstChild);
+// };
+
+const appendFilterContainerToTasks = (tasksContainer) => {
+    const filterContainer = createFilterContainer();
+    // Insert the filter container after the header element
+    const headingElement = tasksContainer.querySelector('h2');
+    if (headingElement) {
+        headingElement.insertAdjacentElement('afterend', filterContainer);
+    } else {
+        tasksContainer.insertBefore(filterContainer, tasksContainer.firstChild);
+    }
+};
+const appendFilterContainerToProjects = (projectContent) => {
+    const filterContainer = createFilterContainer();
+    projectContent.insertBefore(filterContainer, projectContent.querySelector('.tasks-container'));
+};
 
 
-
-export { isTaskDueToday, isTaskOverdue, isTaskUpcoming, isTaskCompleted, calculateTaskCount, updateCounters, truncateText };
+export { isTaskDueToday, isTaskOverdue, isTaskUpcoming, isTaskCompleted, calculateTaskCount, updateCounters, truncateText, appendFilterContainerToTasks, appendFilterContainerToProjects };

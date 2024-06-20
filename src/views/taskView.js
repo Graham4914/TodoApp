@@ -2,7 +2,7 @@
 import { generateProjectDropdown } from "./projectView";
 import { handleFormSubmit, deleteTask, closeTaskDetail, openTaskDetail } from "../controllers/taskController";
 import { saveToLocalStorage, loadFromLocalStorage } from "../utils/localStorage";
-import { isTaskDueToday, isTaskOverdue, isTaskUpcoming, isTaskCompleted, calculateTaskCount, updateCounters, truncateText } from "../utils/taskUtils";
+import { isTaskDueToday, isTaskOverdue, isTaskUpcoming, isTaskCompleted, calculateTaskCount, updateCounters, truncateText, appendFilterContainerToTasks } from "../utils/taskUtils";
 import { getAllTasks, getTaskById, allTasksArray, setAllTasks, getProjects, setProjects, saveAppState, projectsArray } from "../models/appState";
 
 const createTaskForm = () => {
@@ -162,18 +162,27 @@ const createTaskElement = (task) => {
     taskDetail.appendChild(title);
     taskDetail.appendChild(description);
 
-    // Right-aligned container for due date, priority, and delete button
-    const taskRightContainer = document.createElement('div');
-    taskRightContainer.classList.add('task-right-container');
+    const taskInfoContainer = document.createElement('div');
+    taskInfoContainer.classList.add('task-info-container');
 
-    const dueDate = document.createElement('span');
-    dueDate.textContent = `Due:${task.dueDate}`;
-    dueDate.classList.add('task-due-date');
 
     const priority = document.createElement('span');
-    priority.textContent = `Priority: ${task.priority}`;
     priority.classList.add('task-priority', task.priority.toLowerCase());
+    priority.innerHTML = '<i class="fas fa-exclamation-triangle"></i>';
 
+    const dueDate = document.createElement('span');
+    // dueDate.textContent = `${task.dueDate}`;
+    dueDate.textContent = formatDate(task.dueDate);
+    dueDate.classList.add('task-due-date');
+
+
+    taskInfoContainer.appendChild(priority);
+    taskInfoContainer.appendChild(dueDate);
+
+
+    // Container for delete button
+    const deleteContainer = document.createElement('div');
+    deleteContainer.classList.add('delete-container');
 
     //Delete button
     const deleteBtn = document.createElement('button');
@@ -187,12 +196,18 @@ const createTaskElement = (task) => {
 
     });
 
-    taskRightContainer.appendChild(dueDate);
-    taskRightContainer.appendChild(priority);
-    taskRightContainer.appendChild(deleteBtn);
+    deleteContainer.appendChild(deleteBtn);
+
+    // Right-aligned container for due date, priority, and delete button
+    const taskRightContainer = document.createElement('div');
+    taskRightContainer.classList.add('task-right-container');
+    taskRightContainer.appendChild(taskInfoContainer);
+    taskRightContainer.appendChild(deleteContainer);
 
     taskElement.appendChild(taskDetail);
     taskElement.appendChild(taskRightContainer);
+
+
 
     taskElement.addEventListener('click', function (event) {
         if (event.target.type !== 'checkbox') {
@@ -201,6 +216,16 @@ const createTaskElement = (task) => {
     });
 
     return taskElement;
+};
+
+
+const formatDate = (dateString) => {
+    if (!dateString) return ''; // Return empty string if no date is provided
+    const date = new Date(dateString);
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0'); // Month is 0-indexed
+    const year = String(date.getFullYear()).slice(-2); // Get last two digits of year
+    return `${day}/${month}/${year}`;
 };
 
 const createLabel = (forId, text) => {
@@ -362,6 +387,8 @@ function renderFilteredTasks(filterType) {
     console.log(`Filter type received: ${filterType}`);  // Debug log to verify filter type received
     const headingText = filterType === 'all' ? 'All Tasks' : filterType.charAt(0).toUpperCase() + filterType.slice(1);
     console.log(`Setting heading to: ${headingText}`);
+
+
     tasksContainer.innerHTML = `<h2>${headingText}</h2>`;
 
 
@@ -387,19 +414,45 @@ function renderFilteredTasks(filterType) {
 
     console.log(`Rendering ${filterType} tasks:`, filteredTasks);
 
+    appendFilterContainerToTasks(tasksContainer);
+
+
     filteredTasks.forEach(task => {
         const taskElement = createTaskElement(task);
         tasksContainer.appendChild(taskElement);
     });
+}
+function createFilterContainer() {
+    const filterContainer = document.createElement('div');
+    filterContainer.classList.add('filter-container');
+
+    const sortPriorityButton = document.createElement('button');
+    sortPriorityButton.id = 'sort-priority';
+    sortPriorityButton.classList.add('sort-button');
+    sortPriorityButton.innerHTML = '<i class="fas fa-exclamation-triangle"></i>'; // FontAwesome icon for priority
+
+    const sortDueDateButton = document.createElement('button');
+    sortDueDateButton.id = 'sort-due-date';
+    sortDueDateButton.classList.add('sort-button');
+    sortDueDateButton.innerHTML = '<i class="fas fa-calendar-alt"></i>'; // FontAwesome icon for due date
+
+    filterContainer.appendChild(sortPriorityButton);
+    filterContainer.appendChild(sortDueDateButton);
+
+    return filterContainer;
 }
 
 const renderTasks = (tasks) => {
     const tasksContainer = document.querySelector('.tasks-container');
 
     tasksContainer.innerHTML = ''; //clear container
+    // Append filter container
+
 
     const tasksList = createTaskList(tasks);
     tasksContainer.appendChild(tasksList);
+    appendFilterContainerToTasks(tasksContainer);
+
 
 };
 
@@ -418,7 +471,13 @@ function renderAllTasksView(tasks) {
     }
 
     tasksContainer.innerHTML = '<h2>All Tasks</h2>';
-    tasks.forEach(task => {
+
+    appendFilterContainerToTasks(tasksContainer);
+
+    // Filter out completed tasks
+    const incompleteTasks = tasks.filter(task => task.status !== 'complete');
+
+    incompleteTasks.forEach(task => {
         const taskElement = createTaskElement(task);
         tasksContainer.appendChild(taskElement);
     });
@@ -505,5 +564,5 @@ const hideTaskDetailModal = () => {
 
 export {
     createTaskForm, createTaskElement, createTaskDetailModal, createTaskList, closeNewTaskModal, showTaskForm,
-    toggleTaskFormVisibility, renderFilteredTasks, renderTasks, renderAllTasksView, showTaskDetailModal, closeTaskDetailModal, hideTaskDetailModal
+    toggleTaskFormVisibility, renderFilteredTasks, renderTasks, renderAllTasksView, showTaskDetailModal, closeTaskDetailModal, hideTaskDetailModal, createFilterContainer
 };

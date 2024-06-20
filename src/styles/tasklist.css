@@ -1,5 +1,5 @@
 .task {
-    padding: 10px 20px;
+    padding: 10px 5px ;
     display: flex;
     align-items: center;
     border-bottom: 1px solid #ccc;
@@ -139,10 +139,12 @@ span.task-description {
 
 
 .task-due-date, .task-priority {
-    font-size: 0.9em;
+    font-size: 0.7em;
     margin-left: auto;
     display: flex;
     align-items: center;
+    font-weight: bold;
+    margin-right: 2px;
 }
 
 .task .due-date {
@@ -155,6 +157,18 @@ span.task-description {
     color: #ff3333;
 }
 
+.delete-container {
+    margin-top: 5px; /* Adjust as needed */
+}
+
+ .fas.fa-trash-alt {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: red;
+    font-size: 1rem;
+}
+
 .task-right-container {
     display: flex;
     flex-direction: column;
@@ -162,6 +176,13 @@ span.task-description {
     gap: 5px;
     width: 150px;
     
+}
+
+.task-info-container {
+    display: flex;
+    align-items: center;
+    gap: 5px; /* Adjust the gap between elements as needed */
+    margin-right: 3px;
 }
 
 /* Ensure buttons and inputs have consistent spacing */
@@ -177,12 +198,13 @@ input, textarea, select {
     font-weight: bold;
 }
 
-.task-priority.high {
+.task-priority.high, 
+.task-priority.high i{
     color: red;
-}
+} 
 
 .task-priority.medium {
-    color: orange;
+    color: blue;
 }
 
 .task-priority.low {
