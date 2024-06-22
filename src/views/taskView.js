@@ -396,43 +396,6 @@ function renderFilteredTasks(filterType) {
 
     renderTasks(filteredTasks, headingText);
 }
-// function renderFilteredTasks(filterType) {
-//     setCurrentFilterType(filterType);
-//     const tasksContainer = document.querySelector('.tasks-container');
-//     console.log(`Filter type received: ${filterType}`);  // Debug log to verify filter type received
-//     const headingText = filterType === 'all' ? 'All Tasks' : filterType.charAt(0).toUpperCase() + filterType.slice(1);
-//     console.log(`Setting heading to: ${headingText}`);
-
-//     const filteredTasks = getFilteredTasks(filterType);
-//     // tasksContainer.innerHTML = `<h2>${headingText}</h2>`;
-
-
-//     // let filteredTasks = [];
-//     switch (filterType) {
-//         case 'today':
-//             filteredTasks = allTasksArray.filter(isTaskDueToday);
-//             break;
-//         case 'upcoming':
-//             filteredTasks = allTasksArray.filter(isTaskUpcoming);
-//             break;
-//         case 'overdue':
-//             filteredTasks = allTasksArray.filter(isTaskOverdue);
-//             break;
-//         case 'completed':
-//             filteredTasks = allTasksArray.filter(isTaskCompleted);
-//             break;
-//         case 'all':
-//         default:
-//             filteredTasks = allTasksArray.filter(task => task.status !== 'complete');
-//             break;
-//     }
-
-//     console.log(`Rendering ${filterType} tasks:`, filteredTasks);
-
-
-
-//     renderTasks(filteredTasks, headingText);
-// };
 
 
 function createFilterContainer() {

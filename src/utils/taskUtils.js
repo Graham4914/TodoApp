@@ -182,7 +182,13 @@ const getFilteredTasks = (filterType) => {
 
 const appendFilterContainerToTasks = (tasksContainer) => {
     const filterContainer = createFilterContainer();
-    tasksContainer.insertBefore(filterContainer, tasksContainer.firstChild);
+    // Insert the filter container after the header element
+    const headingElement = tasksContainer.querySelector('h2');
+    if (headingElement) {
+        headingElement.insertAdjacentElement('afterend', filterContainer);
+    } else {
+        tasksContainer.insertBefore(filterContainer, tasksContainer.firstChild);
+    }
 
     // Add event listeners for sort buttons here
     document.getElementById('sort-priority').addEventListener('click', () => {
@@ -196,26 +202,55 @@ const appendFilterContainerToTasks = (tasksContainer) => {
         const sortedTasks = toggleSortDueDate(tasks);
         renderTasks(sortedTasks, currentFilterType.charAt(0).toUpperCase() + currentFilterType.slice(1));
     });
-
-    // // Add event listeners for sort buttons here
-    // document.getElementById('sort-priority').addEventListener('click', () => {
-    //     const tasks = getAllTasks().filter(task => task.status !== 'complete');
-    //     const sortedTasks = toggleSortPriority(tasks);
-    //     renderTasks(sortedTasks, 'All Tasks');
-    // });
-
-    // document.getElementById('sort-due-date').addEventListener('click', () => {
-    //     const tasks = getAllTasks().filter(task => task.status !== 'complete');
-    //     const sortedTasks = toggleSortDueDate(tasks);
-    //     renderTasks(sortedTasks, 'All Tasks');
-    // });
-};
-const appendFilterContainerToProjects = (projectContent) => {
-    const filterContainer = createFilterContainer();
-    projectContent.insertBefore(filterContainer, projectContent.querySelector('.tasks-container'));
 };
 
+const appendFilterContainerToProjects = (tasksContainer) => {
+    if (!tasksContainer) {
+        console.error('Tasks container is undefined');
+        return;
+    }
 
+    const projectContent = tasksContainer.closest('.project-content');
+    if (!projectContent) {
+        console.error('Project content container not found');
+        return;
+    }
+
+    // Check if the filter container already exists to prevent duplication
+    if (!tasksContainer.querySelector('.filter-container')) {
+        const filterContainer = createFilterContainer();
+        const projectHeaderElement = projectContent.querySelector('.project-header');
+        if (projectHeaderElement) {
+            projectHeaderElement.insertAdjacentElement('afterend', filterContainer);
+        } else {
+            tasksContainer.insertBefore(filterContainer, tasksContainer.firstChild);
+        }
+
+        // Add event listeners for sort buttons here
+        const sortPriorityButton = filterContainer.querySelector('#sort-priority');
+        const sortDueDateButton = filterContainer.querySelector('#sort-due-date');
+
+        if (sortPriorityButton && sortDueDateButton) {
+            sortPriorityButton.addEventListener('click', () => {
+                console.log('Sort priority clicked'); // Debugging log
+                const tasks = getFilteredTasks(currentFilterType); // Ensure correct tasks are being fetched
+                const sortedTasks = toggleSortPriority(tasks);
+                renderTasks(sortedTasks, currentFilterType.charAt(0).toUpperCase() + currentFilterType.slice(1));
+            });
+
+            sortDueDateButton.addEventListener('click', () => {
+                console.log('Sort due date clicked'); // Debugging log
+                const tasks = getFilteredTasks(currentFilterType); // Ensure correct tasks are being fetched
+                const sortedTasks = toggleSortDueDate(tasks);
+                renderTasks(sortedTasks, currentFilterType.charAt(0).toUpperCase() + currentFilterType.slice(1));
+            });
+        } else {
+            console.error('Sort buttons not found in the DOM');
+        }
+    } else {
+        console.log('Filter container already exists');
+    }
+};
 export {
     isTaskDueToday, isTaskOverdue, isTaskUpcoming, isTaskCompleted,
     toggleSortPriority, toggleSortDueDate,

@@ -59,14 +59,9 @@ const updateMainContentForProject = () => {
     tasksContainer.appendChild(projectContent);
 
     const tasksList = createTaskList(project.tasks);
-    const tasksPlaceholder = tasksContainer.querySelector('.tasks-placeholder');
-    if (tasksPlaceholder) {
-        tasksPlaceholder.replaceWith(tasksList); // Replace the placeholder with the actual tasks list
-    } else {
-        tasksContainer.appendChild(tasksList); // Append tasks list if no placeholder exists
-    }
-
+    tasksContainer.appendChild(tasksList);
 };
+
 
 function saveProjectName(project, newName) {
     if (!project) {

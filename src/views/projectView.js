@@ -252,8 +252,7 @@ function createProjectContent(project) {
     const tasksContainer = document.createElement('div');
     tasksContainer.classList.add('tasks-container');
 
-
-    appendFilterContainerToProjects(projectContent);
+    appendFilterContainerToProjects(projectContent)
 
     console.log("projectTitle set to:", projectTitleInput);
 
