@@ -13,6 +13,7 @@ import './styles/layout.css';
 import './styles/tasklist.css';
 import './styles/project.css';
 
+
 // Initialize and load the application
 const loadApplication = () => {
     const root = document.getElementById('root');

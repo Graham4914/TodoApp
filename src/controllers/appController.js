@@ -6,19 +6,8 @@ import { loadFromLocalStorage, initializeLocalStorage, saveToLocalStorage } from
 import { setProjects, setAllTasks, getProjects, getAllTasks, setCurrentProject, getCurrentProject, loadAppState, addProject } from "../models/appState";
 import { createMainContent } from '../views/mainContentView';
 
-// document.addEventListener('DOMContentLoaded', () => {
-//     const app = document.getElementById('root');
-//     if (!document.getElementById('main-content')) {
-//         const mainContent = createMainContent();
-//         app.appendChild(mainContent);
-//     }
 
-//     // Initialize the app
-//     const appState = initializeApp();
 
-//     // Render all tasks view as default
-//     renderAllTasksView(appState.allTasks);
-// });
 
 export const initializeApp = () => {
     loadAppState();

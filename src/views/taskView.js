@@ -2,8 +2,10 @@
 import { generateProjectDropdown } from "./projectView";
 import { handleFormSubmit, deleteTask, closeTaskDetail, openTaskDetail } from "../controllers/taskController";
 import { saveToLocalStorage, loadFromLocalStorage } from "../utils/localStorage";
-import { isTaskDueToday, isTaskOverdue, isTaskUpcoming, isTaskCompleted, calculateTaskCount, updateCounters, truncateText, appendFilterContainerToTasks } from "../utils/taskUtils";
+import { isTaskDueToday, isTaskOverdue, isTaskUpcoming, isTaskCompleted, calculateTaskCount, updateCounters, truncateText, appendFilterContainerToTasks, currentFilterType, setCurrentFilterType, getFilteredTasks, toggleSortDueDate, toggleSortPriority, isDueDateAsc, isPriorityAsc } from "../utils/taskUtils";
 import { getAllTasks, getTaskById, allTasksArray, setAllTasks, getProjects, setProjects, saveAppState, projectsArray } from "../models/appState";
+
+
 
 const createTaskForm = () => {
     const form = document.createElement('form');
@@ -382,46 +384,57 @@ const toggleTaskFormVisibility = (show) => {
 };
 
 function renderFilteredTasks(filterType) {
-
+    setCurrentFilterType(filterType); // Set the current filter type
     const tasksContainer = document.querySelector('.tasks-container');
     console.log(`Filter type received: ${filterType}`);  // Debug log to verify filter type received
     const headingText = filterType === 'all' ? 'All Tasks' : filterType.charAt(0).toUpperCase() + filterType.slice(1);
     console.log(`Setting heading to: ${headingText}`);
 
-
-    tasksContainer.innerHTML = `<h2>${headingText}</h2>`;
-
-
-    let filteredTasks = [];
-    switch (filterType) {
-        case 'today':
-            filteredTasks = allTasksArray.filter(isTaskDueToday);
-            break;
-        case 'upcoming':
-            filteredTasks = allTasksArray.filter(isTaskUpcoming);
-            break;
-        case 'overdue':
-            filteredTasks = allTasksArray.filter(isTaskOverdue);
-            break;
-        case 'completed':
-            filteredTasks = allTasksArray.filter(isTaskCompleted);
-            break;
-        case 'all':
-        default:
-            filteredTasks = allTasksArray.filter(task => task.status !== 'complete');
-            break;
-    }
+    const filteredTasks = getFilteredTasks(filterType);
 
     console.log(`Rendering ${filterType} tasks:`, filteredTasks);
 
-    appendFilterContainerToTasks(tasksContainer);
-
-
-    filteredTasks.forEach(task => {
-        const taskElement = createTaskElement(task);
-        tasksContainer.appendChild(taskElement);
-    });
+    renderTasks(filteredTasks, headingText);
 }
+// function renderFilteredTasks(filterType) {
+//     setCurrentFilterType(filterType);
+//     const tasksContainer = document.querySelector('.tasks-container');
+//     console.log(`Filter type received: ${filterType}`);  // Debug log to verify filter type received
+//     const headingText = filterType === 'all' ? 'All Tasks' : filterType.charAt(0).toUpperCase() + filterType.slice(1);
+//     console.log(`Setting heading to: ${headingText}`);
+
+//     const filteredTasks = getFilteredTasks(filterType);
+//     // tasksContainer.innerHTML = `<h2>${headingText}</h2>`;
+
+
+//     // let filteredTasks = [];
+//     switch (filterType) {
+//         case 'today':
+//             filteredTasks = allTasksArray.filter(isTaskDueToday);
+//             break;
+//         case 'upcoming':
+//             filteredTasks = allTasksArray.filter(isTaskUpcoming);
+//             break;
+//         case 'overdue':
+//             filteredTasks = allTasksArray.filter(isTaskOverdue);
+//             break;
+//         case 'completed':
+//             filteredTasks = allTasksArray.filter(isTaskCompleted);
+//             break;
+//         case 'all':
+//         default:
+//             filteredTasks = allTasksArray.filter(task => task.status !== 'complete');
+//             break;
+//     }
+
+//     console.log(`Rendering ${filterType} tasks:`, filteredTasks);
+
+
+
+//     renderTasks(filteredTasks, headingText);
+// };
+
+
 function createFilterContainer() {
     const filterContainer = document.createElement('div');
     filterContainer.classList.add('filter-container');
@@ -439,21 +452,26 @@ function createFilterContainer() {
     filterContainer.appendChild(sortPriorityButton);
     filterContainer.appendChild(sortDueDateButton);
 
+
     return filterContainer;
-}
+};
 
-const renderTasks = (tasks) => {
+
+
+const renderTasks = (tasks, headingText) => {
     const tasksContainer = document.querySelector('.tasks-container');
+    tasksContainer.innerHTML = '';
 
-    tasksContainer.innerHTML = ''; //clear container
-    // Append filter container
+    const heading = document.createElement('h2');
+    heading.textContent = headingText;
+    tasksContainer.appendChild(heading);
 
-
-    const tasksList = createTaskList(tasks);
-    tasksContainer.appendChild(tasksList);
     appendFilterContainerToTasks(tasksContainer);
 
-
+    tasks.forEach(task => {
+        const taskElement = createTaskElement(task);
+        tasksContainer.appendChild(taskElement);
+    });
 };
 
 function renderAllTasksView(tasks) {
@@ -564,5 +582,6 @@ const hideTaskDetailModal = () => {
 
 export {
     createTaskForm, createTaskElement, createTaskDetailModal, createTaskList, closeNewTaskModal, showTaskForm,
-    toggleTaskFormVisibility, renderFilteredTasks, renderTasks, renderAllTasksView, showTaskDetailModal, closeTaskDetailModal, hideTaskDetailModal, createFilterContainer
+    toggleTaskFormVisibility, renderFilteredTasks, renderTasks, renderAllTasksView, showTaskDetailModal,
+    closeTaskDetailModal, hideTaskDetailModal, createFilterContainer
 };

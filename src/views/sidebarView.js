@@ -3,7 +3,7 @@
 import { createProjectListElement } from "./projectView";
 import { showTaskForm, renderAllTasksView, renderFilteredTasks } from "./taskView";
 import { getProjects, setProjects, addProject, getAllTasks } from "../models/appState";
-import { updateCounters } from "../utils/taskUtils";
+import { updateCounters, setCurrentFilterType } from "../utils/taskUtils";
 
 
 const createSidebar = () => {
@@ -51,6 +51,7 @@ const createSidebar = () => {
 
         button.addEventListener('click', () => {
             const filterType = name.toLowerCase().replace(' ', '');
+            setCurrentFilterType(filterType);
             console.log(`Button clicked: ${filterType}`);
             renderFilteredTasks(filterType);
             updateCounters();
@@ -109,21 +110,7 @@ const createSidebar = () => {
     };
 
 
-    // Function to check screen width and toggle sidebar visibility
-    // const checkScreenWidth = () => {
-    //     const sidebar = document.getElementById('sidebar');
-    //     const toggleButton = document.getElementById('toggle-sidebar');
-    //     const mainContent = document.querySelector('.main-content');
-    //     if (window.innerWidth < 600) {
-    //         sidebar.classList.add('hidden');
-    //         toggleButton.style.display = 'block';
-    //         mainContent.classList.add('full-width');
-    //     } else {
-    //         sidebar.classList.remove('hidden');
-    //         toggleButton.style.display = 'none';
-    //         mainContent.classList.remove('full-width');
-    //     }
-    // };
+
 
     // Call checkScreenWidth on window resize
     window.addEventListener('resize', checkScreenWidth);
@@ -134,35 +121,6 @@ const createSidebar = () => {
 
 
 
-    // Toggle Button
-    // const toggleButton = document.createElement('button');
-    // toggleButton.id = 'toggle-sidebar';
-    // toggleButton.classList.add('toggle-sidebar');
-    // toggleButton.innerHTML = '<i class="fas fa-bars"></i>'; // Icon for the toggle button
-
-    // toggleButton.addEventListener('click', () => {
-    //     const sidebar = document.getElementById('sidebar');
-    //     const mainContent = document.querySelector('.main-content');
-    //     sidebar.classList.toggle('hidden');
-    //     mainContent.classList.toggle('full-width');
-    // });
-
-    // document.body.appendChild(toggleButton);
-
-    // Dark Mode Toggle Button
-    // const darkModeToggleButton = document.createElement('button');
-    // darkModeToggleButton.id = 'toggle-dark-mode';
-    // darkModeToggleButton.classList.add('toggle-dark-mode');
-    // darkModeToggleButton.innerHTML = '<i class="fas fa-moon"></i>'; // Icon for dark mode toggle
-
-    // darkModeToggleButton.addEventListener('click', () => {
-    //     document.body.classList.toggle('dark-mode');
-    //     darkModeToggleButton.innerHTML = document.body.classList.contains('dark-mode')
-    //         ? '<i class="fas fa-sun"></i>'
-    //         : '<i class="fas fa-moon"></i>';
-    // });
-
-    // document.body.appendChild(darkModeToggleButton);
 
     return sidebar;
 };
