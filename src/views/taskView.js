@@ -1,9 +1,11 @@
 //taskView.js
-import { generateProjectDropdown } from "./projectView";
+import { generateProjectDropdown, updateProjectListUI } from "./projectView";
 import { handleFormSubmit, deleteTask, closeTaskDetail, openTaskDetail } from "../controllers/taskController";
 import { saveToLocalStorage, loadFromLocalStorage } from "../utils/localStorage";
 import { isTaskDueToday, isTaskOverdue, isTaskUpcoming, isTaskCompleted, calculateTaskCount, updateCounters, truncateText, appendFilterContainerToTasks, currentFilterType, setCurrentFilterType, getFilteredTasks, toggleSortDueDate, toggleSortPriority, isDueDateAsc, isPriorityAsc } from "../utils/taskUtils";
-import { getAllTasks, getTaskById, allTasksArray, setAllTasks, getProjects, setProjects, saveAppState, projectsArray } from "../models/appState";
+import { getAllTasks, getTaskById, allTasksArray, setAllTasks, getProjects, setProjects, saveAppState, projectsArray, getCurrentProject } from "../models/appState";
+import { updateMainContentForProject } from "../controllers/projectController";
+import { synchronizeProjectTasks } from "../controllers/appController";
 
 
 
@@ -383,11 +385,31 @@ const toggleTaskFormVisibility = (show) => {
     formContainer.style.display = show ? 'block' : 'none';
 };
 
+// function renderFilteredTasks(filterType) {
+//     setCurrentFilterType(filterType); // Set the current filter type
+//     const tasksContainer = document.querySelector('.tasks-container');
+//     console.log(`Filter type received: ${filterType}`);  // Debug log to verify filter type received
+//     const headingText = filterType === 'all' ? 'All Tasks' : filterType.charAt(0).toUpperCase() + filterType.slice(1);
+//     console.log(`Setting heading to: ${headingText}`);
+
+//     const filteredTasks = getFilteredTasks(filterType);
+
+//     console.log(`Rendering ${filterType} tasks:`, filteredTasks);
+
+//     renderTasks(filteredTasks, headingText);
+
+// }
 function renderFilteredTasks(filterType) {
     setCurrentFilterType(filterType); // Set the current filter type
     const tasksContainer = document.querySelector('.tasks-container');
     console.log(`Filter type received: ${filterType}`);  // Debug log to verify filter type received
-    const headingText = filterType === 'all' ? 'All Tasks' : filterType.charAt(0).toUpperCase() + filterType.slice(1);
+
+    let headingText;
+    if (filterType === 'all') {
+        headingText = 'All';
+    } else {
+        headingText = filterType.charAt(0).toUpperCase() + filterType.slice(1);
+    }
     console.log(`Setting heading to: ${headingText}`);
 
     const filteredTasks = getFilteredTasks(filterType);
@@ -425,10 +447,12 @@ const renderTasks = (tasks, headingText) => {
     const tasksContainer = document.querySelector('.tasks-container');
     tasksContainer.innerHTML = '';
 
+
     const heading = document.createElement('h2');
     heading.textContent = headingText;
-    tasksContainer.appendChild(heading);
 
+    tasksContainer.appendChild(heading);
+    console.log("renderTasks called")
     appendFilterContainerToTasks(tasksContainer);
 
     tasks.forEach(task => {
@@ -512,6 +536,9 @@ const closeTaskDetailModal = (saveChanges) => {
                 const oldProjectName = task.projectName;
                 task.projectName = projectName;
 
+                const projects = getProjects();
+                const allTasks = getAllTasks();
+
                 // If the project has changed, move the task to the new project
                 if (oldProjectName !== projectName) {
                     const oldProject = projectsArray.find(p => p.name === oldProjectName);
@@ -525,9 +552,34 @@ const closeTaskDetailModal = (saveChanges) => {
                 }
 
 
-                saveToLocalStorage('tasks', getAllTasks());
-                renderAllTasksView(getAllTasks());
-                // updateProjectListUI(); // To reflect changes in the project list if needed
+                // Update the allTasks array
+                const taskIndex = allTasks.findIndex(t => t.id === taskId);
+                if (taskIndex !== -1) {
+                    allTasks[taskIndex] = task;
+                }
+                setProjects(projects);
+                setAllTasks(allTasks);
+                synchronizeProjectTasks();
+                saveAppState();
+
+
+                // Determine the current view and update accordingly
+                const currentProject = getCurrentProject();
+                if (currentProject && currentProject.name === projectName) {
+                    updateMainContentForProject(currentProject);
+
+                } else {
+                    renderAllTasksView(allTasks);
+                    // renderAllTasksView(allTasks);
+                }
+
+
+                // saveToLocalStorage('tasks', getAllTasks());
+
+
+
+                updateProjectListUI(); // To reflect changes in the project list if needed
+
             }
         }
         taskDetailModal.style.display = 'none';

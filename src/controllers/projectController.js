@@ -2,8 +2,9 @@
 import { Project } from "../models/projectModel";
 import { saveToLocalStorage, loadFromLocalStorage } from "../utils/localStorage";
 import { updateProjectListUI, createProjectContent, updateAllProjectDropdowns, generateProjectDropdown } from "../views/projectView";
-import { createTaskList, renderAllTasksView } from "../views/taskView";
+import { createTaskList, renderAllTasksView, renderTasks, createTaskElement } from "../views/taskView";
 import { addProject, getProjects, setProjects, setCurrentProject, getCurrentProject, getAllTasks, currentProject, } from "../models/appState";
+import { appendFilterContainerToProjects } from "../utils/taskUtils";
 
 
 
@@ -38,6 +39,7 @@ const deleteProject = (project) => {
     renderAllTasksView(allTasks);
 };
 
+
 const updateMainContentForProject = () => {
     const project = getCurrentProject();
     if (!project) {
@@ -45,7 +47,9 @@ const updateMainContentForProject = () => {
         return;
     }
 
-    console.log("Attempting to update content for project:", project.name);
+    console.log("update main content from project called:", project.name);
+
+    console.log("Project tasks:", JSON.stringify(project.tasks));
 
     const tasksContainer = document.querySelector('.tasks-container');
     if (!tasksContainer) {
@@ -58,10 +62,23 @@ const updateMainContentForProject = () => {
     const projectContent = createProjectContent(project);
     tasksContainer.appendChild(projectContent);
 
-    const tasksList = createTaskList(project.tasks);
+    // Create and append the tasks list
+    const tasksList = document.createElement('div');
+    tasksList.classList.add('tasks-list');
+    project.tasks.forEach(task => {
+        const taskElement = createTaskElement(task);
+        tasksList.appendChild(taskElement);
+    });
     tasksContainer.appendChild(tasksList);
-};
 
+    appendFilterContainerToProjects(tasksContainer);
+
+
+    console.log("Main content for project updated:", project.name);
+
+    // const tasksList = createTaskList(project.tasks);
+    // tasksContainer.appendChild(tasksList);
+};
 
 function saveProjectName(project, newName) {
     if (!project) {

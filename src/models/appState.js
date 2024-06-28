@@ -42,6 +42,7 @@ export const getTaskById = (taskId) => {
 export const loadAppState = () => {
     projectsArray = loadFromLocalStorage('projects');
     allTasksArray = loadFromLocalStorage('tasks');
+
 };
 
 export const saveAppState = () => {

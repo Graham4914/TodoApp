@@ -1,12 +1,3 @@
-const saveToLocalStorage = (key, data) => {
-    try {
-        console.log(`Saving to local storage: ${key}`, data);
-        localStorage.setItem(key, JSON.stringify(data));
-    } catch (error) {
-        console.error('Error saving to local storage:', error);
-    }
-};
-
 const loadFromLocalStorage = (key) => {
     try {
         const item = localStorage.getItem(key);
@@ -18,6 +9,17 @@ const loadFromLocalStorage = (key) => {
         return [];
     }
 };
+
+const saveToLocalStorage = (key, data) => {
+    try {
+        console.log(`Saving to local storage: ${key}`, data);
+        localStorage.setItem(key, JSON.stringify(data));
+    } catch (error) {
+        console.error('Error saving to local storage:', error);
+    }
+};
+
+
 
 const initializeLocalStorage = (key) => {
     if (!localStorage.getItem(key)) {

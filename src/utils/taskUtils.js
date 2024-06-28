@@ -1,6 +1,7 @@
 // taskUtils.js
-import { getAllTasks } from "../models/appState";
+import { getAllTasks, getCurrentProject, getProjects, setProjects } from "../models/appState";
 import { createFilterContainer, renderTasks } from "../views/taskView";
+import { updateMainContentForProject } from "../controllers/projectController";
 
 export let currentFilterType = 'all';
 function setCurrentFilterType(filterType) {
@@ -10,6 +11,7 @@ function setCurrentFilterType(filterType) {
 
 export let isPriorityAsc = true;
 export let isDueDateAsc = true;
+
 
 function toggleSortPriority(tasks) {
     console.log('Tasks before sorting (Priority):', tasks);
@@ -87,8 +89,8 @@ function isTaskCompleted(task) {
 function calculateTaskCount(filterCriteria) {
     const allTasks = getAllTasks();
 
-    console.log(`Calculating count for filter: ${filterCriteria}`);
-    console.log('All tasks:', allTasks);
+    // console.log(`Calculating count for filter: ${filterCriteria}`);
+    // console.log('All tasks:', allTasks);
 
     switch (filterCriteria) {
         case 'all':
@@ -110,15 +112,15 @@ function updateCounters() {
     const updateCounter = (filterCriteria, buttonId) => {
         const button = document.querySelector(`#${buttonId}`);
         if (!button) {
-            console.error(`Button with ID ${buttonId} not found.`);
+            // console.error(`Button with ID ${buttonId} not found.`);
             return;
         }
 
-        console.log(`Updating counter for button with ID: ${buttonId}`); // Debugging line
+        // console.log(`Updating counter for button with ID: ${buttonId}`); // Debugging line
 
         const span = button.querySelector('.task-counter');
         if (!span) {
-            console.error(`Counter span not found in button with ID ${buttonId}.`);
+            // console.error(`Counter span not found in button with ID ${buttonId}.`);
             return;
         }
 
@@ -129,7 +131,7 @@ function updateCounters() {
     const filterTypes = ['all', 'today', 'upcoming', 'overdue', 'completed'];
 
     buttonIds.forEach((buttonId, index) => {
-        console.log(`Attempting to update counter for button with ID: ${buttonId}`); // Debugging line
+        // console.log(`Attempting to update counter for button with ID: ${buttonId}`); // Debugging line
         updateCounter(filterTypes[index], buttonId);
     });
 }
@@ -160,25 +162,6 @@ const getFilteredTasks = (filterType) => {
 };
 
 
-// const appendFilterContainer = (tasksContainer) => {
-//     const filterContainer = createFilterContainer();
-//     tasksContainer.appendChild(filterContainer);
-// };
-// const appendFilterContainerToTasks = (tasksContainer) => {
-//     const filterContainer = createFilterContainer();
-//     tasksContainer.insertBefore(filterContainer, tasksContainer.firstChild);
-// };
-
-// const appendFilterContainerToTasks = (tasksContainer) => {
-//     const filterContainer = createFilterContainer();
-//     // Insert the filter container after the header element
-//     const headingElement = tasksContainer.querySelector('h2');
-//     if (headingElement) {
-//         headingElement.insertAdjacentElement('afterend', filterContainer);
-//     } else {
-//         tasksContainer.insertBefore(filterContainer, tasksContainer.firstChild);
-//     }
-// };
 
 const appendFilterContainerToTasks = (tasksContainer) => {
     const filterContainer = createFilterContainer();
@@ -190,7 +173,7 @@ const appendFilterContainerToTasks = (tasksContainer) => {
         tasksContainer.insertBefore(filterContainer, tasksContainer.firstChild);
     }
 
-    // Add event listeners for sort buttons here
+    // Add event listeners for sort buttons
     document.getElementById('sort-priority').addEventListener('click', () => {
         const tasks = getFilteredTasks(currentFilterType);
         const sortedTasks = toggleSortPriority(tasks);
@@ -204,15 +187,18 @@ const appendFilterContainerToTasks = (tasksContainer) => {
     });
 };
 
+
+
 const appendFilterContainerToProjects = (tasksContainer) => {
     if (!tasksContainer) {
         console.error('Tasks container is undefined');
         return;
     }
 
-    const projectContent = tasksContainer.closest('.project-content');
+    const projectContent = tasksContainer.querySelector('.project-content');
     if (!projectContent) {
-        console.error('Project content container not found');
+
+        console.log(tasksContainer); // Debugging log to see the current tasksContainer
         return;
     }
 
@@ -224,6 +210,7 @@ const appendFilterContainerToProjects = (tasksContainer) => {
             projectHeaderElement.insertAdjacentElement('afterend', filterContainer);
         } else {
             tasksContainer.insertBefore(filterContainer, tasksContainer.firstChild);
+
         }
 
         // Add event listeners for sort buttons here
@@ -233,16 +220,20 @@ const appendFilterContainerToProjects = (tasksContainer) => {
         if (sortPriorityButton && sortDueDateButton) {
             sortPriorityButton.addEventListener('click', () => {
                 console.log('Sort priority clicked'); // Debugging log
-                const tasks = getFilteredTasks(currentFilterType); // Ensure correct tasks are being fetched
+                const currentProject = getCurrentProject(); // Get the current project
+                const tasks = currentProject ? currentProject.tasks : []; // Use current project's tasks
                 const sortedTasks = toggleSortPriority(tasks);
-                renderTasks(sortedTasks, currentFilterType.charAt(0).toUpperCase() + currentFilterType.slice(1));
+                renderTasks(sortedTasks, currentProject.name);
+                updateMainContentForProject(currentProject);
             });
 
             sortDueDateButton.addEventListener('click', () => {
                 console.log('Sort due date clicked'); // Debugging log
-                const tasks = getFilteredTasks(currentFilterType); // Ensure correct tasks are being fetched
+                const currentProject = getCurrentProject(); // Get the current project
+                const tasks = currentProject ? currentProject.tasks : []; // Use current project's tasks
                 const sortedTasks = toggleSortDueDate(tasks);
-                renderTasks(sortedTasks, currentFilterType.charAt(0).toUpperCase() + currentFilterType.slice(1));
+                renderTasks(sortedTasks, currentProject.name);// maybe not needed
+                updateMainContentForProject(currentProject);// this was project
             });
         } else {
             console.error('Sort buttons not found in the DOM');
@@ -251,6 +242,7 @@ const appendFilterContainerToProjects = (tasksContainer) => {
         console.log('Filter container already exists');
     }
 };
+
 export {
     isTaskDueToday, isTaskOverdue, isTaskUpcoming, isTaskCompleted,
     toggleSortPriority, toggleSortDueDate,

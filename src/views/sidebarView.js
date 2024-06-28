@@ -43,7 +43,7 @@ const createSidebar = () => {
         button.classList.add('nav-button');
         button.id = `${name.toLowerCase().replace(' ', '-')}-button`;
 
-        console.log(`Created button with ID: ${button.id}`); // Debugging line
+        // console.log(`Created button with ID: ${button.id}`); // Debugging line
 
         const counter = document.createElement('span');
         counter.classList.add('task-counter');

@@ -5,6 +5,7 @@ import { saveToLocalStorage } from '../utils/localStorage';
 import { isTaskDueToday, isTaskOverdue, isTaskUpcoming, isTaskCompleted, calculateTaskCount, updateCounters } from '../utils/taskUtils';
 import { updateMainContentForProject } from './projectController';
 import { projectsArray, getCurrentProject, getProjects, getAllTasks, getTaskById, setAllTasks, saveAppState, setProjects } from '../models/appState';
+import { synchronizeProjectTasks } from './appController';
 
 let currentEditingTaskId = null;
 
@@ -88,8 +89,21 @@ const saveCurrentTask = (taskId) => {
         allTasks[taskIndex] = task;
     }
 
+    projects.forEach(project => {
+        const projectTaskIndex = project.tasks.findIndex(t => t.id === taskId);
+        if (projectTaskIndex !== -1) {
+            project.tasks[projectTaskIndex] = task;
+        }
+    });
+
+    synchronizeProjectTasks();
+
     setProjects(projects);
     setAllTasks(allTasks);
+
+    console.log("Projects after save:", JSON.stringify(projects));
+    console.log("All Tasks after save:", JSON.stringify(allTasks));
+
 
     saveAppState();
     renderAllTasksView(allTasks);
@@ -132,6 +146,7 @@ const addTaskToProject = (title, description, dueDate, priority, projectName) =>
         setProjects(projects);
         saveAppState();
         renderAllTasksView(allTasks);
+        updateMainContentForProject(getCurrentProject());
         updateCounters();
         console.log('Task added, updated tasks list:', allTasks);
     } catch (error) {
@@ -160,7 +175,6 @@ const handleFormSubmit = (event) => {
         addTaskToProject(title, description, dueDate, priority, projectName);
         toggleTaskFormVisibility(false);
         console.log('Task added successfully:', { title, description, dueDate, priority, projectName });
-        alert("Task added successfully.");
         closeNewTaskModal();
     } catch (error) {
         console.error('Error adding task:', error);

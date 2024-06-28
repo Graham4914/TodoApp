@@ -4,14 +4,14 @@ import { Task } from '../models/taskModel';
 import { renderAllTasksView, renderTasks } from '../views/taskView';
 import { loadFromLocalStorage, initializeLocalStorage, saveToLocalStorage } from '../utils/localStorage'
 import { setProjects, setAllTasks, getProjects, getAllTasks, setCurrentProject, getCurrentProject, loadAppState, addProject } from "../models/appState";
+// import { synchronizeProjectTasks } from '../utils/taskUtils';
 import { createMainContent } from '../views/mainContentView';
-
 
 
 
 export const initializeApp = () => {
     loadAppState();
-    console.log('App sate initialized')
+    console.log('App state initialized');
     initializeLocalStorage('projects');
     initializeLocalStorage('tasks');
 
@@ -25,12 +25,11 @@ export const initializeApp = () => {
         projectData.forEach(projData => {
             const proj = Project(projData.name);
             projData.tasks.forEach(taskData => {
-                if (!loadedAllTasks.some(task => task.id === taskData.id)) {
-                    const loadedTask = Task(taskData.title, taskData.description, taskData.dueDate, taskData.priority, taskData.projectName, taskData.status);
-                    proj.addTask(loadedTask);
-                    loadedAllTasks.push(loadedTask);
-                }
-
+                const loadedTask = Task(taskData.title, taskData.description, taskData.dueDate, taskData.priority, taskData.projectName, taskData.status);
+                // Ensure task ID consistency
+                loadedTask.id = taskData.id;
+                proj.addTask(loadedTask);
+                loadedAllTasks.push(loadedTask);
             });
             loadedProjects.push(proj);
         });
@@ -38,20 +37,33 @@ export const initializeApp = () => {
     } else {
         setCurrentProject(null);
     }
+
     // Load standalone tasks that are not part of any project
     if (taskData && taskData.length > 0) {
         taskData.forEach(taskData => {
-            const loadedTask = Task(taskData.title, taskData.description, taskData.dueDate, taskData.priority, taskData.projectName, taskData.status);
-            loadedAllTasks.push(loadedTask);
+            // Check if task already exists in loadedAllTasks to avoid duplication
+            if (!loadedAllTasks.some(task => task.id === taskData.id)) {
+                const loadedTask = Task(taskData.title, taskData.description, taskData.dueDate, taskData.priority, taskData.projectName, taskData.status);
+                loadedTask.id = taskData.id; // Ensure task ID consistency
+                loadedAllTasks.push(loadedTask);
+            }
         });
     }
 
     setProjects(loadedProjects);
     setAllTasks(loadedAllTasks);
 
-    console.log('Projects and All Tasks loaded:', getProjects(), getAllTasks());
-    // renderAllTasksView(loadedAllTasks);
+    synchronizeProjectTasks();
 
+    console.log('Projects loaded:', JSON.stringify(loadedProjects));
+    console.log('All Tasks loaded:', JSON.stringify(loadedAllTasks));
+    console.log('Projects and All Tasks loaded:', getProjects(), getAllTasks());
+
+    // // Render views
+    renderAllTasksView(getAllTasks());
+
+    // renderProjectView(getCurrentProject());  // Make sure to call the render function for the project view
+    // updateMainContentForProject(getCurrentProject());
 
     return {
         projects: getProjects(),
@@ -60,4 +72,19 @@ export const initializeApp = () => {
     };
 };
 
+export const synchronizeProjectTasks = () => {
+    const projects = getProjects();
+    const allTasks = getAllTasks();
 
+    projects.forEach(project => {
+        project.tasks.forEach((task, index) => {
+            const updatedTask = allTasks.find(t => t.id === task.id);
+            if (updatedTask) {
+                project.tasks[index] = updatedTask;
+            }
+        });
+    });
+
+    setProjects(projects);
+    console.log("Projects synchronized with all tasks:", JSON.stringify(projects));
+};
