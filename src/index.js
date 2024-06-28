@@ -1,8 +1,10 @@
+//index.js
 import { loadFromLocalStorage, saveToLocalStorage } from './utils/localStorage';
 import { createSidebar } from './views/sidebarView';
 import { createMainContent } from './views/mainContentView';
 import { initializeApp } from './controllers/appController';
-import { getProjects, addProject, setCurrentProject, getAllTasks, loadAppState, saveAppState } from './models/appState';
+import { updateMainContentForProject } from './controllers/projectController';
+import { getProjects, addProject, setCurrentProject, getAllTasks, loadAppState, saveAppState, getTaskById, currentProject } from './models/appState';
 import { createTaskForm, createTaskDetailModal, renderFilteredTasks, renderAllTasksView, showTaskForm } from './views/taskView';
 import { loadProjects } from './views/projectView';
 import { updateCounters } from './utils/taskUtils';
@@ -37,6 +39,8 @@ const loadApplication = () => {
 
         saveAppState();
     }
+
+
     renderFilteredTasks('all');
     updateCounters();
 
@@ -54,7 +58,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     initializeApp();
     loadApplication();
-    loadProjects();
+    loadProjects(currentProject);
+
+
+    renderFilteredTasks('all');
 
 
     const mainContent = document.getElementById('main-content');
@@ -62,19 +69,5 @@ document.addEventListener('DOMContentLoaded', () => {
         console.error('Main content area is missing');
         return;
     }
-
-    // const taskFormContainer = createTaskForm();
-    // mainContent.appendChild(taskFormContainer);
-
-
-    const addButton = document.getElementById('add-task-button');
-    if (addButton) {
-        addButton.addEventListener('click', () => {
-            showTaskForm();
-        });
-    } else {
-        console.error('Add Task button not found');
-    }
-    // updateCounters();
 });
 
