@@ -3,7 +3,7 @@ import { Project } from "../models/projectModel";
 import { saveToLocalStorage, loadFromLocalStorage } from "../utils/localStorage";
 import { updateProjectListUI, createProjectContent, updateAllProjectDropdowns, generateProjectDropdown } from "../views/projectView";
 import { createTaskList, renderAllTasksView, renderTasks, createTaskElement } from "../views/taskView";
-import { addProject, getProjects, setProjects, setCurrentProject, getCurrentProject, getAllTasks, currentProject, } from "../models/appState";
+import { addProject, getProjects, setProjects, setCurrentProject, getCurrentProject, getAllTasks, currentProject, saveAppState, } from "../models/appState";
 import { appendFilterContainerToProjects } from "../utils/taskUtils";
 
 
@@ -34,7 +34,6 @@ const deleteProject = (project) => {
     setProjects(updatedProjects);
     saveToLocalStorage('projects', updatedProjects);
     saveToLocalStorage('tasks', allTasks);
-
     updateProjectListUI();
     renderAllTasksView(allTasks);
 };
@@ -73,11 +72,6 @@ const updateMainContentForProject = () => {
 
     appendFilterContainerToProjects(tasksContainer);
 
-
-    console.log("Main content for project updated:", project.name);
-
-    // const tasksList = createTaskList(project.tasks);
-    // tasksContainer.appendChild(tasksList);
 };
 
 function saveProjectName(project, newName) {
@@ -90,6 +84,7 @@ function saveProjectName(project, newName) {
     saveToLocalStorage();
     updateProjectListUI();
     updateMainContentForProject(project);
+    saveAppState()
 }
 
 export { addNewProject, deleteProject, updateMainContentForProject, saveProjectName };
