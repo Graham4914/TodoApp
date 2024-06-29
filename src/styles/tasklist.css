@@ -1,4 +1,5 @@
 .task {
+    position: relative;
     padding: 10px 5px ;
     display: flex;
     align-items: center;
@@ -18,7 +19,7 @@
     background-color: #f8f8f8;
     border-radius: 3px;
     align-items: flex-start; /* Align to top */
-    margin-top: 50px;
+    margin-top: 5px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
     
 }
@@ -28,8 +29,8 @@
 .task-checkbox {
     appearance: none;
     background-color: fff;
-    border: 2px solid #ccc;
-    padding: 10px;
+    border: 1px solid #ccc;
+    padding: 0px;
     border-radius: 50%;
     cursor: pointer;
     width: 20px;
@@ -46,10 +47,10 @@
 .task-checkbox:checked:after {
     content: '';
     position: absolute;
-    left: 4px;
-    top: 4px;
-    width: 10px;
-    height: 10px;
+    left: 5px;
+    top: 5px;
+    width: 8px;
+    height: 8px;
     background-color: #fff;
     border-radius: 50%;
 }
@@ -191,6 +192,7 @@ input, textarea, select {
 }
 .tasks-container h2 {
     text-align: center;
+    font-size: 24px;
 }
 
 .task-priority {
@@ -374,3 +376,19 @@ body.dark-mode .button-wrapper button.add-task-button:hover,
 body.dark-mode .button-wrapper button.delete-button:hover {
     background-color: #666 ;
 }
+@keyframes strikeThrough {
+    from {
+        text-decoration: none;
+    }
+    to {
+        text-decoration: line-through;
+    }
+}
+
+
+.task-completed-animation {
+    animation: strikeThrough .5s forwards;
+
+} 
+
+

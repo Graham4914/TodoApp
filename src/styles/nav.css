@@ -22,32 +22,33 @@
 
 
 /* filter styling */
-.filter-container {
+
+/* .filter-container {
     display: flex;
     justify-content: flex-end;
     gap: 7px;
-    margin-bottom: 10px; /* Adjust as needed */
-}
+    margin-bottom: 10px; 
+} */
 
-.sort-button {
-    margin: 0 5px; /* Adjust as needed */
+ /* .sort-button {
+    margin: 0 5px; 
     padding: 5px;
     border: none;
     background: none;
     cursor: pointer;
-}
+} */
 
-.sort-button i {
-    font-size: 1.2em; /* Adjust as needed */
-    color: var(--icon-color);
-}
+/* .sort-button i {
+    font-size: 1.2em; 
+    color: #b3cde0
+} */
 
-.sort-button:hover i {
+/* .sort-button:hover i {
     color: var(--icon-hover-color);
-}
+}  */
 
-:root {
-    --icon-color: #000;
+/* :root {
+    --icon-color: #b3cde0;
     --icon-hover-color: #555;
 }
 
@@ -55,6 +56,6 @@ body.dark-mode {
     --icon-color: #fff;
     --icon-hover-color: #ccc;
 }
-
+ */
 
 

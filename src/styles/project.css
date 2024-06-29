@@ -73,18 +73,20 @@ button[type="submit"] {
 .project-header {
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    justify-content: center;
     padding: 5px;
     height: 3rem;
     background-color: #f4f4f4;
     position: relative;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    margin-bottom: 10px;
 }
 
 .project-title-wrapper {
     flex-grow: 1;
     display: flex;
-    justify-content: center;
+    justify-content: flex-start;
+    
 }
 
 
@@ -93,9 +95,12 @@ button[type="submit"] {
     font-weight: bold;
     border: none;
     background-color: transparent;
-    width: auto;
-    text-align: center;
+    min-width: none;
+    max-width: 200px;
+    text-align: left;
     margin-top: 10px;
+    margin-left: 5px;
+    
 }
 
 .button-wrapper {

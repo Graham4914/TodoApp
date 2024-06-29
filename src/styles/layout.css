@@ -6,6 +6,7 @@
 .filter-container {
     display: flex;
     justify-content: flex-end;
+    gap: 1rem;
     margin-bottom: 10px;
 }
 
@@ -13,17 +14,36 @@
     background: none;
     border: none;
     cursor: pointer;
+    
     font-size: 16px;
-    margin-left: 10px;
+    margin: 0 5px 0;
 }
+.sort-button:hover {
+    color: #b3cde0;
+}
+
 
 .sort-button i {
-    color: #555;
+    color: #000 ;
 }
 
-.sort-button:hover i {
-    color: #000;
+.sort-button i:hover  {
+    color: #666;
+
+    
 }
+body.dark-mode .sort-button i {
+    color: #fff;
+}
+body.dark-mode .sort-button i:hover {
+    color: #333;
+}
+
+body.dark-mode .main-heading {
+    color: #fff;
+}
+
+
 /* Toggle button styles */
 .burger-menu {
     position: fixed;
@@ -92,6 +112,14 @@
 .main-content.full-width {
     margin-left: 0;
     width: 100%;
+}
+
+.main-heading {
+    font-size: 2em;
+    text-align: left;
+    margin: 0 auto 0;
+    color: #333;  /* Adjust color as needed */
+    box-sizing: border-box;
 }
 
 

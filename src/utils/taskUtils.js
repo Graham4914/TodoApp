@@ -1,6 +1,6 @@
 // taskUtils.js
-import { getAllTasks, getCurrentProject, getProjects, setProjects } from "../models/appState";
-import { createFilterContainer, renderTasks } from "../views/taskView";
+import { getAllTasks, getCurrentProject, getProjects, setProjects, setAllTasks, saveAppState } from "../models/appState";
+import { createFilterContainer, renderTasks, renderFilteredTasks } from "../views/taskView";
 import { updateMainContentForProject } from "../controllers/projectController";
 
 export let currentFilterType = 'all';
@@ -243,9 +243,51 @@ const appendFilterContainerToProjects = (tasksContainer) => {
     }
 };
 
+
+
+const updateTaskStatus = (taskId, status) => {
+    let allTasks = getAllTasks();
+    const projects = getProjects();
+
+    const task = allTasks.find(t => t.id === taskId);
+    if (!task) {
+        console.error('Task not found with ID:', taskId);
+        return;
+    }
+
+    task.status = status;
+
+    if (status === 'complete') {
+        const project = projects.find(p => p.name === task.projectName);
+        if (project) {
+            project.tasks = project.tasks.filter(t => t.id !== taskId);
+        }
+    } else {
+        const project = projects.find(p => p.name === task.projectName);
+        if (project) {
+            project.tasks.push(task);
+        }
+    }
+
+    setAllTasks(allTasks);
+    setProjects(projects);
+    saveAppState();
+};
+const reRenderCurrentView = () => {
+    if (currentFilterType) {
+        renderFilteredTasks(currentFilterType);
+    } else {
+        const currentProject = getCurrentProject();
+        if (currentProject) {
+            updateMainContentForProject(currentProject);
+        }
+    }
+};
+
+
 export {
     isTaskDueToday, isTaskOverdue, isTaskUpcoming, isTaskCompleted,
     toggleSortPriority, toggleSortDueDate,
     calculateTaskCount, updateCounters, truncateText, appendFilterContainerToTasks, appendFilterContainerToProjects,
-    getFilteredTasks, setCurrentFilterType
+    getFilteredTasks, setCurrentFilterType, updateTaskStatus, reRenderCurrentView
 };

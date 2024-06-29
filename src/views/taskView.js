@@ -2,7 +2,10 @@
 import { generateProjectDropdown, updateProjectListUI } from "./projectView";
 import { handleFormSubmit, deleteTask, closeTaskDetail, openTaskDetail } from "../controllers/taskController";
 import { saveToLocalStorage, loadFromLocalStorage } from "../utils/localStorage";
-import { isTaskDueToday, isTaskOverdue, isTaskUpcoming, isTaskCompleted, calculateTaskCount, updateCounters, truncateText, appendFilterContainerToTasks, currentFilterType, setCurrentFilterType, getFilteredTasks, toggleSortDueDate, toggleSortPriority, isDueDateAsc, isPriorityAsc } from "../utils/taskUtils";
+import {
+    isTaskDueToday, isTaskOverdue, isTaskUpcoming, isTaskCompleted, calculateTaskCount, updateCounters, truncateText, appendFilterContainerToTasks, currentFilterType,
+    setCurrentFilterType, getFilteredTasks, toggleSortDueDate, toggleSortPriority, isDueDateAsc, isPriorityAsc, showConfetti, updateTaskStatus, reRenderCurrentView
+} from "../utils/taskUtils";
 import { getAllTasks, getTaskById, allTasksArray, setAllTasks, getProjects, setProjects, saveAppState, projectsArray, getCurrentProject } from "../models/appState";
 import { updateMainContentForProject } from "../controllers/projectController";
 import { synchronizeProjectTasks } from "../controllers/appController";
@@ -31,18 +34,21 @@ const createTaskForm = () => {
     const dueDateLabel = document.createElement('label');
     dueDateLabel.textContent = 'Due Date';
     form.appendChild(dueDateLabel);
+
     const dueDateInput = document.createElement('input');
     dueDateInput.type = 'date';
     dueDateInput.name = 'due-date';
+    dueDateInput.required = true;
     form.appendChild(dueDateInput);
 
     //input for priority
     const priorityLabel = document.createElement('label');
     priorityLabel.textContent = 'Priority';
     form.appendChild(priorityLabel);
+
     const prioritySelect = document.createElement('select');
     prioritySelect.name = 'priority';
-    ['High', 'Medium', 'Low'].forEach(priority => {
+    ['Medium', 'Low', 'High'].forEach(priority => {
         const option = document.createElement('option');
         option.value = priority.toLowerCase();
         option.textContent = priority;
@@ -89,7 +95,9 @@ const createTaskForm = () => {
 const createTaskElement = (task) => {
     const taskElement = document.createElement('div');
     taskElement.classList.add('task');
-
+    if (isTaskCompleted(task)) {
+        taskElement.classList.add('task-completed-animation');  // Apply completed class if the task is already completed
+    }
     const checkbox = document.createElement('input');
     checkbox.type = 'checkbox';
     checkbox.classList.add('task-checkbox');
@@ -99,6 +107,26 @@ const createTaskElement = (task) => {
     checkbox.addEventListener('change', function (event) {
         event.stopImmediatePropagation();
         task.status = this.checked ? 'complete' : 'incomplete'; // Update the task's completed property
+
+
+        if (this.checked) {
+            taskElement.classList.add('task-completed-animation');
+
+
+            setTimeout(() => {
+                updateTaskStatus(task.id, 'complete');  // Update the task status after a delay
+                reRenderCurrentView(); // Re-render tasks based on the current filter
+                updateCounters()
+
+            }, 1500);  // 1.5-second delay
+        } else {
+            taskElement.classList.remove('task-completed-animation');
+            updateTaskStatus(task.id, 'incomplete');  // Update the task status
+            reRenderCurrentView(); //Re-render tasks based on the current filter
+            updateCounters();  // Update task counters
+        }
+
+
 
         // Debugging statement
         console.log(`Task "${task.title}" status changed to: ${task.status}`);
@@ -138,12 +166,6 @@ const createTaskElement = (task) => {
         setAllTasks(allTasks);
         setProjects(projects);
         saveAppState();
-
-        console.log("Updated allTasks after setting:", getAllTasks());
-        console.log("Updated projects after setting:", getProjects());
-
-        renderFilteredTasks('all');
-        renderFilteredTasks('completed');
         updateCounters();
 
         console.log('Filtered Tasks after status change:', getAllTasks().filter(t => t.status === 'complete'));
@@ -196,7 +218,7 @@ const createTaskElement = (task) => {
     deleteBtn.addEventListener('click', (event) => {
         event.stopPropagation();
         deleteTask(task);
-        renderAllTasksView(getAllTasks)//check this line
+        // reRenderCurrentView();//check this line
 
     });
 
@@ -363,6 +385,7 @@ const closeNewTaskModal = () => {
     } else {
         console.error('Form container not found in the DOM');
     }
+    reRenderCurrentView();
 };
 
 const showTaskForm = () => {
@@ -374,6 +397,8 @@ const showTaskForm = () => {
     } else {
         console.error('Form container is missing from DOM');
     }
+
+
 };
 
 const toggleTaskFormVisibility = (show) => {
@@ -385,20 +410,7 @@ const toggleTaskFormVisibility = (show) => {
     formContainer.style.display = show ? 'block' : 'none';
 };
 
-// function renderFilteredTasks(filterType) {
-//     setCurrentFilterType(filterType); // Set the current filter type
-//     const tasksContainer = document.querySelector('.tasks-container');
-//     console.log(`Filter type received: ${filterType}`);  // Debug log to verify filter type received
-//     const headingText = filterType === 'all' ? 'All Tasks' : filterType.charAt(0).toUpperCase() + filterType.slice(1);
-//     console.log(`Setting heading to: ${headingText}`);
 
-//     const filteredTasks = getFilteredTasks(filterType);
-
-//     console.log(`Rendering ${filterType} tasks:`, filteredTasks);
-
-//     renderTasks(filteredTasks, headingText);
-
-// }
 function renderFilteredTasks(filterType) {
     setCurrentFilterType(filterType); // Set the current filter type
     const tasksContainer = document.querySelector('.tasks-container');
@@ -569,13 +581,9 @@ const closeTaskDetailModal = (saveChanges) => {
                     updateMainContentForProject(currentProject);
 
                 } else {
-                    renderAllTasksView(allTasks);
-                    // renderAllTasksView(allTasks);
+
+                    reRenderCurrentView();
                 }
-
-
-                // saveToLocalStorage('tasks', getAllTasks());
-
 
 
                 updateProjectListUI(); // To reflect changes in the project list if needed

@@ -5,6 +5,12 @@ export const createMainContent = () => {
     mainContent.classList.add('main-content');
     mainContent.id = 'main-content';
 
+    const heading = document.createElement('h1');
+    heading.textContent = 'To-Do List';
+    heading.classList.add('main-heading');
+
+    mainContent.appendChild(heading);
+
     const tasksContainer = document.createElement('div');
     tasksContainer.classList.add('tasks-container');
     tasksContainer.id = 'tasks-container';

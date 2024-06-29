@@ -2,7 +2,7 @@
 
 import { createProjectListElement } from "./projectView";
 import { showTaskForm, renderAllTasksView, renderFilteredTasks } from "./taskView";
-import { getProjects, setProjects, addProject, getAllTasks } from "../models/appState";
+import { getProjects, setProjects, addProject, getAllTasks, saveAppState } from "../models/appState";
 import { updateCounters, setCurrentFilterType } from "../utils/taskUtils";
 
 
@@ -55,6 +55,7 @@ const createSidebar = () => {
             console.log(`Button clicked: ${filterType}`);
             renderFilteredTasks(filterType);
             updateCounters();
+            saveAppState();
         });
 
         sidebar.appendChild(button);

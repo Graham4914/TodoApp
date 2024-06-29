@@ -1,10 +1,10 @@
 //taskController.js
 import { Task } from '../models/taskModel';
-import { renderAllTasksView, renderTasks, showTaskDetailModal, closeTaskDetailModal, hideTaskDetailModal, toggleTaskFormVisibility, closeNewTaskModal } from '../views/taskView';
+import { renderAllTasksView, renderTasks, showTaskDetailModal, closeTaskDetailModal, hideTaskDetailModal, toggleTaskFormVisibility, closeNewTaskModal, renderFilteredTasks } from '../views/taskView';
 import { saveToLocalStorage } from '../utils/localStorage';
-import { isTaskDueToday, isTaskOverdue, isTaskUpcoming, isTaskCompleted, calculateTaskCount, updateCounters } from '../utils/taskUtils';
+import { isTaskDueToday, isTaskOverdue, isTaskUpcoming, isTaskCompleted, calculateTaskCount, updateCounters, reRenderCurrentView, currentFilterType } from '../utils/taskUtils';
 import { updateMainContentForProject } from './projectController';
-import { projectsArray, getCurrentProject, getProjects, getAllTasks, getTaskById, setAllTasks, saveAppState, setProjects } from '../models/appState';
+import { projectsArray, getCurrentProject, getProjects, getAllTasks, getTaskById, setAllTasks, saveAppState, setProjects, currentProject } from '../models/appState';
 import { synchronizeProjectTasks } from './appController';
 
 let currentEditingTaskId = null;
@@ -43,7 +43,7 @@ function deleteTask(taskToDelete) {
     setAllTasks(updatedAllTasks);
     saveToLocalStorage('projects', projects);
     saveToLocalStorage('tasks', updatedAllTasks);
-    renderAllTasksView(updatedAllTasks);
+    renderFilteredTasks(currentFilterType);
     updateCounters();
 }
 
@@ -106,8 +106,10 @@ const saveCurrentTask = (taskId) => {
 
 
     saveAppState();
-    renderAllTasksView(allTasks);
-    updateMainContentForProject(getCurrentProject());
+
+    reRenderCurrentView();
+    // renderAllTasksView(allTasks);
+    // updateMainContentForProject(getCurrentProject());
     updateCounters();
 
     console.log("Updated Task Data", JSON.stringify(task));
@@ -145,8 +147,8 @@ const addTaskToProject = (title, description, dueDate, priority, projectName) =>
         setAllTasks(allTasks);
         setProjects(projects);
         saveAppState();
-        renderAllTasksView(allTasks);
-        updateMainContentForProject(getCurrentProject());
+
+        reRenderCurrentView();
         updateCounters();
         console.log('Task added, updated tasks list:', allTasks);
     } catch (error) {
@@ -166,6 +168,10 @@ const handleFormSubmit = (event) => {
     const priority = form.elements['priority']?.value;
     const projectName = form.elements['projectSelect']?.value;
 
+    form.reset();
+
+
+
     if (!title) {
         alert("Please enter a title for the task.");
         return;
@@ -180,6 +186,7 @@ const handleFormSubmit = (event) => {
         console.error('Error adding task:', error);
         alert("Failed to add task.");
     }
+
 };
 
 

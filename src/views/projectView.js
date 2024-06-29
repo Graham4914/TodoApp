@@ -2,7 +2,7 @@
 import { Project } from "../models/projectModel";
 import { loadFromLocalStorage, saveToLocalStorage } from "../utils/localStorage";
 import { getProjects, addProject, setProjects, setCurrentProject, currentProject } from "../models/appState";
-import { showTaskForm, createTaskList, createTaskElement, renderTasks } from "./taskView";
+import { showTaskForm, createTaskList, createTaskElement, renderTasks, renderAllTasksView, renderFilteredTasks } from "./taskView";
 import { saveProjectName, deleteProject, addNewProject, updateMainContentForProject } from "../controllers/projectController";
 import { appendFilterContainerToProjects } from "../utils/taskUtils";
 
@@ -132,71 +132,7 @@ const updateProjectListUI = () => {
     });
 };
 
-// function createProjectContent(project) {
-//     const projectContent = document.createElement('div');
-//     projectContent.classList.add('project-content');
 
-//     const projectHeader = document.createElement('div');
-//     projectHeader.classList.add('project-header');
-
-//     const projectTitleWrapper = document.createElement('div');
-//     projectTitleWrapper.classList.add('project-title-wrapper');
-
-//     const projectTitleInput = document.createElement('input');
-//     projectTitleInput.type = 'text';
-//     projectTitleInput.value = project.name;
-//     projectTitleInput.classList.add('project-title-input');
-
-//     projectTitleInput.addEventListener('blur', () => {
-//         saveProjectName(project, projectTitleInput.value);
-//     });
-
-//     projectTitleInput.addEventListener('keypress', (e) => {
-//         if (e.key === 'Enter') {
-//             projectTitleInput.blur();
-//         }
-//     });
-
-//     projectTitleWrapper.appendChild(projectTitleInput);
-//     projectHeader.appendChild(projectTitleWrapper);
-
-//     const buttonWrapper = document.createElement('div');
-//     buttonWrapper.classList.add('button-wrapper');
-
-//     const addTaskButton = document.createElement('button');
-//     addTaskButton.innerHTML = '<i class="fas fa-plus"></i>';
-//     addTaskButton.classList.add('add-task-button');
-//     addTaskButton.addEventListener('click', showTaskForm);
-//     buttonWrapper.appendChild(addTaskButton);
-
-//     //add delete button
-//     const deleteButton = document.createElement('button');
-//     deleteButton.innerHTML = '<i class="fas fa-trash-alt"></i>';
-//     deleteButton.classList.add('delete-button');
-//     deleteButton.addEventListener('click', () => deleteProject(project));
-//     buttonWrapper.appendChild(deleteButton);
-
-//     projectHeader.appendChild(buttonWrapper);
-
-//     // add project close button
-//     const closeButton = document.createElement('button');
-//     closeButton.innerHTML = '<i class="fas fa-times"></i>';
-//     closeButton.classList.add('close-button');
-//     closeButton.addEventListener('click', () => closeProjectView());
-//     projectHeader.appendChild(closeButton);
-
-//     projectContent.appendChild(projectHeader);
-
-//     const tasksContainer = document.createElement('div');
-//     tasksContainer.classList.add('tasks-container');
-
-
-//     appendFilterContainerToProjects(tasksContainer);
-
-//     console.log("projectTitle set to:", projectTitleInput);
-
-//     return projectContent;
-// }
 
 function createProjectContent(project) {
     const projectContent = document.createElement('div');
@@ -248,7 +184,7 @@ function createProjectContent(project) {
     const closeButton = document.createElement('button');
     closeButton.innerHTML = '<i class="fas fa-times"></i>';
     closeButton.classList.add('close-button');
-    closeButton.addEventListener('click', () => closeProjectView());
+    closeButton.addEventListener('click', () => renderFilteredTasks('all'));
     projectHeader.appendChild(closeButton);
 
 
@@ -257,18 +193,7 @@ function createProjectContent(project) {
     const tasksContainer = document.createElement('div');
     tasksContainer.classList.add('tasks-container');
 
-
-
-    // const tasksList = document.createElement('div');
-    // tasksList.classList.add('tasks-list');
-    // const tasksList = createTaskList(project.tasks);
-    // tasksContainer.appendChild(tasksList);
-
-
-
-
     appendFilterContainerToProjects(projectContent);
-
 
     console.log("projectTitle set to:", projectTitleInput);
 
