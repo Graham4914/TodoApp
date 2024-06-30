@@ -51,22 +51,26 @@
 
 /* Task form modal */
 .form-container {
+    display: flex;
+    flex-direction: column;
     border: 1px solid #ccc;
     position: fixed;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
+    width:80%;
+    max-width: 800px;
+    max-height: 80vh; 
     background: white;
-    padding: 30px 30px 20px;
+    padding: 20px;border-radius: 3px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     z-index: 10;
-    
+    overflow-y: auto;
 }
 
 .task-form {
     display: flex;
     flex-direction: column;
-    width: 600px;
-    margin: auto;
 }
 
 
@@ -106,13 +110,13 @@
     transform: translate(-50%, -50%);
     width:80%;
     max-width: 1200px;
-    max-height: 80vh; /* Make sure modal doesn't exceed viewport height */
+    max-height: 80vh; 
     background: white;
     padding: 20px;
     border-radius: 3px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     z-index: 1000;
-    overflow-y: auto; /* Add vertical scroll if content overflows */
+    overflow-y: auto; 
 }
 
 .modal-header {

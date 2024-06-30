@@ -16,43 +16,7 @@ import './styles/tasklist.css';
 import './styles/project.css';
 
 
-// // Initialize and load the application
-// const loadApplication = () => {
-//     const root = document.getElementById('root');
-//     root.classList.add('root');
 
-//     const sidebar = createSidebar();
-//     const mainContent = createMainContent();
-
-//     root.appendChild(sidebar);
-//     root.appendChild(mainContent);
-
-//     loadAppState();
-
-//     const projects = getProjects();
-//     if (projects.length > 0) {
-//         setCurrentProject(projects[0]);
-//     } else {
-//         const defaultProject = { name: "Default", tasks: [] };
-//         addProject(defaultProject);
-//         setCurrentProject(defaultProject);
-
-//         saveAppState();
-//     }
-
-
-//     renderFilteredTasks('all');
-//     updateCounters();
-
-//     // Append the hidden task form to the main content
-//     const taskFormContainer = createTaskForm();
-//     mainContent.appendChild(taskFormContainer);
-
-//     // Ensure the task detail modal is created and appended to the DOM
-//     createTaskDetailModal();
-// };
-
-// Initialize and load the application
 const loadApplication = () => {
     const root = document.getElementById('root');
     root.classList.add('root');
@@ -65,21 +29,16 @@ const loadApplication = () => {
 
     initializeApp();
 
-    // Append the hidden task form to the main content
     const taskFormContainer = createTaskForm();
     mainContent.appendChild(taskFormContainer);
 
-    // Ensure the task detail modal is created and appended to the DOM
     createTaskDetailModal();
 };
-// Event listener for DOMContentLoaded
 document.addEventListener('DOMContentLoaded', () => {
     console.log("DOM fully loaded and parsed");
 
-    // initializeApp();
     loadApplication();
     loadProjects(currentProject);
-
 
     renderFilteredTasks('all');
     updateCounters();
