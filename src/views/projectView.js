@@ -101,9 +101,7 @@ const getProjectNameFromUser = (onSubmit) => {
 const loadProjects = () => {
     const storedProjects = loadFromLocalStorage('projects') || [];
     if (storedProjects.length === 0) {
-        const defaultProject = Project("Default");
-        addProject(defaultProject);
-        saveToLocalStorage('projects', [defaultProject]);
+
     } else {
         setProjects(storedProjects);
     }
