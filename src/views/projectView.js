@@ -25,7 +25,7 @@ const createProjectListElement = () => {
     const addProjectButton = document.createElement('button');
     addProjectButton.classList.add('uniform-plus-button', 'add-project-button')
     addProjectButton.innerHTML = '<i class="fas fa-plus"></i>';
-    // addProjectButton.addEventListener('click', addNewProject);
+
     addProjectButton.addEventListener('click', () => {
         const addProjectForm = document.querySelector('.add-project-form');
         addProjectForm.style.display = addProjectForm.style.display === 'none' ? 'flex' : 'none';
@@ -195,7 +195,6 @@ function createProjectContent(project) {
 
     appendFilterContainerToProjects(projectContent);
 
-    console.log("projectTitle set to:", projectTitleInput);
 
     return projectContent;
 }

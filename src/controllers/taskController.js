@@ -14,7 +14,6 @@ const openTaskDetail = (taskId) => {
     if (task) {
         currentEditingTaskId = task.id;
         showTaskDetailModal(task);
-        console.log("Opening task detail for ID:", currentEditingTaskId); // Debugging line
     } else {
         console.error("Task not found with ID:", taskId);
     }
@@ -43,13 +42,12 @@ function deleteTask(taskToDelete) {
     setAllTasks(updatedAllTasks);
     saveToLocalStorage('projects', projects);
     saveToLocalStorage('tasks', updatedAllTasks);
-    renderFilteredTasks(currentFilterType);
+    reRenderCurrentView();
     updateCounters();
 }
 
 
 const saveCurrentTask = (taskId) => {
-    console.log("Task ID in saveCurrentTask:", taskId);
     const task = getTaskById(taskId);
     if (!task) {
         console.error('Task not found with ID:', taskId);
@@ -97,46 +95,31 @@ const saveCurrentTask = (taskId) => {
     });
 
     synchronizeProjectTasks();
-
     setProjects(projects);
     setAllTasks(allTasks);
-
-    console.log("Projects after save:", JSON.stringify(projects));
-    console.log("All Tasks after save:", JSON.stringify(allTasks));
-
-
     saveAppState();
-
     reRenderCurrentView();
-    // renderAllTasksView(allTasks);
-    // updateMainContentForProject(getCurrentProject());
     updateCounters();
-
-    console.log("Updated Task Data", JSON.stringify(task));
 };
 
 const addTaskToProject = (title, description, dueDate, priority, projectName) => {
-    console.log('Adding task with:', { title, description, dueDate, priority, projectName });
     const projects = getProjects();
     const allTasks = getAllTasks();
 
-    console.log('Current state before adding:', { allTasks, projects });
-
     try {
         const newTask = {
-            id: `task-${Date.now()}`, // Generate a unique ID for the task
+            id: `task-${Date.now()}`,
             title,
             description,
             dueDate,
             priority,
             projectName,
-            status: 'incomplete' // Default status
+            status: 'incomplete'
         };
         allTasks.push(newTask);
 
         if (projectName) {
             const project = projects.find(p => p.name === projectName);
-            console.log('Found project:', project);
             if (project) {
                 project.tasks.push(newTask);
             } else {
@@ -150,10 +133,9 @@ const addTaskToProject = (title, description, dueDate, priority, projectName) =>
 
         reRenderCurrentView();
         updateCounters();
-        console.log('Task added, updated tasks list:', allTasks);
     } catch (error) {
         console.error('Failed to add task in addTaskToProject:', error);
-        throw error; // Rethrow or handle the error appropriately
+        throw error;
     }
 };
 
@@ -180,7 +162,6 @@ const handleFormSubmit = (event) => {
     try {
         addTaskToProject(title, description, dueDate, priority, projectName);
         toggleTaskFormVisibility(false);
-        console.log('Task added successfully:', { title, description, dueDate, priority, projectName });
         closeNewTaskModal();
     } catch (error) {
         console.error('Error adding task:', error);

@@ -1,6 +1,5 @@
 //Create Main Content DOM
 export const createMainContent = () => {
-    console.log('Creating main content...');
     const mainContent = document.createElement('div');
     mainContent.classList.add('main-content');
     mainContent.id = 'main-content';
@@ -22,6 +21,6 @@ export const createMainContent = () => {
     tasksContainer.appendChild(tasksListContainer);
 
     mainContent.appendChild(tasksContainer);
-    console.log('Main content about to return:', mainContent);
+
     return mainContent;
 };

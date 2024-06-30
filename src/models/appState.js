@@ -49,3 +49,15 @@ export const saveAppState = () => {
     saveToLocalStorage('projects', projectsArray);
     saveToLocalStorage('tasks', allTasksArray);
 };
+
+let lastViewedContext = {
+    type: 'filter', // or 'project'
+    filterType: 'all',
+    projectId: null
+};
+
+export const getLastViewedContext = () => lastViewedContext;
+
+export const setLastViewedContext = (context) => {
+    lastViewedContext = context;
+};

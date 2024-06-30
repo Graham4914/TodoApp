@@ -43,8 +43,6 @@ const createSidebar = () => {
         button.classList.add('nav-button');
         button.id = `${name.toLowerCase().replace(' ', '-')}-button`;
 
-        // console.log(`Created button with ID: ${button.id}`); // Debugging line
-
         const counter = document.createElement('span');
         counter.classList.add('task-counter');
         button.appendChild(counter);
@@ -68,7 +66,7 @@ const createSidebar = () => {
     const burgerMenu = document.createElement('button');
     burgerMenu.id = 'burger-menu';
     burgerMenu.classList.add('burger-menu');
-    burgerMenu.innerHTML = '<i class="fas fa-bars"></i>'; // Icon for the toggle button
+    burgerMenu.innerHTML = '<i class="fas fa-bars"></i>';
 
     burgerMenu.addEventListener('click', () => {
         const sidebar = document.getElementById('sidebar');
@@ -83,7 +81,7 @@ const createSidebar = () => {
     const darkModeToggleButton = document.createElement('button');
     darkModeToggleButton.id = 'toggle-dark-mode';
     darkModeToggleButton.classList.add('toggle-dark-mode');
-    darkModeToggleButton.innerHTML = '<i class="fas fa-moon"></i>'; // Icon for dark mode toggle
+    darkModeToggleButton.innerHTML = '<i class="fas fa-moon"></i>';
 
     darkModeToggleButton.addEventListener('click', () => {
         document.body.classList.toggle('dark-mode');
@@ -94,7 +92,6 @@ const createSidebar = () => {
 
     document.body.appendChild(darkModeToggleButton);
 
-    // Function to check screen width and toggle sidebar visibility
     const checkScreenWidth = () => {
         const sidebar = document.getElementById('sidebar');
         const burgerMenu = document.getElementById('burger-menu');
@@ -110,18 +107,8 @@ const createSidebar = () => {
         }
     };
 
-
-
-
-    // Call checkScreenWidth on window resize
     window.addEventListener('resize', checkScreenWidth);
-
-    // Initial check on page load
     window.addEventListener('load', checkScreenWidth);
-
-
-
-
 
     return sidebar;
 };

@@ -11,7 +11,6 @@ import { createMainContent } from '../views/mainContentView';
 
 export const initializeApp = () => {
     loadAppState();
-    console.log('App state initialized');
     initializeLocalStorage('projects');
     initializeLocalStorage('tasks');
 
@@ -52,18 +51,8 @@ export const initializeApp = () => {
 
     setProjects(loadedProjects);
     setAllTasks(loadedAllTasks);
-
     synchronizeProjectTasks();
-
-    console.log('Projects loaded:', JSON.stringify(loadedProjects));
-    console.log('All Tasks loaded:', JSON.stringify(loadedAllTasks));
-    console.log('Projects and All Tasks loaded:', getProjects(), getAllTasks());
-
-    // // Render views
     renderAllTasksView(getAllTasks());
-
-    // renderProjectView(getCurrentProject());  // Make sure to call the render function for the project view
-    // updateMainContentForProject(getCurrentProject());
 
     return {
         projects: getProjects(),
@@ -77,14 +66,8 @@ export const synchronizeProjectTasks = () => {
     const allTasks = getAllTasks();
 
     projects.forEach(project => {
-        project.tasks.forEach((task, index) => {
-            const updatedTask = allTasks.find(t => t.id === task.id);
-            if (updatedTask) {
-                project.tasks[index] = updatedTask;
-            }
-        });
+        project.tasks = allTasks.filter(task => task.projectName === project.name && task.status !== 'complete');
     });
 
     setProjects(projects);
-    console.log("Projects synchronized with all tasks:", JSON.stringify(projects));
 };

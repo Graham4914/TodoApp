@@ -1,7 +1,8 @@
 // taskUtils.js
-import { getAllTasks, getCurrentProject, getProjects, setProjects, setAllTasks, saveAppState } from "../models/appState";
+import { getAllTasks, getCurrentProject, getProjects, setProjects, setAllTasks, saveAppState, getLastViewedContext, setLastViewedContext } from "../models/appState";
 import { createFilterContainer, renderTasks, renderFilteredTasks } from "../views/taskView";
 import { updateMainContentForProject } from "../controllers/projectController";
+import { synchronizeProjectTasks } from "../controllers/appController";
 
 export let currentFilterType = 'all';
 function setCurrentFilterType(filterType) {
@@ -14,7 +15,7 @@ export let isDueDateAsc = true;
 
 
 function toggleSortPriority(tasks) {
-    console.log('Tasks before sorting (Priority):', tasks);
+
     if (!Array.isArray(tasks)) {
         console.error('Expected tasks to be an array, but got:', tasks);
         return [];
@@ -33,7 +34,6 @@ function toggleSortPriority(tasks) {
 }
 
 function toggleSortDueDate(tasks) {
-    console.log('Tasks before sorting (Due Date):', tasks);
     if (!Array.isArray(tasks)) {
         console.error('Expected tasks to be an array, but got:', tasks);
         return [];
@@ -63,15 +63,14 @@ function isTaskDueToday(task) {
     today.setHours(0, 0, 0, 0);
     const dueDate = new Date(task.dueDate);
     const isDue = dueDate.toDateString() === today.toDateString();
-    console.log(`Task due today check: ${task.title}, Due: ${dueDate}, Today: ${today}, IsDue: ${isDue}`);
-    return isDue;
+    return isDue && task.status !== 'complete';
 }
 
 function isTaskUpcoming(task) {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     const dueDate = new Date(task.dueDate);
-    return dueDate > today && task.status !== 'complete';
+    return dueDate > today && task.status !== 'complete' && !isTaskDueToday(task);
 }
 
 function isTaskOverdue(task) {
@@ -88,9 +87,6 @@ function isTaskCompleted(task) {
 
 function calculateTaskCount(filterCriteria) {
     const allTasks = getAllTasks();
-
-    // console.log(`Calculating count for filter: ${filterCriteria}`);
-    // console.log('All tasks:', allTasks);
 
     switch (filterCriteria) {
         case 'all':
@@ -116,13 +112,8 @@ function updateCounters() {
             return;
         }
 
-        // console.log(`Updating counter for button with ID: ${buttonId}`); // Debugging line
 
         const span = button.querySelector('.task-counter');
-        if (!span) {
-            // console.error(`Counter span not found in button with ID ${buttonId}.`);
-            return;
-        }
 
         span.textContent = calculateTaskCount(filterCriteria);
     };
@@ -131,7 +122,7 @@ function updateCounters() {
     const filterTypes = ['all', 'today', 'upcoming', 'overdue', 'completed'];
 
     buttonIds.forEach((buttonId, index) => {
-        // console.log(`Attempting to update counter for button with ID: ${buttonId}`); // Debugging line
+
         updateCounter(filterTypes[index], buttonId);
     });
 }
@@ -197,8 +188,6 @@ const appendFilterContainerToProjects = (tasksContainer) => {
 
     const projectContent = tasksContainer.querySelector('.project-content');
     if (!projectContent) {
-
-        console.log(tasksContainer); // Debugging log to see the current tasksContainer
         return;
     }
 
@@ -219,21 +208,19 @@ const appendFilterContainerToProjects = (tasksContainer) => {
 
         if (sortPriorityButton && sortDueDateButton) {
             sortPriorityButton.addEventListener('click', () => {
-                console.log('Sort priority clicked'); // Debugging log
-                const currentProject = getCurrentProject(); // Get the current project
-                const tasks = currentProject ? currentProject.tasks : []; // Use current project's tasks
+                const currentProject = getCurrentProject();
+                const tasks = currentProject ? currentProject.tasks : [];
                 const sortedTasks = toggleSortPriority(tasks);
                 renderTasks(sortedTasks, currentProject.name);
                 updateMainContentForProject(currentProject);
             });
 
             sortDueDateButton.addEventListener('click', () => {
-                console.log('Sort due date clicked'); // Debugging log
-                const currentProject = getCurrentProject(); // Get the current project
-                const tasks = currentProject ? currentProject.tasks : []; // Use current project's tasks
+                const currentProject = getCurrentProject();
+                const tasks = currentProject ? currentProject.tasks : [];
                 const sortedTasks = toggleSortDueDate(tasks);
-                renderTasks(sortedTasks, currentProject.name);// maybe not needed
-                updateMainContentForProject(currentProject);// this was project
+                renderTasks(sortedTasks, currentProject.name);
+                updateMainContentForProject(currentProject);
             });
         } else {
             console.error('Sort buttons not found in the DOM');
@@ -242,7 +229,6 @@ const appendFilterContainerToProjects = (tasksContainer) => {
         console.log('Filter container already exists');
     }
 };
-
 
 
 const updateTaskStatus = (taskId, status) => {
@@ -257,30 +243,37 @@ const updateTaskStatus = (taskId, status) => {
 
     task.status = status;
 
-    if (status === 'complete') {
-        const project = projects.find(p => p.name === task.projectName);
-        if (project) {
-            project.tasks = project.tasks.filter(t => t.id !== taskId);
-        }
-    } else {
+    allTasks = allTasks.filter(t => t.id !== taskId);
+    allTasks.push(task);
+    setAllTasks(allTasks);
+
+    projects.forEach(project => {
+        project.tasks = project.tasks.filter(t => t.id !== taskId);
+    });
+
+    if (status !== 'complete') {
         const project = projects.find(p => p.name === task.projectName);
         if (project) {
             project.tasks.push(task);
         }
     }
 
-    setAllTasks(allTasks);
     setProjects(projects);
     saveAppState();
 };
+
+
 const reRenderCurrentView = () => {
-    if (currentFilterType) {
-        renderFilteredTasks(currentFilterType);
-    } else {
+    const lastViewedContext = getLastViewedContext();
+    if (lastViewedContext.type === 'project') {
         const currentProject = getCurrentProject();
         if (currentProject) {
             updateMainContentForProject(currentProject);
+        } else {
+            renderFilteredTasks(currentFilterType);
         }
+    } else {
+        renderFilteredTasks(lastViewedContext.filterType);
     }
 };
 

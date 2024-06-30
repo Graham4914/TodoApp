@@ -6,7 +6,7 @@ import {
     isTaskDueToday, isTaskOverdue, isTaskUpcoming, isTaskCompleted, calculateTaskCount, updateCounters, truncateText, appendFilterContainerToTasks, currentFilterType,
     setCurrentFilterType, getFilteredTasks, toggleSortDueDate, toggleSortPriority, isDueDateAsc, isPriorityAsc, showConfetti, updateTaskStatus, reRenderCurrentView
 } from "../utils/taskUtils";
-import { getAllTasks, getTaskById, allTasksArray, setAllTasks, getProjects, setProjects, saveAppState, projectsArray, getCurrentProject } from "../models/appState";
+import { getAllTasks, getTaskById, allTasksArray, setAllTasks, getProjects, setProjects, saveAppState, projectsArray, getCurrentProject, setLastViewedContext, getLastViewedContext } from "../models/appState";
 import { updateMainContentForProject } from "../controllers/projectController";
 import { synchronizeProjectTasks } from "../controllers/appController";
 
@@ -62,7 +62,6 @@ const createTaskForm = () => {
     const projectDropdown = generateProjectDropdown();
     form.appendChild(projectDropdown);
 
-
     // add Task from close button
     const closeButton = document.createElement('span');
     closeButton.innerHTML = '<i class="fas fa-times"></i>';
@@ -73,6 +72,7 @@ const createTaskForm = () => {
 
     const buttonContainer = document.createElement('div');
     buttonContainer.classList.add('button-container');
+
     //submit button
     const submitButton = document.createElement('button');
     submitButton.type = 'submit';
@@ -83,7 +83,6 @@ const createTaskForm = () => {
     form.appendChild(buttonContainer);
 
     form.addEventListener('submit', handleFormSubmit);
-
     const formContainer = document.createElement('div');
     formContainer.classList.add('form-container');
     formContainer.style.display = 'none';
@@ -92,84 +91,28 @@ const createTaskForm = () => {
     return formContainer;
 };
 
+
 const createTaskElement = (task) => {
     const taskElement = document.createElement('div');
     taskElement.classList.add('task');
     if (isTaskCompleted(task)) {
-        taskElement.classList.add('task-completed-animation');  // Apply completed class if the task is already completed
+        taskElement.classList.add('task-completed-animation');
     }
     const checkbox = document.createElement('input');
     checkbox.type = 'checkbox';
     checkbox.classList.add('task-checkbox');
     checkbox.checked = task.status === 'complete';
 
-
     checkbox.addEventListener('change', function (event) {
         event.stopImmediatePropagation();
-        task.status = this.checked ? 'complete' : 'incomplete'; // Update the task's completed property
+        const newStatus = this.checked ? 'complete' : 'incomplete';
+        taskElement.classList.toggle('task-completed-animation', this.checked);
 
-
-        if (this.checked) {
-            taskElement.classList.add('task-completed-animation');
-
-
-            setTimeout(() => {
-                updateTaskStatus(task.id, 'complete');  // Update the task status after a delay
-                reRenderCurrentView(); // Re-render tasks based on the current filter
-                updateCounters()
-
-            }, 1500);  // 1.5-second delay
-        } else {
-            taskElement.classList.remove('task-completed-animation');
-            updateTaskStatus(task.id, 'incomplete');  // Update the task status
-            reRenderCurrentView(); //Re-render tasks based on the current filter
-            updateCounters();  // Update task counters
-        }
-
-
-
-        // Debugging statement
-        console.log(`Task "${task.title}" status changed to: ${task.status}`);
-
-        // Update tasks arrays and save to local storage
-        let allTasks = getAllTasks();
-        const projects = getProjects();
-
-        console.log("Initial allTasks:", allTasks);
-        console.log("Initial projects:", projects);
-
-        // Remove task from allTasks array to avoid duplication
-        allTasks = allTasks.filter(t => t.id !== task.id);
-
-        if (this.checked) {
-            // Remove task from project tasks if marked complete
-            const project = projects.find(p => p.name === task.projectName);
-            if (project) {
-                project.tasks = project.tasks.filter(t => t.id !== task.id);
-            }
-            console.log(`Task "${task.title}" marked as complete and removed from its project tasks:`, project);
-        } else {
-            allTasks.push(task);
-            // Add task back to project tasks if marked incomplete
-            const project = projects.find(p => p.name === task.projectName);
-            if (project) {
-                project.tasks.push(task);
-            }
-            console.log(`Task "${task.title}" marked as incomplete and added back to project tasks:`, project)
-        }
-
-        if (!allTasks.some(t => t.id === task.id)) {
-            allTasks.push(task);
-        }
-        console.log("Updated allTasks before setting:", allTasks);
-
-        setAllTasks(allTasks);
-        setProjects(projects);
-        saveAppState();
-        updateCounters();
-
-        console.log('Filtered Tasks after status change:', getAllTasks().filter(t => t.status === 'complete'));
-
+        setTimeout(() => {
+            updateTaskStatus(task.id, newStatus);  // Update the task status after a delay
+            reRenderCurrentView();
+            updateCounters();
+        }, 1000);  // 1-second delay
     });
 
     taskElement.appendChild(checkbox);
@@ -191,26 +134,20 @@ const createTaskElement = (task) => {
     const taskInfoContainer = document.createElement('div');
     taskInfoContainer.classList.add('task-info-container');
 
-
     const priority = document.createElement('span');
     priority.classList.add('task-priority', task.priority.toLowerCase());
     priority.innerHTML = '<i class="fas fa-exclamation-triangle"></i>';
 
     const dueDate = document.createElement('span');
-    // dueDate.textContent = `${task.dueDate}`;
     dueDate.textContent = formatDate(task.dueDate);
     dueDate.classList.add('task-due-date');
-
 
     taskInfoContainer.appendChild(priority);
     taskInfoContainer.appendChild(dueDate);
 
-
-    // Container for delete button
     const deleteContainer = document.createElement('div');
     deleteContainer.classList.add('delete-container');
 
-    //Delete button
     const deleteBtn = document.createElement('button');
     deleteBtn.innerHTML = '<i class="fas fa-trash-alt"></i>';
     deleteBtn.classList.add('delete-button');
@@ -218,13 +155,11 @@ const createTaskElement = (task) => {
     deleteBtn.addEventListener('click', (event) => {
         event.stopPropagation();
         deleteTask(task);
-        // reRenderCurrentView();//check this line
-
+        reRenderCurrentView();
     });
 
     deleteContainer.appendChild(deleteBtn);
 
-    // Right-aligned container for due date, priority, and delete button
     const taskRightContainer = document.createElement('div');
     taskRightContainer.classList.add('task-right-container');
     taskRightContainer.appendChild(taskInfoContainer);
@@ -232,8 +167,6 @@ const createTaskElement = (task) => {
 
     taskElement.appendChild(taskDetail);
     taskElement.appendChild(taskRightContainer);
-
-
 
     taskElement.addEventListener('click', function (event) {
         if (event.target.type !== 'checkbox') {
@@ -244,13 +177,12 @@ const createTaskElement = (task) => {
     return taskElement;
 };
 
-
 const formatDate = (dateString) => {
     if (!dateString) return ''; // Return empty string if no date is provided
     const date = new Date(dateString);
     const day = String(date.getDate()).padStart(2, '0');
     const month = String(date.getMonth() + 1).padStart(2, '0'); // Month is 0-indexed
-    const year = String(date.getFullYear()).slice(-2); // Get last two digits of year
+    const year = String(date.getFullYear()).slice(-2);
     return `${day}/${month}/${year}`;
 };
 
@@ -293,10 +225,6 @@ function createTaskDetailModal() {
     const dueDateLabel = createLabel('modalDueDate', 'Due Date');
     const priorityLabel = createLabel('modalPriority', 'Priority');
     const projectLabel = createLabel('modalProjectSelect', 'Project');
-
-
-
-
 
     const description = document.createElement('textarea');
     description.classList.add('modal-description');
@@ -366,7 +294,6 @@ function createTaskList(tasks) {
         const taskElement = createTaskElement(task);
         tasksList.appendChild(taskElement);
     });
-
     return tasksList;
 };
 
@@ -377,7 +304,7 @@ const closeNewTaskModal = () => {
         return;
     }
 
-    form.reset(); // This will reset all form inputs to their default values
+    form.reset();
 
     const formContainer = document.querySelector('.form-container');
     if (formContainer) {
@@ -390,15 +317,12 @@ const closeNewTaskModal = () => {
 
 const showTaskForm = () => {
     const formContainer = document.querySelector('.form-container');
-    console.log("Attempting to show form, found container:", formContainer);
 
     if (formContainer) {
         formContainer.style.display = 'block';
     } else {
         console.error('Form container is missing from DOM');
     }
-
-
 };
 
 const toggleTaskFormVisibility = (show) => {
@@ -412,9 +336,14 @@ const toggleTaskFormVisibility = (show) => {
 
 
 function renderFilteredTasks(filterType) {
-    setCurrentFilterType(filterType); // Set the current filter type
+    setLastViewedContext({ //added
+        type: 'filter',
+        filterType,
+        projectId: null
+    });
+    setCurrentFilterType(filterType);
     const tasksContainer = document.querySelector('.tasks-container');
-    console.log(`Filter type received: ${filterType}`);  // Debug log to verify filter type received
+
 
     let headingText;
     if (filterType === 'all') {
@@ -422,11 +351,8 @@ function renderFilteredTasks(filterType) {
     } else {
         headingText = filterType.charAt(0).toUpperCase() + filterType.slice(1);
     }
-    console.log(`Setting heading to: ${headingText}`);
 
     const filteredTasks = getFilteredTasks(filterType);
-
-    console.log(`Rendering ${filterType} tasks:`, filteredTasks);
 
     renderTasks(filteredTasks, headingText);
 }
@@ -439,12 +365,12 @@ function createFilterContainer() {
     const sortPriorityButton = document.createElement('button');
     sortPriorityButton.id = 'sort-priority';
     sortPriorityButton.classList.add('sort-button');
-    sortPriorityButton.innerHTML = '<i class="fas fa-exclamation-triangle"></i>'; // FontAwesome icon for priority
+    sortPriorityButton.innerHTML = '<i class="fas fa-exclamation-triangle"></i>';
 
     const sortDueDateButton = document.createElement('button');
     sortDueDateButton.id = 'sort-due-date';
     sortDueDateButton.classList.add('sort-button');
-    sortDueDateButton.innerHTML = '<i class="fas fa-calendar-alt"></i>'; // FontAwesome icon for due date
+    sortDueDateButton.innerHTML = '<i class="fas fa-calendar-alt"></i>';
 
     filterContainer.appendChild(sortPriorityButton);
     filterContainer.appendChild(sortDueDateButton);
@@ -454,17 +380,14 @@ function createFilterContainer() {
 };
 
 
-
 const renderTasks = (tasks, headingText) => {
     const tasksContainer = document.querySelector('.tasks-container');
     tasksContainer.innerHTML = '';
-
 
     const heading = document.createElement('h2');
     heading.textContent = headingText;
 
     tasksContainer.appendChild(heading);
-    console.log("renderTasks called")
     appendFilterContainerToTasks(tasksContainer);
 
     tasks.forEach(task => {
@@ -476,11 +399,9 @@ const renderTasks = (tasks, headingText) => {
 function renderAllTasksView(tasks) {
     const tasksContainer = document.querySelector('.tasks-container');
     if (!tasksContainer) {
-        console.error("Tasks container not found in the DOM");
         return;
     }
 
-    console.log('Rendering all tasks:', tasks);  // Debug log
 
     if (!Array.isArray(tasks)) {
         console.error("Expected an array of tasks, but received:", tasks);
@@ -506,14 +427,14 @@ const showTaskDetailModal = (task) => {
         taskDetailModal = createTaskDetailModal();
     }
 
-    taskDetailModal.dataset.taskId = task.id; // Store the task ID for later use
+    taskDetailModal.dataset.taskId = task.id;
     document.getElementById('modalTitle').value = task.title;
     document.getElementById('modalDescription').value = task.description;
     document.getElementById('modalDueDate').value = task.dueDate;
     document.getElementById('modalPriority').value = task.priority.toLowerCase();
     document.getElementById('modalProjectSelect').value = task.projectName;
 
-    // Ensure event listeners are added only once
+
     const saveButton = document.querySelector('.save-button');
     const cancelButton = document.querySelector('.cancel-button');
 
@@ -523,7 +444,6 @@ const showTaskDetailModal = (task) => {
 
     taskDetailModal.style.display = 'block';
 };
-
 
 
 const closeTaskDetailModal = (saveChanges) => {
@@ -539,7 +459,7 @@ const closeTaskDetailModal = (saveChanges) => {
 
             // Find the task to update it
             const taskId = taskDetailModal.dataset.taskId;
-            const task = getTaskById(taskId); // Implement getTaskById to find a task by its ID
+            const task = getTaskById(taskId);
             if (task) {
                 task.title = title;
                 task.description = description;
@@ -574,20 +494,14 @@ const closeTaskDetailModal = (saveChanges) => {
                 synchronizeProjectTasks();
                 saveAppState();
 
-
                 // Determine the current view and update accordingly
                 const currentProject = getCurrentProject();
                 if (currentProject && currentProject.name === projectName) {
                     updateMainContentForProject(currentProject);
-
                 } else {
-
                     reRenderCurrentView();
                 }
-
-
-                updateProjectListUI(); // To reflect changes in the project list if needed
-
+                updateProjectListUI();
             }
         }
         taskDetailModal.style.display = 'none';

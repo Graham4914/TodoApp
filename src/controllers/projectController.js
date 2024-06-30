@@ -3,7 +3,7 @@ import { Project } from "../models/projectModel";
 import { saveToLocalStorage, loadFromLocalStorage } from "../utils/localStorage";
 import { updateProjectListUI, createProjectContent, updateAllProjectDropdowns, generateProjectDropdown } from "../views/projectView";
 import { createTaskList, renderAllTasksView, renderTasks, createTaskElement } from "../views/taskView";
-import { addProject, getProjects, setProjects, setCurrentProject, getCurrentProject, getAllTasks, currentProject, saveAppState, } from "../models/appState";
+import { addProject, getProjects, setProjects, setCurrentProject, getCurrentProject, getAllTasks, currentProject, saveAppState, getLastViewedContext, setLastViewedContext } from "../models/appState";
 import { appendFilterContainerToProjects } from "../utils/taskUtils";
 
 
@@ -39,16 +39,17 @@ const deleteProject = (project) => {
 };
 
 
-const updateMainContentForProject = () => {
-    const project = getCurrentProject();
+const updateMainContentForProject = (project) => {
+    setLastViewedContext({
+        type: 'project',
+        filterType: null,
+        projectId: project.id
+    });
+
     if (!project) {
         console.error("No project provided to updateMainContentForProject");
         return;
     }
-
-    console.log("update main content from project called:", project.name);
-
-    console.log("Project tasks:", JSON.stringify(project.tasks));
 
     const tasksContainer = document.querySelector('.tasks-container');
     if (!tasksContainer) {
@@ -64,14 +65,16 @@ const updateMainContentForProject = () => {
     // Create and append the tasks list
     const tasksList = document.createElement('div');
     tasksList.classList.add('tasks-list');
-    project.tasks.forEach(task => {
+
+    const filteredTasks = project.tasks.filter(task => task.status !== 'complete');
+    filteredTasks.forEach(task => {
         const taskElement = createTaskElement(task);
         tasksList.appendChild(taskElement);
     });
+
+
     tasksContainer.appendChild(tasksList);
-
     appendFilterContainerToProjects(tasksContainer);
-
 };
 
 function saveProjectName(project, newName) {
