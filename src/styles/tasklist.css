@@ -1,10 +1,14 @@
 .task {
-    position: relative;
-    padding: 10px 5px ;
     display: flex;
-    align-items: center;
+    align-items: center; /* Center items vertically */
+    justify-content: space-between; /* Space items evenly */
+    padding: 10px;
     border-bottom: 1px solid #ccc;
+    /* margin-bottom: 10px; */
+    background-color: #fff;
+
 }
+   
 
 .task:hover {
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
@@ -13,7 +17,7 @@
 /* task list*/
 .tasks-container  {
     width: 90%;
-    padding: 20px;
+    padding: 20px 5px;
     box-sizing: border-box;
     border: 1px solid #ccc;
     background-color: #f8f8f8;
@@ -25,10 +29,9 @@
 }
 
 
-/* Tasks element checkbox*/
 .task-checkbox {
     appearance: none;
-    background-color: fff;
+    background-color: #fff; /* Added missing # */
     border: 1px solid #ccc;
     padding: 0px;
     border-radius: 50%;
@@ -37,13 +40,17 @@
     height: 20px;
     position: relative;
     margin-right: 15px;
+    flex-shrink: 0; /* Prevent shrinking */
+    display: inline-block; /* Ensure it behaves like an inline element */
 }
 
+/* Checked state for the checkbox */
 .task-checkbox:checked {
     background-color: #4caf50;
     border-color: #4caf50;
 }
 
+/* Inner circle for checked state */
 .task-checkbox:checked:after {
     content: '';
     position: absolute;
@@ -54,7 +61,6 @@
     background-color: #fff;
     border-radius: 50%;
 }
-
 
 /* Tasks Header Styles */
 .task-header-container {
@@ -233,6 +239,12 @@ input, textarea, select {
     border-radius: 3px;
     transition: background-color 0.3s, color 0.3s;
 }
+
+.toggle-dark-mode:hover {
+    background-color: #34495e;
+    color: #b3cde0;
+}
+
 
 body.dark-mode {
     background-color: #333; /* Dark background color */

@@ -153,11 +153,18 @@
     gap: 10px;
 }
 
+.task-form textarea{
+    height :200px;
+}
+
+.modal-body textarea {
+    height :200px;
+}
 .modal-body input,
 .modal-body textarea,
 .modal-body select {
     width: 100%;
-    padding: 10px;
+    padding: 5px;
     border: 1px solid #ccc;
     border-radius: 5px;
     font-size: 16px;
@@ -185,6 +192,7 @@
     border: none;
     border-radius: 5px;
     cursor: pointer;
+    margin-top: 10px;
 }
 
 .save-button:hover {
@@ -198,6 +206,7 @@
     border: none;
     border-radius: 5px;
     cursor: pointer;
+    margin-top: 10px;
 }
 
 .cancel-button:hover {

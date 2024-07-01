@@ -74,8 +74,9 @@ button[type="submit"] {
     display: flex;
     align-items: center;
     justify-content: center;
+    flex-wrap: wrap;
     padding: 5px;
-    height: 3rem;
+    height: auto;
     background-color: #f4f4f4;
     position: relative;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
@@ -86,6 +87,7 @@ button[type="submit"] {
     flex-grow: 1;
     display: flex;
     justify-content: flex-start;
+    min-width: 150px;
     
 }
 
@@ -106,6 +108,8 @@ button[type="submit"] {
 .button-wrapper {
     display: flex;
     align-items: center;
+    flex-wrap: wrap; /* Allow wrapping */
+     /* Add margin to give space between rows */
 }
 
 .project-title-input:focus {
@@ -226,4 +230,32 @@ form.add-project-form {
     background-color: #e3f2fd; /* Slight shade over the background color */
     transform: scale(1.01); /* Slight zoom effect */
     box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3); /* Slightly heavier shadow on hover */
+}
+
+/* Media query for smaller screens */
+@media (max-width: 600px) {
+    .project-header {
+        justify-content: space-between;
+    }
+
+    .project-title-input {
+        font-size: 16px;
+        max-width: 150px;
+    }
+
+    .add-task-button i, .close-button i, .delete-button i {
+        font-size: 16px;
+    }
+
+    .button-wrapper {
+        flex-grow: 1;
+        justify-content: flex-end;
+        margin-left: 0;
+        margin-top: 5px;
+    }
+
+    .add-task-button, .close-button, .delete-button {
+        padding: 3px;
+        margin: 0 5px;
+    }
 }
