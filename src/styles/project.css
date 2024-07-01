@@ -254,8 +254,5 @@ form.add-project-form {
         margin-top: 5px;
     }
 
-    .add-task-button, .close-button, .delete-button {
-        padding: 3px;
-        margin: 0 5px;
-    }
+    
 }

@@ -142,8 +142,9 @@ const createTaskElement = (task) => {
     dueDate.textContent = formatDate(task.dueDate);
     dueDate.classList.add('task-due-date');
 
-    taskInfoContainer.appendChild(priority);
+
     taskInfoContainer.appendChild(dueDate);
+    taskInfoContainer.appendChild(priority);
 
     const deleteContainer = document.createElement('div');
     deleteContainer.classList.add('delete-container');

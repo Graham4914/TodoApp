@@ -165,7 +165,7 @@ span.task-description {
 }
 
 .delete-container {
-    margin-top: 5px; /* Adjust as needed */
+    margin-top: 2px; /* Adjust as needed */
 }
 
  .fas.fa-trash-alt {
@@ -181,12 +181,13 @@ span.task-description {
     flex-direction: column;
     align-items: flex-end;
     gap: 5px;
-    width: 150px;
+    width: 50px;
     
 }
 
 .task-info-container {
     display: flex;
+    flex-direction: column;
     align-items: center;
     gap: 5px; /* Adjust the gap between elements as needed */
     margin-right: 3px;
@@ -237,12 +238,13 @@ input, textarea, select {
     z-index: 1000;
     font-size: 1.2rem; /* Larger icon */
     border-radius: 3px;
-    transition: background-color 0.3s, color 0.3s;
+    background-color: transparent;
 }
 
 .toggle-dark-mode:hover {
-    background-color: #34495e;
-    color: #b3cde0;
+    background-color: #93bedd;
+    transition: background-color 0.3s, color 0.3s;
+    
 }
 
 
