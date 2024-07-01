@@ -6,8 +6,7 @@
 .filter-container {
     display: flex;
     justify-content: flex-end;
-    gap: 1rem;
-    margin-bottom: 10px;
+    margin: 0 2px 10px 0;
 }
 
 .sort-button {
@@ -49,15 +48,13 @@ body.dark-mode .main-heading {
     position: fixed;
     top: 20px;
     left: 20px;
-    background-color: #d6eaf8;
-    
     border: none;
     padding: 5px;
     cursor: pointer;
-    z-index: 1000; /* Ensure it appears above other elements */
+    z-index: 1000; 
      /* Larger icon */
     border-radius: 3px;
-    transition: background-color 0.3s, color 0.3s;
+    background: transparent;
 }
 
 .burger-menu i {
@@ -66,12 +63,11 @@ body.dark-mode .main-heading {
 }
 
 .burger-menu:hover {
-    background-color: #2c3e50;
+    transition: background-color 0.3s, color 0.3s;
+    background-color: #93bedd;
 }
 
-.burger-menu i:hover {
-    color: #d6eaf8;
-}
+
 .sidebar {
     position: fixed;
     top: 0;
@@ -86,11 +82,11 @@ body.dark-mode .main-heading {
     box-sizing: border-box; 
     transition: width 0.3s, transform 0.3s;
     left: 0;
-    transform: translateX(0); /* Show by default */
+    transform: translateX(0); 
 }
 
 .sidebar.hidden {
-    transform: translateX(-100%); /* Hide when 'hidden' class is added */
+    transform: translateX(-100%); 
 }
 
 /* Main content styles*/
@@ -121,7 +117,7 @@ body.dark-mode .main-heading {
     font-size: 2em;
     text-align: left;
     margin: 0 auto 0;
-    color: #333;  /* Adjust color as needed */
+    color: #333;  
     box-sizing: border-box;
 }
 
@@ -135,10 +131,10 @@ body.dark-mode .main-heading {
 
 @media (max-width: 768px) {
     .sidebar {
-        width: 250px; /* Adjust sidebar width for smaller screens */
+        width: 250px; 
     }
     .main-content {
-        margin-left: 250px; /* Match the adjusted sidebar width */
+        margin-left: 250px; 
         width: calc(100% - 250px);
     }
 }
@@ -152,6 +148,14 @@ body.dark-mode .main-heading {
     .main-content {
         margin-left: 400px;
         width: calc(100% - 400px);
+    }
+
+    button.burger-menu {
+        left: 5px; 
+    }
+
+    button.toggle-dark-mode {
+        right: 5px; 
     }
 }
 
